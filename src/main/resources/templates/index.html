@@ -4,31 +4,133 @@
 <title>Simple Map</title>
 <meta name="viewport" content="initial-scale=1.0">
 <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+
+<style>
+/* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+#map {
+	height: 100%;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+</style>
 </head>
-<body ng-app="application">yrdy
-    <div id="map"></div>
-    <script>
-      var map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 8
-        });
-      }
-    </script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD291QMQdp512dSWTthRQ0-hCN2z32I96o&callback=initMap" async defer></script>
+<body ng-app="application">
+	yrdy
+	<div id="map"></div>
+	<script>
+		var map;
+		function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+				center : {
+					lat : 22.334600,
+					lng : 114.147636
+				},
+				zoom : 16
+			});
+
+			var lck = {
+				lat : 22.334600,
+				lng : 114.147636
+			};
+			var marker = new google.maps.Marker({
+				position : lck,
+				map : map
+			});
+
+			google.maps.event.addListener(map, "rightclick", function(event) {
+				var lat = event.latLng.lat();
+				var lng = event.latLng.lng();
+				$('#coord').find('[name="lat"]').val(lat);
+				$('#coord').find('[name="lng"]').val(lng);
+
+				console.log("lat : " + lat + ", lng : " + lng);
+				 Popup = createPopupClass();
+				  popup = new Popup(
+				      new google.maps.LatLng(lat, lng),
+				      document.getElementById('coord'));
+				  popup.setMap(map);
+			});
+		}
+		function createPopupClass() {
+			  /**
+			   * A customized popup on the map.
+			   * @param {!google.maps.LatLng} position
+			   * @param {!Element} content The bubble div.
+			   * @constructor
+			   * @extends {google.maps.OverlayView}
+			   */
+			  function Popup(position, content) {
+			    this.position = position;
+
+			    content.classList.add('popup-bubble');
+
+			    // This zero-height div is positioned at the bottom of the bubble.
+			    var bubbleAnchor = document.createElement('div');
+			    bubbleAnchor.classList.add('popup-bubble-anchor');
+			    bubbleAnchor.appendChild(content);
+
+			    // This zero-height div is positioned at the bottom of the tip.
+			    this.containerDiv = document.createElement('div');
+			    this.containerDiv.classList.add('popup-container');
+			    this.containerDiv.appendChild(bubbleAnchor);
+
+			    // Optionally stop clicks, etc., from bubbling up to the map.
+			    google.maps.OverlayView.preventMapHitsAndGesturesFrom(this.containerDiv);
+			  }
+			  // ES5 magic to extend google.maps.OverlayView.
+			  Popup.prototype = Object.create(google.maps.OverlayView.prototype);
+
+			  /** Called when the popup is added to the map. */
+			  Popup.prototype.onAdd = function() {
+			    this.getPanes().floatPane.appendChild(this.containerDiv);
+			  };
+
+			  /** Called when the popup is removed from the map. */
+			  Popup.prototype.onRemove = function() {
+			    if (this.containerDiv.parentElement) {
+			      this.containerDiv.parentElement.removeChild(this.containerDiv);
+			    }
+			  };
+
+			  /** Called each frame when the popup needs to draw itself. */
+			  Popup.prototype.draw = function() {
+			    var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
+
+			    // Hide the popup when it is far out of view.
+			    var display =
+			        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
+			        'block' :
+			        'none';
+
+			    if (display === 'block') {
+			      this.containerDiv.style.left = divPosition.x + 'px';
+			      this.containerDiv.style.top = divPosition.y + 'px';
+			    }
+			    if (this.containerDiv.style.display !== display) {
+			      this.containerDiv.style.display = display;
+			    }
+			  };
+
+			  return Popup;
+			}
+	</script>
+	<div id="coord">
+		<input type="hidden" name="lat" /> <input type="hidden" name="lng" />
+		<table cellpadding="0" cellspacing="0">
+			<tr><td><a href="#alert">Alert</a></td></tr>
+			<tr><td><a href="#warning">Warning</a></td></tr>
+			<tr><td><a href="#info">Info</a></td></tr>
+			
+		</table>
+	</div>
+	<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD291QMQdp512dSWTthRQ0-hCN2z32I96o&callback=initMap"
+		async defer></script>
 </body>
 </html>
