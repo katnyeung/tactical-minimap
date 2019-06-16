@@ -1,4 +1,4 @@
-package org.tactical.controller;
+package org.tactical.minimap.controller;
 
 import javax.servlet.http.HttpSession;
 
@@ -13,9 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class RouteController {
 	Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-	
+
 	@GetMapping(path = "/")
 	public String index(HttpSession session, Model model) {
+		logger.info("index_openlayers");
+		return "index_openlayers";
+	}
+
+	@GetMapping(path = "/2")
+	public String index2(HttpSession session, Model model) {
 		logger.info("index");
 		return "index";
 	}
