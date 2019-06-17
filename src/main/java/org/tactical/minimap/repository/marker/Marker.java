@@ -3,6 +3,7 @@ package org.tactical.minimap.repository.marker;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -15,11 +16,13 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.tactical.minimap.repository.MarkerResponse;
 import org.tactical.minimap.repository.User;
 import org.tactical.minimap.util.Auditable;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -30,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "lat,lng") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "marker_Type")
+@DiscriminatorColumn(name = "marker_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public abstract class Marker extends Auditable<String> {
 	public static final List<Class<? extends Marker>> MarkerClassList = new ArrayList<Class<? extends Marker>>();
@@ -56,9 +59,6 @@ public abstract class Marker extends Auditable<String> {
 	@Column(precision = 20, scale = 10)
 	Double lng;
 
-	Long upVote = (long) 0;
-	Long downVote = (long) 0;
-
 	Long expire = (long) 0;
 
 	@JsonIgnore
@@ -69,6 +69,9 @@ public abstract class Marker extends Auditable<String> {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", referencedColumnName = "userId")
 	User user;
+
+	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
+	List<MarkerResponse> markerResponseList;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -92,22 +95,6 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setLng(Double lng) {
 		this.lng = lng;
-	}
-
-	public Long getUpVote() {
-		return upVote;
-	}
-
-	public void setUpVote(Long upVote) {
-		this.upVote = upVote;
-	}
-
-	public Long getDownVote() {
-		return downVote;
-	}
-
-	public void setDownVote(Long downVote) {
-		this.downVote = downVote;
 	}
 
 	public Long getExpire() {

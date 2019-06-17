@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tactical.minimap.DAO.MarkerDAO;
-import org.tactical.minimap.repository.marker.InfoMarker;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
@@ -29,7 +28,7 @@ public class MarkerService {
 				if (marker.getType().equals(markerDTO.getType())) {
 					marker = marker.fill(markerDTO);
 					markerDAO.save(marker);
-				}
+				}		
 
 			} catch (InstantiationException | IllegalAccessException e) {
 				// TODO Auto-generated catch block
