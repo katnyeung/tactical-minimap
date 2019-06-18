@@ -5,6 +5,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
+import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -37,6 +38,8 @@ public class InfoMarker extends Marker {
 		infoMarker.setLat(markerDTO.getLat());
 		infoMarker.setLng(markerDTO.getLng());
 		infoMarker.setMessage(markerDTO.getMessage());
+		infoMarker.setExpire((long) 120);
+		infoMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 		return infoMarker;
 	}
 

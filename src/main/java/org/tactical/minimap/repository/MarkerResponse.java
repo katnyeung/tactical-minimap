@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "marker_response_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class MarkerResponse extends Auditable<String> {
+public abstract class MarkerResponse extends Auditable<String> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +31,29 @@ public class MarkerResponse extends Auditable<String> {
 	Marker marker;
 
 	String uuid;
+
+	public Long getMarkerResponseId() {
+		return markerResponseId;
+	}
+
+	public void setMarkerResponseId(Long markerResponseId) {
+		this.markerResponseId = markerResponseId;
+	}
+
+	public Marker getMarker() {
+		return marker;
+	}
+
+	public void setMarker(Marker marker) {
+		this.marker = marker;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 
 }

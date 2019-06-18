@@ -4,6 +4,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 
+import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -35,7 +36,7 @@ public class WarningMarker extends Marker {
 		warningMarker.setLat(markerDTO.getLat());
 		warningMarker.setLng(markerDTO.getLng());
 		warningMarker.setExpire((long) 60);
-
+		warningMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 		return warningMarker;
 	}
 }

@@ -61,26 +61,29 @@ public class MarkerCache {
 		this.expire = expire;
 	}
 
-	public Map<String, Object> toHashMap() {
-		HashMap<String, Object> hashMap = new HashMap<>();
-		hashMap.put("lat", lat);
-		hashMap.put("lng", lng);
-		hashMap.put("upVote", upVote);
-		hashMap.put("downVote", downVote);
+	public Map<String, String> toHashMap() {
+		HashMap<String, String> hashMap = new HashMap<>();
+		hashMap.put("lat", "" + lat);
+		hashMap.put("lng", "" + lng);
+		hashMap.put("upVote", "" + upVote);
+		hashMap.put("downVote", "" + downVote);
 
-		hashMap.put("expire", expire);
+		hashMap.put("expire", "" + expire);
 		return hashMap;
 	}
 
 	public static MarkerCache fromHashMap(Map<Object, Object> objMap) {
-		MarkerCache mc = new MarkerCache();
-		mc.setLat(Double.parseDouble((String) objMap.get("lat")));
+		if (objMap != null && objMap.get("lat") != null && objMap.get("lng") != null) {
+			MarkerCache mc = new MarkerCache();
+			mc.setLat(Double.parseDouble((String) objMap.get("lat")));
+			mc.setLng(Double.parseDouble((String) objMap.get("lng")));
+			mc.setUpVote(Integer.parseInt((String) objMap.get("upVote")));
+			mc.setDownVote(Integer.parseInt((String) objMap.get("downVote")));
+			mc.setExpire(Integer.parseInt((String) objMap.get("expire")));
 
-		mc.setLng(Double.parseDouble((String) objMap.get("lng")));
-		mc.setUpVote(Integer.parseInt((String) objMap.get("upVote")));
-		mc.setDownVote(Integer.parseInt((String) objMap.get("downVote")));
-		mc.setExpire(Integer.parseInt((String) objMap.get("expire")));
-
-		return mc;
+			return mc;
+		} else {
+			return null;
+		}
 	}
 }

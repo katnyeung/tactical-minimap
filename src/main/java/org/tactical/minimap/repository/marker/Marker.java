@@ -25,6 +25,7 @@ import javax.validation.constraints.Size;
 import org.tactical.minimap.repository.MarkerResponse;
 import org.tactical.minimap.repository.User;
 import org.tactical.minimap.util.Auditable;
+import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,11 +37,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @DiscriminatorColumn(name = "marker_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public abstract class Marker extends Auditable<String> {
-	public static final List<Class<? extends Marker>> MarkerClassList = new ArrayList<Class<? extends Marker>>();
+	public static final List<Class<? extends Marker>> ClassList = new ArrayList<Class<? extends Marker>>();
 
 	static {
-		MarkerClassList.add(InfoMarker.class);
-		MarkerClassList.add(WarningMarker.class);
+		ClassList.add(InfoMarker.class);
+		ClassList.add(WarningMarker.class);
 	}
 
 	@Transient
@@ -59,6 +60,7 @@ public abstract class Marker extends Auditable<String> {
 	@Column(precision = 20, scale = 10)
 	Double lng;
 
+	@JsonIgnore
 	Long expire = (long) 0;
 
 	@JsonIgnore
@@ -66,12 +68,17 @@ public abstract class Marker extends Auditable<String> {
 	@Size(max = 1)
 	private String status;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", referencedColumnName = "userId")
 	User user;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
 	List<MarkerResponse> markerResponseList;
+
+	@Transient
+	MarkerCache markerCache;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -119,6 +126,22 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public List<MarkerResponse> getMarkerResponseList() {
+		return markerResponseList;
+	}
+
+	public void setMarkerResponseList(List<MarkerResponse> markerResponseList) {
+		this.markerResponseList = markerResponseList;
+	}
+
+	public MarkerCache getMarkerCache() {
+		return markerCache;
+	}
+
+	public void setMarkerCache(MarkerCache markerCache) {
+		this.markerCache = markerCache;
 	}
 
 }

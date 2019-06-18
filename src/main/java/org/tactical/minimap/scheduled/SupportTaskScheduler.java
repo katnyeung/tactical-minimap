@@ -2,11 +2,20 @@ package org.tactical.minimap.scheduled;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.service.MarkerService;
+import org.tactical.minimap.service.RedisService;
+import org.tactical.minimap.util.ConstantsUtil;
+import org.tactical.minimap.util.MarkerCache;
 
 @Component
 public class SupportTaskScheduler {
@@ -14,10 +23,48 @@ public class SupportTaskScheduler {
 
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	@Scheduled(cron = "0 0 */4 * * *")
+	@Autowired
+	RedisService redisService;
+
+	@Autowired
+	MarkerService markerService;
+
+	@Scheduled(fixedRate = 5000)
+	// @Scheduled(cron = "0 0 */4 * * *")
 	public void makerManager() {
 		logger.info("Cron Task :: Execution Time - " + dateTimeFormatter.format(LocalDateTime.now()));
 
+		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
+		List<Long> markerIdList = new ArrayList<>();
+
+		for (MarkerCache mc : markerCacheList) {
+			if (mc.getExpire() <= 0) {
+				// turn expire = 0 to D active
+				markerService.updateStatus(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED);
+				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
+			} else {
+				// count down the timer of those marker in redis
+				mc.setExpire(mc.getExpire() - 1);
+				redisService.saveMarkerCache(mc);
+
+				markerIdList.add(mc.getMarkerId());
+
+			}
+		}
+
+		List<Marker> markerList = null;
+
+		// find the Marker status = A and not exist in redis
+		if (markerIdList != null && markerIdList.size() > 0) {
+			markerList = markerService.findActiveMarkersNotInCache(markerIdList);
+		} else {
+			markerList = markerService.findActiveMarkers();
+		}
+
+		for (Marker marker : markerList) {
+			logger.info("found marker : " + marker.getMarkerId());
+			redisService.saveMarkerCache(marker);
+		}
 	}
 
 }
