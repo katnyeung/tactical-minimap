@@ -37,7 +37,14 @@ public class WarningMarker extends Marker {
 		warningMarker.setLng(markerDTO.getLng());
 		warningMarker.setExpire((long) 60);
 		warningMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		warningMarker.setMessage(markerDTO.getMessage());
 		warningMarker.setUuid(markerDTO.getUuid());
 		return warningMarker;
 	}
+	
+	@Override
+	public String getIcon() {
+		return "<i class=\"fas fa-exclamation-triangle fa-3x m-n1 rounded\" style=\"padding:1px;border:2px solid black;color:#FF0000\"></i>";
+	}
+
 }

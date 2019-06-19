@@ -1,8 +1,6 @@
 package org.tactical.minimap.controller;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,8 +40,7 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@PostMapping("/add")
-	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session,
-			MarkerDTO markerDTO) {
+	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 		markerDTO.setUuid(uuid);
 		logger.info("uuid : " + uuid);
@@ -61,26 +58,49 @@ public class MarkerRestController {
 	}
 
 	@GetMapping("/list")
-	public DefaultResult getMarker(MarkerDTO markerDTO) {
+	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		String uuid = CookieUtil.getUUID(request, response, session);
+
 		Double lat = markerDTO.getLat();
 		Double lng = markerDTO.getLng();
 
 		List<Marker> markerList = markerService.findMarkers(lat, lng, ConstantsUtil.RANGE);
 
-		markerList.stream().forEach(m -> m.setMarkerCache(redisService.getMarkerCacheByMarkerId(m.getMarkerId())));
+		markerList.stream().forEach(m -> {
+			m.setMarkerCache(redisService.getMarkerCacheByMarkerId(m.getMarkerId()));
+			if (m.getUuid().equals(uuid)) {
+				m.setControllable(true);
+			}
+		});
 
 		return MarkerListResult.success(markerList);
 
 	}
 
-	@GetMapping("/up")
-	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
-			HttpServletResponse response, HttpSession session) {
+	@PostMapping("/move")
+	public DefaultResult move(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
+		String uuid = CookieUtil.getUUID(request, response, session);
+
+		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
+
+		if (marker.getUuid().equals(uuid)) {
+			markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
+			return DefaultResult.success();
+		} else {
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND + " seconds");
+		}
+
+	}
+
+	@PostMapping("/up")
+	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
-		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(),
-				ConstantsUtil.RANGE);
+		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
+		int expireRate = markerResponseService.getExpireRate(mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
+		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate, "up")) {
@@ -91,14 +111,14 @@ public class MarkerRestController {
 
 	}
 
-	@GetMapping("/down")
-	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
-			HttpServletResponse response, HttpSession session) {
+	@PostMapping("/down")
+	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
-		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(),
-				ConstantsUtil.RANGE);
+		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
+		int expireRate = markerResponseService.getExpireRate(mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
+		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate, "down")) {
@@ -121,10 +141,10 @@ public class MarkerRestController {
 
 			} else if (type.equals("down")) {
 				mc.setDownVote(mc.getDownVote() + 1);
-				mc.setExpire(mc.getExpire() + expireRate);
+				mc.setExpire(mc.getExpire() - expireRate);
 				markerResponseService.downVote(marker, uuid);
 			}
-
+			logger.info("markerCache : " + mc.toHashMap());
 			redisService.saveMarkerCache(mc);
 
 			return true;

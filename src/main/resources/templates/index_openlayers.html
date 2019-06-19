@@ -4,13 +4,19 @@
 <title>Simple Map</title>
 <meta name="viewport" content="initial-scale=1.0">
 <meta charset="utf-8">
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<style>
+.iconMarkup {
+	margin-left: -50px !improtant ;
+	margin-top: -10px !important;
+}
+</style>
 <style>
 #map {
 	width: 100%;
@@ -19,7 +25,6 @@
 </style>
 </head>
 <body>
-	asdsads
 	<div id="map"></div>
 
 	<script>
@@ -34,35 +39,29 @@
 
 			map = L.map('map').setView([ 22.2757, 114.1648 ], 17).addLayer(osm);
 
-			var popup = L.popup();
+			var menu = L.popup();
 
 			function onMapClick(e) {
-				$('#mouseLat').val(e.latlng.lat);
-				$('#mouseLng').val(e.latlng.lng);
-
-				popup.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);
+				menu.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);
+				console.log(menu.getLatLng());
 			}
 
 			map.on('contextmenu', onMapClick);
+
 			map.on('dragend', function(e) {
-				console.log(map.getCenter());
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			});
 
-			updateMarkers(map.getCenter().lat, map.getCenter().lng);
-
 			$("#btnInfoMarker").click(function(e) {
 				e.preventDefault();
-				var lat = $('#mouseLat').val();
-				var lng = $('#mouseLng').val();
 				var message = $('#markerMessage').val();
 
 				$.ajax({
 					type : "POST",
 					url : '/marker/add',
 					data : {
-						'lat' : lat,
-						'lng' : lng,
+						'lat' : menu.getLatLng().lat,
+						'lng' : menu.getLatLng().lng,
 						'type' : 'info',
 						'message' : message
 					},
@@ -73,19 +72,17 @@
 			});
 
 			$("#btnWarningMarker").click(function(e) {
-				console.log(e);
 				e.preventDefault();
-				var lat = $('#mouseLat').val();
-				var lng = $('#mouseLng').val();
-				var message = $('markerMessage').val();
+				var message = $('#markerMessage').val();
 
 				$.ajax({
 					type : "POST",
 					url : '/marker/add',
 					data : {
-						'lat' : lat,
-						'lng' : lng,
+						'lat' : menu.getLatLng().lat,
+						'lng' : menu.getLatLng().lng,
 						'type' : 'warning',
+						'message' : message
 					},
 					success : function(data) {
 						updateMarkers(map.getCenter().lat, map.getCenter().lng);
@@ -109,34 +106,111 @@
 					success : function(data) {
 
 						data.markerList.forEach(function(item) {
-							var marker = L.marker([ item.lat, item.lng ])
-								.addTo(map)
-								.bindPopup("[" + item.lat + "," + item.lng + "], " + item.message + "\n" + JSON.stringify(item.markerCache))
-								;
+							var marker;
+							var message = item.message == null ? '' : '<div class="popupMessage" data-message="' + item.message + '">' + item.message + '</div>';
+
+							var content = 'loading';
+							if (item.markerCache != null) {
+								content = '<a href="#" data-id="'+item.markerId+'" class="btnUp">' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown">' + item.markerCache.downVote + '</a> ' + item.markerCache.expire + ' <br/>' + message;
+							}
+
+							var iconMarkup = L.divIcon({
+								html : item.icon,
+								className : 'iconMarkup'
+							})
+
+							var popup = L.popup({
+								closeOnClick : false,
+								autoClose : false,
+								autoPan : false
+							}).setContent(content);
+
+							if (item.controllable) {
+								marker = L.marker([ item.lat, item.lng ], {
+									draggable : item.controllable,
+									icon : iconMarkup
+								}).addTo(map).bindPopup(popup).openPopup();
+
+								marker.on('dragend', function(e) {
+									$.ajax({
+										type : "POST",
+										url : '/marker/move',
+										data : {
+											'lat' : e.target.getLatLng().lat,
+											'lng' : e.target.getLatLng().lng,
+											'markerId' : item.markerId
+										},
+										success : function(data) {
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);
+										}
+									});
+								});
+							} else {
+								marker = L.marker([ item.lat, item.lng ]).addTo(map).bindPopup(popup);
+							}
+
 							allMarkerList.push(marker);
+
+						});
+						$(".popupMessage").on("dblclick",function(e){
+							$(this).replaceWith("<input type=\"text\" value=\"" + $(this).data("message") + "\"/>");
+						})
+						$(".btnUp").on("click", function(e) {
+							e.preventDefault();
+							console.log($(this).data("id"));
+
+							$.ajax({
+								type : "POST",
+								url : '/marker/up',
+								data : {
+									'markerId' : $(this).data("id")
+								},
+								success : function(data) {
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}
+							});
 						});
 
+						$(".btnDown").on("click", function(e) {
+							e.preventDefault();
+							console.log($(this).data("id"));
+
+							$.ajax({
+								type : "POST",
+								url : '/marker/down',
+								data : {
+									'markerId' : $(this).data("id")
+								},
+								success : function(data) {
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}
+							});
+						});
 					}
 				});
+
+			}
+
+			window.setInterval(intervalUpdate(), 1000);
+			function intervalUpdate() {
+				updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			}
 		});
 	</script>
-	<div id="coord">
-		<input type="text" name="lat" id="mouseLat" /> <input type="text" name="lng" id="mouseLng" />
-		<table cellpadding="0" cellspacing="0">
-			<tr>
-				<td><button id="btnDangerMarker" href="#">Danger</button></td>
-			</tr>
-			<tr>
-				<td><button id="btnWarningMarker" href="#">Warning</button></td>
-			</tr>
-			<tr>
-				<td>
-					<button id="btnInfoMarker" href="#">Info</button> <textarea id="markerMessage"></textarea>
-				</td>
-			</tr>
 
-		</table>
+	<div id="coord" style="width: 300px">
+		<div>
+			<button id="btnDangerMarker" class="btn btn-danger mt-1" style="width: 100%">Danger</button>
+		</div>
+		<div>
+			<button id="btnWarningMarker" class="btn btn-warning mt-1" style="width: 100%">Warning</button>
+		</div>
+		<div>
+			<button id="btnInfoMarker" class="btn btn-info mt-1" style="width: 100%">Info</button>
+		</div>
+		<div>
+			<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)"></textarea>
+		</div>
 	</div>
 </body>
 </html>

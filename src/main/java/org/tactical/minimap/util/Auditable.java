@@ -21,7 +21,6 @@ public class Auditable<U> {
 	@Column(name = "createdate")
 	private Date createdate;
 
-	@JsonIgnore
 	@LastModifiedDate
 	@Column(name = "lastupdatedate")
 	private Date lastupdatedate;

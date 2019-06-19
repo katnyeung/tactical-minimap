@@ -35,4 +35,9 @@ public class DangerMarker extends Marker {
 		return null;
 	}
 
+	@Override
+	public String getIcon() {
+		return "<i class=\"fas fa-exclamation-triangle\" style=\"color:red\"></i>";
+	}
+
 }

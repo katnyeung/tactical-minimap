@@ -1,9 +1,7 @@
 package org.tactical.minimap.repository.marker;
 
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -14,18 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @DiscriminatorValue(value = "info")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class InfoMarker extends Marker {
-
-	@Column(nullable = true)
-	@Lob
-	String message;
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
 
 	@Override
 	public String getType() {
@@ -42,6 +28,11 @@ public class InfoMarker extends Marker {
 		infoMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 		infoMarker.setUuid(markerDTO.getUuid());
 		return infoMarker;
+	}
+
+	@Override
+	public String getIcon() {
+		return "<i class=\"fas fa-info-circle fa-3x m-n1\" style=\"color:#009999\"></i>";
 	}
 
 }

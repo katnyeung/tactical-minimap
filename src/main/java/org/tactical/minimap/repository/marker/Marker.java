@@ -7,15 +7,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -23,7 +21,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.tactical.minimap.repository.MarkerResponse;
-import org.tactical.minimap.repository.User;
 import org.tactical.minimap.util.Auditable;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -45,6 +42,9 @@ public abstract class Marker extends Auditable<String> {
 	}
 
 	@Transient
+	public abstract String getIcon();
+	
+	@Transient
 	public abstract String getType();
 
 	@Transient
@@ -60,6 +60,10 @@ public abstract class Marker extends Auditable<String> {
 	@Column(precision = 20, scale = 10)
 	Double lng;
 
+	@Column(nullable = true)
+	@Lob
+	String message;
+
 	@JsonIgnore
 	Long expire = (long) 0;
 
@@ -73,16 +77,14 @@ public abstract class Marker extends Auditable<String> {
 	private String uuid;
 
 	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", referencedColumnName = "userId")
-	User user;
-
-	@JsonIgnore
 	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
 	List<MarkerResponse> markerResponseList;
 
 	@Transient
 	MarkerCache markerCache;
+
+	@Transient
+	boolean controllable;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -132,14 +134,6 @@ public abstract class Marker extends Auditable<String> {
 		this.uuid = uuid;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
 	public List<MarkerResponse> getMarkerResponseList() {
 		return markerResponseList;
 	}
@@ -156,4 +150,19 @@ public abstract class Marker extends Auditable<String> {
 		this.markerCache = markerCache;
 	}
 
+	public boolean isControllable() {
+		return controllable;
+	}
+
+	public void setControllable(boolean controllable) {
+		this.controllable = controllable;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 }

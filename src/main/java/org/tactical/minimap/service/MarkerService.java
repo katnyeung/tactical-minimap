@@ -59,4 +59,10 @@ public class MarkerService {
 	public List<Marker> findActiveMarkers() {
 		return markerDAO.findActiveMarkers();
 	}
+
+	public void moveMarker(Marker marker, Double lat, Double lng) {
+		marker.setLat(lat);
+		marker.setLng(lng);
+		markerDAO.save(marker);
+	}
 }

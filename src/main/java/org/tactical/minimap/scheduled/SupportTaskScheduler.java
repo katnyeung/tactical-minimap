@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
