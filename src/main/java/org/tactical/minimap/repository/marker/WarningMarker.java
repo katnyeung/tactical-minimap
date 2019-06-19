@@ -37,6 +37,7 @@ public class WarningMarker extends Marker {
 		warningMarker.setLng(markerDTO.getLng());
 		warningMarker.setExpire((long) 60);
 		warningMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		warningMarker.setUuid(markerDTO.getUuid());
 		return warningMarker;
 	}
 }

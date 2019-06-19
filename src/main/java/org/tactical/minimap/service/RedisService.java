@@ -28,7 +28,9 @@ public class RedisService {
 	private StringRedisTemplate stringRedisTemplate;
 
 	public void saveMarkerCache(MarkerCache markerCache) {
-		stringRedisTemplate.opsForHash().putAll(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerCache.getMarkerId().toString(), markerCache.toHashMap());
+		stringRedisTemplate.opsForHash().putAll(
+				ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerCache.getMarkerId().toString(),
+				markerCache.toHashMap());
 	}
 
 	public void saveMarkerCache(Marker marker) {
@@ -38,12 +40,13 @@ public class RedisService {
 		mc.setLat(marker.getLat());
 		mc.setLng(marker.getLng());
 		mc.setMarkerId(marker.getMarkerId());
-
+		mc.setExpire(marker.getExpire());
 		saveMarkerCache(mc);
 	}
 
 	public MarkerCache getMarkerCacheByMarkerId(Long markerId) {
-		Map<Object, Object> objMap = stringRedisTemplate.opsForHash().entries(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerId.toString());
+		Map<Object, Object> objMap = stringRedisTemplate.opsForHash()
+				.entries(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerId.toString());
 		return MarkerCache.fromHashMap(objMap);
 	}
 
@@ -66,7 +69,9 @@ public class RedisService {
 		List<MarkerCache> markerCacheList = new ArrayList<>();
 		for (String key : keysList) {
 			Long markerId = Long.parseLong(key.replaceAll(ConstantsUtil.REDIS_MARKER_PREFIX + ":", ""));
-			markerCacheList.add(this.getMarkerCacheByMarkerId(markerId));
+			MarkerCache mc = this.getMarkerCacheByMarkerId(markerId);
+			mc.setMarkerId(markerId);
+			markerCacheList.add(mc);
 		}
 		return markerCacheList;
 	}

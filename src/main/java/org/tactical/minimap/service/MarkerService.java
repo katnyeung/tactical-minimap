@@ -47,7 +47,7 @@ public class MarkerService {
 		return optionalMarker.get();
 	}
 
-	@Transactional
+	@Transactional(readOnly = false)
 	public void updateStatus(Long markerId, String status) {
 		markerDAO.updateStatus(markerId, status);
 	}

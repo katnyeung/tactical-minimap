@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,11 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@PostMapping("/add")
-	public DefaultResult addMarker(MarkerDTO markerDTO) {
+	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			MarkerDTO markerDTO) {
+		String uuid = CookieUtil.getUUID(request, response, session);
+		markerDTO.setUuid(uuid);
+		logger.info("uuid : " + uuid);
 		markerService.addMarker(markerDTO);
 
 		return DefaultResult.success();
@@ -69,12 +74,14 @@ public class MarkerRestController {
 	}
 
 	@GetMapping("/up")
-	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response) {
+	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
+			HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
-		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(), ConstantsUtil.RANGE);
+		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(),
+				ConstantsUtil.RANGE);
 
-		String uuid = getUUID(request, response);
+		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate, "up")) {
 			return DefaultResult.success();
@@ -85,12 +92,14 @@ public class MarkerRestController {
 	}
 
 	@GetMapping("/down")
-	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response) {
+	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
+			HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
-		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(), ConstantsUtil.RANGE);
+		int expireRate = markerResponseService.getExpireRate(markerResponseDTO.getLat(), markerResponseDTO.getLng(),
+				ConstantsUtil.RANGE);
 
-		String uuid = getUUID(request, response);
+		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate, "down")) {
 			return DefaultResult.success();
@@ -98,18 +107,6 @@ public class MarkerRestController {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND + " seconds");
 		}
 
-	}
-
-	public String getUUID(HttpServletRequest request, HttpServletResponse response) {
-
-		Map<String, String> cookieMap = CookieUtil.readCookieMap(request);
-		String uuid = cookieMap.get("key");
-		if (uuid == null) {
-			uuid = UUID.randomUUID().toString().replaceAll("-", "");
-			CookieUtil.addCookie(response, "key", uuid, 60 * 60 * 24);
-		}
-
-		return uuid;
 	}
 
 	public boolean vote(String uuid, Long markerId, int expireRate, String type) {

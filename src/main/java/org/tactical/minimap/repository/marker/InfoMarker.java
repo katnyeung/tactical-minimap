@@ -40,6 +40,7 @@ public class InfoMarker extends Marker {
 		infoMarker.setMessage(markerDTO.getMessage());
 		infoMarker.setExpire((long) 120);
 		infoMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		infoMarker.setUuid(markerDTO.getUuid());
 		return infoMarker;
 	}
 

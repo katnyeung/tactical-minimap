@@ -109,7 +109,10 @@
 					success : function(data) {
 
 						data.markerList.forEach(function(item) {
-							var marker = L.marker([ item.lat, item.lng ]).addTo(map).bindPopup(item.lat + " : " + item.lng + " , " + item.message);
+							var marker = L.marker([ item.lat, item.lng ])
+								.addTo(map)
+								.bindPopup("[" + item.lat + "," + item.lng + "], " + item.message + "\n" + JSON.stringify(item.markerCache))
+								;
 							allMarkerList.push(marker);
 						});
 

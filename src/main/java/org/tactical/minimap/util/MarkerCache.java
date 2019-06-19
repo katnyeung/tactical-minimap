@@ -3,15 +3,20 @@ package org.tactical.minimap.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class MarkerCache {
+	@JsonIgnore
 	Long markerId;
+	@JsonIgnore
 	double lat;
+	@JsonIgnore
 	double lng;
 
 	int upVote;
 	int downVote;
 
-	int expire;
+	Long expire;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -53,11 +58,11 @@ public class MarkerCache {
 		this.downVote = downVote;
 	}
 
-	public int getExpire() {
+	public Long getExpire() {
 		return expire;
 	}
 
-	public void setExpire(int expire) {
+	public void setExpire(Long expire) {
 		this.expire = expire;
 	}
 
@@ -79,7 +84,7 @@ public class MarkerCache {
 			mc.setLng(Double.parseDouble((String) objMap.get("lng")));
 			mc.setUpVote(Integer.parseInt((String) objMap.get("upVote")));
 			mc.setDownVote(Integer.parseInt((String) objMap.get("downVote")));
-			mc.setExpire(Integer.parseInt((String) objMap.get("expire")));
+			mc.setExpire(Long.parseLong((String) objMap.get("expire")));
 
 			return mc;
 		} else {

@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class CookieUtil {
 	public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
@@ -37,6 +38,24 @@ public class CookieUtil {
 			CookieUtil.addCookie(response, "userKey", uuid, 7 * 24 * 60 * 60);
 		}
 		return userKey;
+	}
+
+	public static String getUUID(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
+		String uuid = (String) session.getAttribute("key");
+
+		if (uuid == null) {
+			Map<String, String> cookieMap = CookieUtil.readCookieMap(request);
+			uuid = cookieMap.get("key");
+			if (uuid == null) {
+				uuid = UUID.randomUUID().toString().replaceAll("-", "");
+				CookieUtil.addCookie(response, "key", uuid, 60 * 60 * 24);
+			}
+
+			session.setAttribute("key", uuid);
+		}
+
+		return uuid;
 	}
 
 }

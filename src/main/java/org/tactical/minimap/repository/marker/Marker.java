@@ -69,6 +69,10 @@ public abstract class Marker extends Auditable<String> {
 	private String status;
 
 	@JsonIgnore
+	@NotNull
+	private String uuid;
+
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", referencedColumnName = "userId")
 	User user;
@@ -118,6 +122,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	public User getUser() {

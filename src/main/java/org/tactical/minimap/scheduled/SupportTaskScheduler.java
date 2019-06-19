@@ -40,16 +40,15 @@ public class SupportTaskScheduler {
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
 				// turn expire = 0 to D active
+				logger.info("( Updating " + mc.getMarkerId() + " to D");
 				markerService.updateStatus(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED);
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
 			} else {
 				// count down the timer of those marker in redis
 				mc.setExpire(mc.getExpire() - 1);
 				redisService.saveMarkerCache(mc);
-
-				markerIdList.add(mc.getMarkerId());
-
 			}
+			markerIdList.add(mc.getMarkerId());
 		}
 
 		List<Marker> markerList = null;

@@ -7,6 +7,8 @@ public class MarkerDTO {
 	String type;
 	String message;
 
+	String uuid;
+
 	public Double getLat() {
 		return lat;
 	}
@@ -37,6 +39,14 @@ public class MarkerDTO {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 }
