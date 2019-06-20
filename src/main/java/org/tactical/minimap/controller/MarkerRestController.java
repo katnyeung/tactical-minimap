@@ -40,14 +40,12 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@PostMapping("/add")
-	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session,
-			MarkerDTO markerDTO) {
+	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 		markerDTO.setUuid(uuid);
 
 		if (redisService.addLock(uuid, ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND)) {
 
-			logger.info("uuid : " + uuid);
 			markerService.addMarker(markerDTO);
 
 			return DefaultResult.success();
@@ -66,8 +64,7 @@ public class MarkerRestController {
 	}
 
 	@GetMapping("/list")
-	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
-			HttpSession session) {
+	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Double lat = markerDTO.getLat();
@@ -87,8 +84,7 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/move")
-	public DefaultResult move(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
-			HttpSession session) {
+	public DefaultResult move(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -104,8 +100,7 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/delete")
-	public DefaultResult delete(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
-			HttpSession session) {
+	public DefaultResult delete(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -122,8 +117,7 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/updateMessage")
-	public DefaultResult updateMessage(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
-			HttpSession session) {
+	public DefaultResult updateMessage(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -140,8 +134,7 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/up")
-	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
-			HttpServletResponse response, HttpSession session) {
+	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
@@ -150,7 +143,7 @@ public class MarkerRestController {
 		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, expireRate, "up")) {
+		if (vote(uuid, markerId, expireRate * mc.getRate(), "up")) {
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
@@ -159,8 +152,7 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/down")
-	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
-			HttpServletResponse response, HttpSession session) {
+	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
@@ -169,7 +161,7 @@ public class MarkerRestController {
 		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, expireRate, "down")) {
+		if (vote(uuid, markerId, expireRate * mc.getRate(), "down")) {
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");

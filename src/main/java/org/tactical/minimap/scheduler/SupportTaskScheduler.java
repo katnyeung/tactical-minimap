@@ -28,7 +28,7 @@ public class SupportTaskScheduler {
 	@Autowired
 	MarkerService markerService;
 
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 3000)
 	// @Scheduled(cron = "0 0 */4 * * *")
 	public void makerManager() {
 		logger.info("Cron Task :: Execution Time - " + dateTimeFormatter.format(LocalDateTime.now()));
@@ -45,7 +45,7 @@ public class SupportTaskScheduler {
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire(mc.getExpire() - 5);
+				mc.setExpire(mc.getExpire() - 3);
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());

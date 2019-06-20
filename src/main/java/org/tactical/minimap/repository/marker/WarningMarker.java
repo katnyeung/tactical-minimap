@@ -32,19 +32,36 @@ public class WarningMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		WarningMarker warningMarker = new WarningMarker();
-		warningMarker.setLat(markerDTO.getLat());
-		warningMarker.setLng(markerDTO.getLng());
-		warningMarker.setExpire((long) 60);
-		warningMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		warningMarker.setMessage(markerDTO.getMessage());
-		warningMarker.setUuid(markerDTO.getUuid());
-		return warningMarker;
+		WarningMarker marker = new WarningMarker();
+		marker.setLat(markerDTO.getLat());
+		marker.setLng(markerDTO.getLng());
+		marker.setExpire(getMarkerExpire());
+		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		marker.setMessage(markerDTO.getMessage());
+		marker.setUuid(markerDTO.getUuid());
+		return marker;
 	}
 
 	@Override
 	public String getIcon() {
-		return "emer/005-police.png";
+		return "warning.png";
+	}
+
+	@Override
+	public int getIconSize() {
+		// TODO Auto-generated method stub
+		return 42;
+	}
+
+	@Override
+	public int getRate() {
+		// TODO Auto-generated method stub
+		return 5;
+	}
+
+	@Override
+	public long getMarkerExpire() {
+		return 60;
 	}
 
 }

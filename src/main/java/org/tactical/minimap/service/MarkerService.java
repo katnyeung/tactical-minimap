@@ -3,6 +3,8 @@ package org.tactical.minimap.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,8 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 
 @Service
 public class MarkerService {
+	Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	MarkerDAO<Marker> markerDAO;
 
@@ -28,6 +32,7 @@ public class MarkerService {
 		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
 			try {
 				Marker marker = MarkerClass.newInstance();
+				logger.info("Adding Marker : " + marker.getClass().getName());
 				if (marker.getType().equals(markerDTO.getType())) {
 					marker = marker.fill(markerDTO);
 					markerDAO.save(marker);

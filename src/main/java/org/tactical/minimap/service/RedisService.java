@@ -39,6 +39,7 @@ public class RedisService {
 		mc.setLng(marker.getLng());
 		mc.setMarkerId(marker.getMarkerId());
 		mc.setExpire(marker.getExpire());
+		mc.setRate(marker.getRate());
 		saveMarkerCache(mc);
 	}
 
@@ -65,7 +66,7 @@ public class RedisService {
 			return false;
 		}
 	}
-	
+
 	public boolean addLock(String uuid, int time) {
 		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);

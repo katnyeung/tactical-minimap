@@ -2,6 +2,7 @@ package org.tactical.minimap.repository.marker;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -9,18 +10,29 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "info")
+@DiscriminatorValue(value = "group")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class InfoMarker extends Marker {
+public class GroupMarker extends Marker {
+
+	@NotNull
+	int level;
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
 
 	@Override
 	public String getType() {
-		return "info";
+		return "group";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		InfoMarker marker = new InfoMarker();
+		GroupMarker marker = new GroupMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -32,23 +44,22 @@ public class InfoMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "019-pin-4.png";
+		return "group.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 55;
 	}
 
 	@Override
 	public int getRate() {
-		return 5;
+		return 10;
 	}
 
 	@Override
 	public long getMarkerExpire() {
-		// TODO Auto-generated method stub
-		return (long) 120;
+		return 120;
 	}
 
 }

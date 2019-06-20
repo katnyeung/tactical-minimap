@@ -40,14 +40,31 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(InfoMarker.class);
 		ClassList.add(WarningMarker.class);
 		ClassList.add(DangerMarker.class);
+
 		ClassList.add(MedicalMarker.class);
+		ClassList.add(GroupMarker.class);
+		ClassList.add(ProtestingMarker.class);
+
+		ClassList.add(PoliceMarker.class);
+		ClassList.add(RiotPoliceMarker.class);
+		ClassList.add(TearGasMarker.class);
 	}
 
 	@Transient
 	public abstract String getIcon();
-	
+
+	@Transient
+	public abstract int getIconSize();
+
+	@Transient
+	public abstract int getRate();
+
 	@Transient
 	public abstract String getType();
+
+	@JsonIgnore
+	@Transient
+	public abstract long getMarkerExpire();
 
 	@Transient
 	public abstract Marker fill(MarkerDTO markerDTO);
@@ -67,7 +84,7 @@ public abstract class Marker extends Auditable<String> {
 
 	@JsonIgnore
 	int downVote;
-	
+
 	@Column(nullable = true)
 	@Lob
 	String message;

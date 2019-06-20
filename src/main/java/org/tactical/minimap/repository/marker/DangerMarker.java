@@ -32,19 +32,36 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		DangerMarker dm = new DangerMarker();
-		dm.setLat(markerDTO.getLat());
-		dm.setLng(markerDTO.getLng());
-		dm.setMessage(markerDTO.getMessage());
-		dm.setExpire((long) 60);
-		dm.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		dm.setUuid(markerDTO.getUuid());
-		return dm;
+		DangerMarker marker = new DangerMarker();
+		marker.setLat(markerDTO.getLat());
+		marker.setLng(markerDTO.getLng());
+		marker.setMessage(markerDTO.getMessage());
+		marker.setExpire(getMarkerExpire());
+		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		marker.setUuid(markerDTO.getUuid());
+		return marker;
 	}
 
 	@Override
 	public String getIcon() {
-		return "emer/009-gas-mask.png";
+		return "danger.png";
+	}
+
+	@Override
+	public int getIconSize() {
+		return 50;
+	}
+
+	@Override
+	public int getRate() {
+		// TODO Auto-generated method stub
+		return 5;
+	}
+
+	@Override
+	public long getMarkerExpire() {
+		// TODO Auto-generated method stub
+		return 60;
 	}
 
 }

@@ -22,12 +22,6 @@ public class RouteController {
 
 		CookieUtil.getUUID(request, response, session);
 
-		return "index_openlayers";
-	}
-
-	@GetMapping(path = "/2")
-	public String index2(HttpSession session, Model model) {
-		logger.info("index");
 		return "index";
 	}
 }

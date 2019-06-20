@@ -24,7 +24,7 @@ public class MedicalMarker extends Marker {
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire((long) 240);
+		marker.setExpire(getMarkerExpire());
 		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 		marker.setUuid(markerDTO.getUuid());
 		return marker;
@@ -32,7 +32,22 @@ public class MedicalMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "emer/010-first-aid-kit.png";
+		return "010-first-aid-kit.png";
+	}
+
+	@Override
+	public int getIconSize() {
+		return 40;
+	}
+
+	@Override
+	public int getRate() {
+		return 10;
+	}
+
+	@Override
+	public long getMarkerExpire() {
+		return 240;
 	}
 
 }
