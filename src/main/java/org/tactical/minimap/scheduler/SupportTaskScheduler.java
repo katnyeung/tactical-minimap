@@ -1,4 +1,4 @@
-package org.tactical.minimap.scheduled;
+package org.tactical.minimap.scheduler;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,11 +40,12 @@ public class SupportTaskScheduler {
 			if (mc.getExpire() <= 0) {
 				// turn expire = 0 to D active
 				logger.info("( Updating " + mc.getMarkerId() + " to D");
-				markerService.updateStatus(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED);
+				markerService.updateStatusUpDown(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED,
+						mc.getUpVote(), mc.getDownVote());
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire(mc.getExpire() - 1);
+				mc.setExpire(mc.getExpire() - 5);
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());

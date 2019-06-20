@@ -4,6 +4,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 
+import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -31,13 +32,19 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		DangerMarker dm = new DangerMarker();
+		dm.setLat(markerDTO.getLat());
+		dm.setLng(markerDTO.getLng());
+		dm.setMessage(markerDTO.getMessage());
+		dm.setExpire((long) 60);
+		dm.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		dm.setUuid(markerDTO.getUuid());
+		return dm;
 	}
 
 	@Override
 	public String getIcon() {
-		return "<i class=\"fas fa-exclamation-triangle\" style=\"color:red\"></i>";
+		return "emer/009-gas-mask.png";
 	}
 
 }

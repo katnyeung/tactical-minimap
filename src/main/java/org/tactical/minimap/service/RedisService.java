@@ -65,6 +65,21 @@ public class RedisService {
 			return false;
 		}
 	}
+	
+	public boolean addLock(String uuid, int time) {
+		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + uuid;
+		String value = stringRedisTemplate.opsForValue().get(key);
+
+		if (value == null) {
+
+			stringRedisTemplate.opsForValue().set(key, "1");
+			stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
+
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public List<MarkerCache> findAllMarkerCache() {
 		List<String> keysList = findKeys(ConstantsUtil.REDIS_MARKER_PREFIX + ":*");

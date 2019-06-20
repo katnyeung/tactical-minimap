@@ -39,6 +39,8 @@ public abstract class Marker extends Auditable<String> {
 	static {
 		ClassList.add(InfoMarker.class);
 		ClassList.add(WarningMarker.class);
+		ClassList.add(DangerMarker.class);
+		ClassList.add(MedicalMarker.class);
 	}
 
 	@Transient
@@ -60,6 +62,12 @@ public abstract class Marker extends Auditable<String> {
 	@Column(precision = 20, scale = 10)
 	Double lng;
 
+	@JsonIgnore
+	int upVote;
+
+	@JsonIgnore
+	int downVote;
+	
 	@Column(nullable = true)
 	@Lob
 	String message;
@@ -164,5 +172,21 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public int getUpVote() {
+		return upVote;
+	}
+
+	public void setUpVote(int upVote) {
+		this.upVote = upVote;
+	}
+
+	public int getDownVote() {
+		return downVote;
+	}
+
+	public void setDownVote(int downVote) {
+		this.downVote = downVote;
 	}
 }

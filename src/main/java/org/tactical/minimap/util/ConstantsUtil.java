@@ -7,8 +7,11 @@ public class ConstantsUtil {
 
 	public static final String REDIS_MARKER_PREFIX = "marker";
 	public static final String REDIS_MARKER_RESPONSE_PREFIX = "marker_response";
+	public static final String REDIS_MARKER_LOCK_PREFIX = "marker_lock";
 	
-	public static final int REDIS_MARKER_INTERVAL_IN_SECOND = 10;
+	public static final int REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND = 10;
+	public static final int REDIS_MARKER_ADD_INTERVAL_IN_SECOND = 30;
+	
 	public static final String MARKER_STATUS_ACTIVE = "A";
 	public static final String MARKER_STATUS_DEACTIVED = "D";
 }

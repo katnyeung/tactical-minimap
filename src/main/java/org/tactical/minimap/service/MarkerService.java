@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 @Service
@@ -48,8 +49,8 @@ public class MarkerService {
 	}
 
 	@Transactional(readOnly = false)
-	public void updateStatus(Long markerId, String status) {
-		markerDAO.updateStatus(markerId, status);
+	public void updateStatusUpDown(Long markerId, String status, int upVote, int downVote) {
+		markerDAO.updateStatusUpDown(markerId, status, upVote, downVote);
 	}
 
 	public List<Marker> findActiveMarkersNotInCache(List<Long> markerIdList) {
@@ -63,6 +64,16 @@ public class MarkerService {
 	public void moveMarker(Marker marker, Double lat, Double lng) {
 		marker.setLat(lat);
 		marker.setLng(lng);
+		markerDAO.save(marker);
+	}
+
+	public void deleteMarker(Marker marker) {
+		marker.setStatus(ConstantsUtil.MARKER_STATUS_DEACTIVED);
+		markerDAO.save(marker);
+	}
+
+	public void updateMessage(Marker marker, String message) {
+		marker.setMessage(message);
 		markerDAO.save(marker);
 	}
 }

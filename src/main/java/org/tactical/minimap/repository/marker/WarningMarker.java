@@ -41,10 +41,10 @@ public class WarningMarker extends Marker {
 		warningMarker.setUuid(markerDTO.getUuid());
 		return warningMarker;
 	}
-	
+
 	@Override
 	public String getIcon() {
-		return "<i class=\"fas fa-exclamation-triangle fa-3x m-n1 rounded\" style=\"padding:1px;border:2px solid black;color:#FF0000\"></i>";
+		return "emer/005-police.png";
 	}
 
 }

@@ -9,30 +9,30 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "info")
+@DiscriminatorValue(value = "medical")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class InfoMarker extends Marker {
+public class MedicalMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "info";
+		return "medical";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		InfoMarker infoMarker = new InfoMarker();
-		infoMarker.setLat(markerDTO.getLat());
-		infoMarker.setLng(markerDTO.getLng());
-		infoMarker.setMessage(markerDTO.getMessage());
-		infoMarker.setExpire((long) 120);
-		infoMarker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		infoMarker.setUuid(markerDTO.getUuid());
-		return infoMarker;
+		MedicalMarker marker = new MedicalMarker();
+		marker.setLat(markerDTO.getLat());
+		marker.setLng(markerDTO.getLng());
+		marker.setMessage(markerDTO.getMessage());
+		marker.setExpire((long) 240);
+		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		marker.setUuid(markerDTO.getUuid());
+		return marker;
 	}
 
 	@Override
 	public String getIcon() {
-		return "019-pin-4.png";
+		return "emer/010-first-aid-kit.png";
 	}
 
 }

@@ -40,13 +40,21 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@PostMapping("/add")
-	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
+	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 		markerDTO.setUuid(uuid);
-		logger.info("uuid : " + uuid);
-		markerService.addMarker(markerDTO);
 
-		return DefaultResult.success();
+		if (redisService.addLock(uuid, ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND)) {
+
+			logger.info("uuid : " + uuid);
+			markerService.addMarker(markerDTO);
+
+			return DefaultResult.success();
+		} else {
+
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND + " seconds");
+		}
 	}
 
 	@GetMapping("/listAll")
@@ -58,7 +66,8 @@ public class MarkerRestController {
 	}
 
 	@GetMapping("/list")
-	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Double lat = markerDTO.getLat();
@@ -78,7 +87,8 @@ public class MarkerRestController {
 	}
 
 	@PostMapping("/move")
-	public DefaultResult move(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public DefaultResult move(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -88,13 +98,50 @@ public class MarkerRestController {
 			markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+		}
+
+	}
+
+	@PostMapping("/delete")
+	public DefaultResult delete(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		String uuid = CookieUtil.getUUID(request, response, session);
+
+		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
+
+		if (marker.getUuid().equals(uuid)) {
+			markerService.deleteMarker(marker);
+			redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerDTO.getMarkerId());
+			return DefaultResult.success();
+		} else {
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+		}
+
+	}
+
+	@PostMapping("/updateMessage")
+	public DefaultResult updateMessage(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		String uuid = CookieUtil.getUUID(request, response, session);
+
+		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
+
+		if (marker.getUuid().equals(uuid)) {
+			markerService.updateMessage(marker, markerDTO.getMessage());
+
+			return DefaultResult.success();
+		} else {
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
 
 	@PostMapping("/up")
-	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public DefaultResult voteUp(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
+			HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
@@ -106,13 +153,14 @@ public class MarkerRestController {
 		if (vote(uuid, markerId, expireRate, "up")) {
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
 
 	@PostMapping("/down")
-	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public DefaultResult voteDown(MarkerResponseDTO markerResponseDTO, HttpServletRequest request,
+			HttpServletResponse response, HttpSession session) {
 		Long markerId = markerResponseDTO.getMarkerId();
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
@@ -124,13 +172,13 @@ public class MarkerRestController {
 		if (vote(uuid, markerId, expireRate, "down")) {
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
 
 	public boolean vote(String uuid, Long markerId, int expireRate, String type) {
-		if (redisService.voteLock(markerId, uuid, ConstantsUtil.REDIS_MARKER_INTERVAL_IN_SECOND)) {
+		if (redisService.voteLock(markerId, uuid, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND)) {
 			Marker marker = markerService.findMarkerByMarkerId(markerId);
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
