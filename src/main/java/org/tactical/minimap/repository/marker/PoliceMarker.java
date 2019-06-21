@@ -55,7 +55,7 @@ public class PoliceMarker extends Marker {
 	@Override
 	public int getRate() {
 		// TODO Auto-generated method stub
-		return 10;
+		return 6;
 	}
 
 	@Override
