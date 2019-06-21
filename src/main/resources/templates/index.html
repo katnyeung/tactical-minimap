@@ -147,13 +147,13 @@
 							
 							if (item.controllable){
 								message = item.message == null ? '' : '<span style="font-size:20px;width:100%" class="editableMessage form-control" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + item.message + '</span>';
-								deleteBtn = '<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
+								deleteBtn = '&nbsp;&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 							}else{
 								message = item.message == null ? '' : '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
 							}
 							
 							if (item.markerCache != null) {
-								upDownButton = '<div style="width:120px;font-size:14px"><mark><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a>&nbsp;&nbsp;' + deleteBtn + '</mark></div>';
+								upDownButton = '<div style="width:120px;font-size:14px"><mark><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 								counter = '<mark style="font-size:16px">' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px">' + ("" + item.markerCache.expire).toMMSS() + '</mark>';
 								
 							}
