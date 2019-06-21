@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.tactical</groupId>
-	<artifactId>minimap</artifactId>
+	<artifactId>limap</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>minimap</name>
+	<name>limap</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
