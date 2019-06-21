@@ -31,7 +31,7 @@ public class SupportTaskScheduler {
 	@Scheduled(fixedRate = 3000)
 	// @Scheduled(cron = "0 0 */4 * * *")
 	public void makerManager() {
-		logger.info("Cron Task :: Execution Time - " + dateTimeFormatter.format(LocalDateTime.now()));
+		//logger.info("Cron Task :: Execution Time - " + dateTimeFormatter.format(LocalDateTime.now()));
 
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();

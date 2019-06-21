@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<title>limap.org</title>
+<title>limap.co</title>
 <meta name="viewport" content="initial-scale=1.0">
 <meta charset="utf-8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
@@ -69,9 +69,8 @@
 			clickRegister($("#btnPoliceMarker"), 'police');
 			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
-
 			
-			setInterval(function(){ intervalUpdate(); }, 15000);
+			setInterval(function(){ intervalUpdate(); }, 30000);
 			
 			function intervalUpdate() {
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);
@@ -100,7 +99,7 @@
 				});
 			}
 			
-			String.prototype.toHHMMSS = function () {
+			String.prototype.toMMSS = function () {
 			    var sec_num = parseInt(this, 10); // don't forget the second param
 			    var hours   = Math.floor(sec_num / 3600);
 			    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
@@ -110,6 +109,12 @@
 			    if (minutes < 10) {minutes = "0"+minutes;}
 			    if (seconds < 10) {seconds = "0"+seconds;}
 			    return minutes+':'+seconds;
+			}
+			
+			String.prototype.formatDate = function () {
+			    var date = new Date(Date.parse(this));
+			    
+			    return date.getHours() + ":" + date.getMinutes();
 			}
 			
 			Number.prototype.toFixedDown = function(digits) {
@@ -140,7 +145,6 @@
 							var deleteBtn = '';
 							var content = 'loading';
 							
-
 							if (item.controllable){
 								message = item.message == null ? '' : '<span style="font-size:20px;width:100%" class="editableMessage form-control" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + item.message + '</span>';
 								deleteBtn = '&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-2x"></i></a>'; 
@@ -150,7 +154,7 @@
 							
 							if (item.markerCache != null) {
 								upDownButton = '<div style="width:120px;font-size:14px"><mark><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a></mark></div>';
-								counter = '<mark style="font-size:20px">' + ("" + item.markerCache.expire).toHHMMSS() + '</mark>';
+								counter = '<mark style="font-size:16px">' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px">' + ("" + item.markerCache.expire).toMMSS() + '</mark>';
 								
 							}
 							

@@ -100,7 +100,7 @@ public class RedisService {
 	public List<String> scanKeys(String pattern) {
 		List<String> keySet = new ArrayList<>();
 
-		logger.info("Searching for pattern {}", pattern);
+		//logger.info("Searching for pattern {}", pattern);
 		Iterable<byte[]> byters = stringRedisTemplate.execute(new RedisCallback<Iterable<byte[]>>() {
 
 			@Override
