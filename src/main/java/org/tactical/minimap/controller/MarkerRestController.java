@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,14 +40,14 @@ public class MarkerRestController {
 	@Autowired
 	RedisService redisService;
 
-	@PostMapping("/add")
-	public DefaultResult addMarker(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
+	@PostMapping("/{layer}/add")
+	public DefaultResult addMarker(@PathVariable("layer") String layer, HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 		markerDTO.setUuid(uuid);
 
-		if (redisService.addLock(uuid, ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND)) {
+		if (redisService.addLock(layer, uuid, ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND)) {
 
-			markerService.addMarker(markerDTO);
+			markerService.addMarker(layer, markerDTO);
 
 			return DefaultResult.success();
 		} else {
@@ -55,22 +56,22 @@ public class MarkerRestController {
 		}
 	}
 
-	@GetMapping("/listAll")
-	public DefaultResult getAllMarker() {
+	@GetMapping("/{layer}/listAll")
+	public DefaultResult getAllMarker(@PathVariable("layer") String layer) {
 
-		List<Marker> marketList = markerService.findAllMarkers();
+		List<Marker> marketList = markerService.findAllMarkers(layer);
 
 		return MarkerListResult.success(marketList);
 	}
 
-	@GetMapping("/list")
-	public DefaultResult getMarker(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	@GetMapping("/{layer}/list")
+	public DefaultResult getMarker(@PathVariable("layer") String layer, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Double lat = markerDTO.getLat();
 		Double lng = markerDTO.getLng();
 
-		List<Marker> markerList = markerService.findMarkers(lat, lng, ConstantsUtil.RANGE);
+		List<Marker> markerList = markerService.findMarkers(layer, lat, lng, ConstantsUtil.RANGE);
 
 		markerList.stream().forEach(m -> {
 			m.setMarkerCache(redisService.getMarkerCacheByMarkerId(m.getMarkerId()));
@@ -139,7 +140,7 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		int expireRate = markerResponseService.getExpireRate(mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
+		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
 		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -157,7 +158,7 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		int expireRate = markerResponseService.getExpireRate(mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
+		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
 		logger.info("up expirerate : " + expireRate);
 		String uuid = CookieUtil.getUUID(request, response, session);
 

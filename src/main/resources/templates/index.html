@@ -36,13 +36,13 @@
 		var allMarkerList = [];
 				
 		$(document).ready(function() {
-
+			
 			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', osm = L.tileLayer(osmUrl, {
 				maxZoom : 19,
 				attribution : osmAttrib
 			});
 
-			map = L.map('map').setView([ 22.2757, 114.1648 ], 17).addLayer(osm);
+			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 
 			var menu = L.popup();
 
@@ -53,8 +53,11 @@
 
 			map.on('contextmenu', onMapClick);
 
-			map.on('dragend', function(e) {
+			map.on('dragend zoomend', function(e) {
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);
+				
+				history.replaceState(null, null, '/[[${layer}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				
 			});
 
 			clickRegister($("#btnInfoMarker"), 'info');
@@ -73,7 +76,8 @@
 			function intervalUpdate() {
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			}
-			
+
+			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -82,7 +86,7 @@
 
 					$.ajax({
 						type : "POST",
-						url : '/marker/add',
+						url : '/marker/[[${layer}]]/add',
 						data : {
 							'lat' : menu.getLatLng().lat,
 							'lng' : menu.getLatLng().lng,
@@ -108,6 +112,12 @@
 			    return minutes+':'+seconds;
 			}
 			
+			Number.prototype.toFixedDown = function(digits) {
+			    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+			        m = this.toString().match(re);
+			    return m ? parseFloat(m[1]) : this.valueOf();
+			};
+
 			function updateMarkers(lat, lng) {
 
 				allMarkerList.forEach(function(item) {
@@ -116,13 +126,12 @@
 
 				$.ajax({
 					type : "GET",
-					url : '/marker/list',
+					url : '/marker/[[${layer}]]/list',
 					data : {
 						'lat' : lat,
 						'lng' : lng
 					},
 					success : function(data) {
-
 						data.markerList.forEach(function(item) {
 							var marker;
 							var upDownButton = 'loading';
@@ -273,8 +282,8 @@
 						});
 					}
 				});
-
 			}
+
 		});
 	</script>
 

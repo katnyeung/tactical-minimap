@@ -20,6 +20,9 @@ public class MarkerCache {
 
 	int rate;
 
+	@JsonIgnore
+	String layer;
+
 	public Long getMarkerId() {
 		return markerId;
 	}
@@ -76,16 +79,23 @@ public class MarkerCache {
 		this.rate = rate;
 	}
 
+	public String getLayer() {
+		return layer;
+	}
+
+	public void setLayer(String layer) {
+		this.layer = layer;
+	}
+
 	public Map<String, String> toHashMap() {
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("lat", "" + lat);
 		hashMap.put("lng", "" + lng);
 		hashMap.put("upVote", "" + upVote);
 		hashMap.put("downVote", "" + downVote);
-
 		hashMap.put("rate", "" + rate);
-
 		hashMap.put("expire", "" + expire);
+		hashMap.put("layer", "" + layer);
 		return hashMap;
 	}
 
@@ -98,6 +108,7 @@ public class MarkerCache {
 			mc.setDownVote(Integer.parseInt((String) objMap.get("downVote")));
 			mc.setExpire(Long.parseLong((String) objMap.get("expire")));
 			mc.setRate(Integer.parseInt((String) objMap.get("rate")));
+			mc.setLayer((String) objMap.get("layer"));
 			return mc;
 		} else {
 			return null;

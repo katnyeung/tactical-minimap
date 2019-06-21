@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "lat,lng") })
+@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer,lat,lng,status") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "marker_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -100,6 +100,10 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@NotNull
 	private String uuid;
+
+	@JsonIgnore
+	@NotNull
+	private String layer;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
@@ -206,4 +210,13 @@ public abstract class Marker extends Auditable<String> {
 	public void setDownVote(int downVote) {
 		this.downVote = downVote;
 	}
+
+	public String getLayer() {
+		return layer;
+	}
+
+	public void setLayer(String layer) {
+		this.layer = layer;
+	}
+
 }

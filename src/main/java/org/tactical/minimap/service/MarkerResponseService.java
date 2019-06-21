@@ -27,7 +27,7 @@ public class MarkerResponseService {
 		markerResponseDAO.save(down);
 	}
 
-	public int getExpireRate(Double lat, Double lng, Double range) {
-		return markerResponseDAO.getExpireRate(lat - range, lat + range, lng - range, lng + range);
+	public int getExpireRate(String layer, Double lat, Double lng, Double range) {
+		return markerResponseDAO.getExpireRate(layer, lat - range, lat + range, lng - range, lng + range);
 	}
 }

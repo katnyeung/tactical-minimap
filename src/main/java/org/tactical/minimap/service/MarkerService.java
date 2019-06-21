@@ -20,21 +20,22 @@ public class MarkerService {
 	@Autowired
 	MarkerDAO<Marker> markerDAO;
 
-	public List<Marker> findMarkers(Double lat, Double lng, Double range) {
-		return markerDAO.findAllByLatLng(lat - range, lng - range, lat + range, lng + range);
+	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
+		return markerDAO.findAllByLatLng(layer, lat - range, lng - range, lat + range, lng + range);
 	}
 
-	public List<Marker> findAllMarkers() {
+	public List<Marker> findAllMarkers(String layer) {
 		return markerDAO.findAll();
 	}
 
-	public Marker addMarker(MarkerDTO markerDTO) {
+	public Marker addMarker(String layer, MarkerDTO markerDTO) {
 		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
 			try {
 				Marker marker = MarkerClass.newInstance();
 				logger.info("Adding Marker : " + marker.getClass().getName());
 				if (marker.getType().equals(markerDTO.getType())) {
 					marker = marker.fill(markerDTO);
+					marker.setLayer(layer);
 					markerDAO.save(marker);
 				}
 
