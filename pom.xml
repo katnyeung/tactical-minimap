@@ -9,6 +9,7 @@
 		<version>2.1.3.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+	
 	<groupId>org.tactical</groupId>
 	<artifactId>limap</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -106,7 +107,7 @@
 					</imageTags>
 					<baseImage>java</baseImage>
 					<entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
-					<dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+					<dockerDirectory>src/main/docker</dockerDirectory>
 					<resources>
 						<resource>
 							<targetPath>/</targetPath>
