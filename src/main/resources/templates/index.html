@@ -34,7 +34,7 @@
 
 	<script>
 		var allMarkerList = [];
-				
+		
 		$(document).ready(function() {
 			
 			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', osm = L.tileLayer(osmUrl, {
@@ -70,7 +70,7 @@
 			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
 			
-			setInterval(function(){ intervalUpdate(); }, 30000);
+			//setInterval(function(){ intervalUpdate(); }, 30000);
 			
 			function intervalUpdate() {
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);

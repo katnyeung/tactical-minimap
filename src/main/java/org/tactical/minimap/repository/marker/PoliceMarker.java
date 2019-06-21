@@ -49,7 +49,7 @@ public class PoliceMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 48;
+		return 42;
 	}
 
 	@Override
