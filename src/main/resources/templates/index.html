@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 <style>
 .iconMarkup {
-	margin-left: -50px !improtant ;
+	margin-left: -50px!improtant;
 	margin-top: -10px !important;
 }
 </style>
@@ -23,10 +23,9 @@
 	height: 100vh
 }
 
-.location-icon{
-	width:200px;
+.location-icon {
+	width: 200px;
 }
-
 </style>
 </head>
 <body>
@@ -34,6 +33,38 @@
 
 	<script>
 		var allMarkerList = [];
+		var pause = false;
+		
+		String.prototype.toMMSS = function () {
+		    var sec_num = parseInt(this, 10); // don't forget the second param
+		    var hours   = Math.floor(sec_num / 3600);
+		    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+		    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+		    if (hours   < 10) {hours   = "0"+hours;}
+		    if (minutes < 10) {minutes = "0"+minutes;}
+		    if (seconds < 10) {seconds = "0"+seconds;}
+		    return minutes+':'+seconds;
+		}
+		
+		String.prototype.formatDate = function () {
+		    var date = new Date(Date.parse(this));
+		    
+		    var hours   = date.getHours();
+		    var minutes = date.getMinutes();
+		    
+		    if (hours   < 10) {hours   = "0"+hours;}
+		    if (minutes < 10) {minutes = "0"+minutes;}
+		    
+		    return hours + ":" + minutes;
+		}
+		
+		Number.prototype.toFixedDown = function(digits) {
+		    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+		        m = this.toString().match(re);
+		    return m ? parseFloat(m[1]) : this.valueOf();
+		};
+
 		
 		$(document).ready(function() {
 			
@@ -54,7 +85,8 @@
 			map.on('contextmenu', onMapClick);
 
 			map.on('dragend zoomend', function(e) {
-				updateMarkers(map.getCenter().lat, map.getCenter().lng);
+				
+				//updateMarkers(map.getCenter().lat, map.getCenter().lng);
 				
 				history.replaceState(null, null, '/[[${layer}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 				
@@ -70,13 +102,6 @@
 			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
 			
-			//setInterval(function(){ intervalUpdate(); }, 30000);
-			
-			function intervalUpdate() {
-				updateMarkers(map.getCenter().lat, map.getCenter().lng);
-			}
-
-			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -99,236 +124,224 @@
 				});
 			}
 			
-			String.prototype.toMMSS = function () {
-			    var sec_num = parseInt(this, 10); // don't forget the second param
-			    var hours   = Math.floor(sec_num / 3600);
-			    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-			    var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-			    if (hours   < 10) {hours   = "0"+hours;}
-			    if (minutes < 10) {minutes = "0"+minutes;}
-			    if (seconds < 10) {seconds = "0"+seconds;}
-			    return minutes+':'+seconds;
-			}
+			if(typeof(EventSource) !== "undefined") {
+			    var eventSource = new EventSource("/markerEvents?key=[[${key}]]&layer=[[${layer}]]&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
+			    
+				eventSource.onmessage = e => {
+					if(!pause){
+						var markerList = JSON.parse(e.data);
+						processMarker(markerList);
+					}
+				};
+			} 
 			
-			String.prototype.formatDate = function () {
-			    var date = new Date(Date.parse(this));
-			    
-			    var hours   = date.getHours();
-			    var minutes = date.getMinutes();
-			    
-			    if (hours   < 10) {hours   = "0"+hours;}
-			    if (minutes < 10) {minutes = "0"+minutes;}
-			    
-			    return hours + ":" + minutes;
-			}
-			
-			Number.prototype.toFixedDown = function(digits) {
-			    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
-			        m = this.toString().match(re);
-			    return m ? parseFloat(m[1]) : this.valueOf();
-			};
-
 			function updateMarkers(lat, lng) {
-
-				allMarkerList.forEach(function(item) {
-					map.removeLayer(item);
+				if(!pause){
+					$.ajax({
+						type : "GET",
+						url : '/marker/[[${layer}]]/list',
+						data : {
+							'lat' : lat,
+							'lng' : lng
+						},
+						
+						success : function(data){ processMarker(data.markerList)}
+					});
+				}
+			}
+			
+			function processMarker(markerList){
+				allMarkerList.forEach(function(item, index, object){
+					var marker = $.grep(markerList, function(e){ return e.markerId == item.markerId; });
+					if(marker.length == 0){
+						map.removeLayer(item);
+						object.splice(index, 1);
+					}
 				});
-
-				$.ajax({
-					type : "GET",
-					url : '/marker/[[${layer}]]/list',
-					data : {
-						'lat' : lat,
-						'lng' : lng
-					},
-					success : function(data) {
-						data.markerList.forEach(function(item) {
-							var marker;
-							var upDownButton = 'loading';
-							var counter = '**';
-							var message = '';
-							var deleteBtn = '';
-							var content = 'loading';
-							
-							if (item.controllable){
-								message = item.message == null ? '' : '<span style="font-size:20px;width:100%" class="editableMessage form-control" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + item.message + '</span>';
-								deleteBtn = '&nbsp;&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
-							}else{
-								message = item.message == null ? '' : '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
-							}
-							
-							if (item.markerCache != null) {
-								upDownButton = '<div style="width:120px;font-size:14px"><mark><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
-								counter = '<mark style="font-size:16px">' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px">' + ("" + item.markerCache.expire).toMMSS() + '</mark>';
+				
+				markerList.forEach(function(item) {
+					var marker = $.grep(allMarkerList, function(e){ return e.markerId == item.markerId; });
+					
+					var upDownButton = 'loading';
+					var counter = '**';
+					var message = '';
+					var deleteBtn = '';
+					var content = 'loading';
+					
+					if (item.controllable){
+						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
+						deleteBtn = '&nbsp;&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
+					}else{
+						message = '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
+					}
+					
+					if (item.markerCache != null) {
+						upDownButton = '<div style="width:120px;font-size:14px"><mark class="rounded"><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
+						counter = '<mark class="rounded" style="font-size:16px">' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px">' + ("" + item.markerCache.expire).toMMSS() + '</mark>';
+						
+					}
+					
+					content = message;
+					
+					var popup = L.popup().setContent(content);
+					
+					var divIcon = L.divIcon({
+					    className:'location-icon',
+					    html: '<div>' + '<img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton + '</div>',
+					    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
+					});
 								
-							}
-							
-							content = message;
-							
-							var divIcon = L.divIcon({
-							    className:'location-icon',
-							    html: '<img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton,
-							    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
-							});
-							
-							var noPopup = L.popup({
-							}).setContent(content);
-
-							var popup = L.popup({
-								autoClose:false,
-								autoPan:false,
-								clickOnClose:false
-							}).setContent(content);
-
-							if (item.controllable) {
-								marker = L.marker([ item.lat, item.lng ], {
-									draggable : item.controllable,
-									icon : divIcon
-								}).addTo(map).bindPopup(popup).openPopup();
-
-								marker.on('dragend', function(e) {
-									$.ajax({
-										type : "POST",
-										url : '/marker/move',
-										data : {
-											'lat' : e.target.getLatLng().lat,
-											'lng' : e.target.getLatLng().lng,
-											'markerId' : item.markerId
-										},
-										success : function(data) {
-											updateMarkers(map.getCenter().lat, map.getCenter().lng);
-										}
-									});
-								});
-								
-								marker.on('click', function(e) {
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-								});
-							} else {
-								if(item.message == ''){
-									marker = L.marker([ item.lat, item.lng ], {
-										draggable : item.controllable,
-										icon : divIcon
-									}).addTo(map).bindPopup(noPopup);
-								}else{
-									marker = L.marker([ item.lat, item.lng ], {
-										draggable : item.controllable,
-										icon : divIcon
-									}).addTo(map).bindPopup(popup).openPopup();
-								}
-							}
-
-							allMarkerList.push(marker);
-
-						});
+					if(marker.length == 0){
+						marker = L.marker([ item.lat, item.lng ], {
+							draggable : item.controllable,
+							icon : divIcon
+						}).addTo(map).bindPopup(popup);
 						
-						$(".editableMessage").on("dblclick",function(e){
-							$(this).replaceWith('<input type="text" value="' + $(this).data("message") + '" class="messageEditor form-control" data-id="' + $(this).data("id") + '"/>');
-							$('.messageEditor').on('keypress',function(e){
-							    if(e.which == 13) {
-									$.ajax({
-										type : "POST",
-										url : '/marker/updateMessage',
-										data : {
-											'message' : $(this).val(),
-											'markerId' : $(this).data("id")
-										},
-										success : function(data) {
-											updateMarkers(map.getCenter().lat, map.getCenter().lng);
-										}
-									});
-							    }
-							});	
-						});
-						
-		
-						$(".btnDelete").on("click", function(e) {
-							e.preventDefault();
-							if(confirm("delete?")){
-								$.ajax({
-									type : "POST",
-									url : '/marker/delete',
-									data : {
-										'markerId' : $(this).data("id")
-									},
-									success : function(data) {
-										updateMarkers(map.getCenter().lat, map.getCenter().lng);
-									}
-								});
-							}
-						});
-						
-						$(".btnUp").on("click", function(e) {
-							e.preventDefault();
-
+					    marker.on('dragstart', function(e) {
+					    	  pause = true;
+					    });
+					    
+						marker.on('dragend', function(e) {
 							$.ajax({
 								type : "POST",
-								url : '/marker/up',
+								url : '/marker/move',
 								data : {
-									'markerId' : $(this).data("id")
+									'lat' : e.target.getLatLng().lat,
+									'lng' : e.target.getLatLng().lng,
+									'markerId' : item.markerId
 								},
 								success : function(data) {
+									 pause = false;
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}
 							});
-						});
+						})
+						
+						marker.markerId = item.markerId;
+						
+						allMarkerList.push(marker);
+					}else{
+						
+						marker[0].setIcon(divIcon);
+						marker[0]._popup.setContent(content);
+						
+						if(item.lat != marker.lat || item.lng != marker.lng){
+							var newLatLng = new L.LatLng(item.lat, item.lng);
+							marker[0].setLatLng(newLatLng); 
+						}
+					}
 
-						$(".btnDown").on("click", function(e) {
-							e.preventDefault();
-							
-							$.ajax({
-								type : "POST",
-								url : '/marker/down',
-								data : {
-									'markerId' : $(this).data("id")
-								},
-								success : function(data) {
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-								}
-							});
+				});
+				
+				$(".btnDelete").on("click", function(e) {
+					e.preventDefault();
+					if(confirm("delete?")){
+						$.ajax({
+							type : "POST",
+							url : '/marker/delete',
+							data : {
+								'markerId' : $(this).data("id")
+							},
+							success : function(data) {
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}
 						});
 					}
 				});
-			}
+				
+				$(".btnUp").on("click", function(e) {
+					console.log("up");
+					e.preventDefault();
 
+					$.ajax({
+						type : "POST",
+						url : '/marker/up',
+						data : {
+							'markerId' : $(this).data("id")
+						},
+						success : function(data) {
+							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+						}
+					});
+				});
+
+				$(".btnDown").on("click", function(e) {
+					e.preventDefault();
+					
+					$.ajax({
+						type : "POST",
+						url : '/marker/down',
+						data : {
+							'markerId' : $(this).data("id")
+						},
+						success : function(data) {
+							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+						}
+					});
+				});
+				
+				$(".editableMessage").on("dblclick",function(e){
+					pause = true;
+					$(this).replaceWith('<input type="text" value="' + $(this).data("message") + '" class="messageEditor form-control" data-id="' + $(this).data("id") + '"/>');
+					$('.messageEditor').on('keypress blur',function(e){
+					    if(e.which == 13 || e.type == 'blur') {
+							$.ajax({
+								type : "POST",
+								url : '/marker/updateMessage',
+								data : {
+									'message' : $(this).val(),
+									'markerId' : $(this).data("id")
+								},
+								success : function(data) {
+								    pause = false;
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}
+							});
+					    }
+					});	
+					
+				});
+			}
 		});
 	</script>
 
-	<div id="coord" style="width:280px;display:none" class="row">
-		<div class="col-md-4">
-			<button id="btnInfoMarker" class="btn btn-info m-1"><img src="/icon/019-pin-4.png" style="width:32px;height:32px"/><div>資訊</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnWarningMarker" class="btn btn-warning m-1"><img src="/icon/warning.png" style="width:32px;height:32px"/><div>警示</div></button>
-		</div>
-		
-		<div class="col-md-4">
-			<button id="btnDangerMarker" class="btn btn-danger m-1"><img src="/icon/danger.png" style="width:32px;height:32px"/><div>危險</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnMedicalMarker" class="btn btn-light m-1"><img src="/icon/010-first-aid-kit.png" style="width:32px;height:32px"/><div>救護</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnGroupMarker" class="btn btn-success m-1"><img src="/icon/group.png" style="width:32px;height:32px"/><div>人群</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnProtestingMarker" class="btn btn-secondary m-1"><img src="/icon/protesting.png" style="width:32px;height:32px"/><div>示威</div></button>
-		</div>
-
-		<div class="col-md-4">
-			<button id="btnPoliceMarker" class="btn btn-light m-1"><img src="/icon/police.png" style="width:32px;height:32px"/><div>警察</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnRiotPoliceMarker" class="btn btn-warning m-1"><img src="/icon/riotpolice.png" style="width:32px;height:32px"/><div>速龍</div></button>
-		</div>
-		<div class="col-md-4">
-			<button id="btnTearGasMarker" class="btn btn-danger m-1"><img src="/icon/009-gas-mask.png" style="width:32px;height:32px"/><div>催淚</div></button>
-		</div>
-
-		<div class="col-md-12">
-			<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width:100%"></textarea>
-		</div>
+	<div id="coord" style="width: 185px; display: none">
+		<button id="btnInfoMarker" class="btn btn-info mt-1">
+			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
+			<div>資訊</div>
+		</button>
+		<button id="btnWarningMarker" class="btn btn-warning mt-1">
+			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
+			<div>警示</div>
+		</button>
+		<button id="btnDangerMarker" class="btn btn-danger mt-1">
+			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
+			<div>危險</div>
+		</button>
+		<button id="btnMedicalMarker" class="btn btn-light mt-1">
+			<img src="/icon/010-first-aid-kit.png" style="width: 32px; height: 32px" />
+			<div>救護</div>
+		</button>
+		<button id="btnGroupMarker" class="btn btn-success mt-1">
+			<img src="/icon/group.png" style="width: 32px; height: 32px" />
+			<div>人群</div>
+		</button>
+		<button id="btnProtestingMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/protesting.png" style="width: 32px; height: 32px" />
+			<div>示威</div>
+		</button>
+		<button id="btnPoliceMarker" class="btn btn-light mt-1">
+			<img src="/icon/police.png" style="width: 32px; height: 32px" />
+			<div>警察</div>
+		</button>
+		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">
+			<img src="/icon/riotpolice.png" style="width: 32px; height: 32px" />
+			<div>防暴</div>
+		</button>
+		<button id="btnTearGasMarker" class="btn btn-danger mt-1">
+			<img src="/icon/009-gas-mask.png" style="width: 32px; height: 32px" />
+			<div>催淚</div>
+		</button>
+		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
-</body>
 </html>

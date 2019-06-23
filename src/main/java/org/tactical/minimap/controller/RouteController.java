@@ -32,8 +32,9 @@ public class RouteController {
 	@GetMapping(path = "/{layer}/{zoom}/{lat}/{lng}")
 	public String layerXY(@PathVariable("layer") String layer, @PathVariable("zoom") Integer zoom, @PathVariable("lat") Double lat, @PathVariable("lng") Double lng, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 
-		CookieUtil.getUUID(request, response, session);
+		String uuid = CookieUtil.getUUID(request, response, session);
 
+		model.addAttribute("key", uuid);
 		model.addAttribute("zoom", zoom);
 		model.addAttribute("layer", layer);
 		model.addAttribute("lat", lat);

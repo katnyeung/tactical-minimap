@@ -56,6 +56,7 @@ public abstract class Marker extends Auditable<String> {
 	@Transient
 	public abstract int getIconSize();
 
+	@JsonIgnore
 	@Transient
 	public abstract int getRate();
 
@@ -217,6 +218,11 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setLayer(String layer) {
 		this.layer = layer;
+	}
+
+	@Override
+	public String toString() {
+		return "Marker [markerId=" + markerId + ", lat=" + lat + ", lng=" + lng + ", upVote=" + upVote + ", downVote=" + downVote + ", message=" + message + ", expire=" + expire + ", status=" + status + ", uuid=" + uuid + ", layer=" + layer + ", markerResponseList=" + markerResponseList + ", markerCache=" + markerCache + ", controllable=" + controllable + "]";
 	}
 
 }

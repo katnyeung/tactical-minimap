@@ -49,7 +49,7 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 50;
+		return 48;
 	}
 
 	@Override

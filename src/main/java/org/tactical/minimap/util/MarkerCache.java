@@ -18,6 +18,7 @@ public class MarkerCache {
 
 	Long expire;
 
+	@JsonIgnore
 	int rate;
 
 	@JsonIgnore
@@ -64,7 +65,11 @@ public class MarkerCache {
 	}
 
 	public Long getExpire() {
-		return expire;
+		if (expire < 0) {
+			return (long) 0;
+		} else {
+			return expire;
+		}
 	}
 
 	public void setExpire(Long expire) {

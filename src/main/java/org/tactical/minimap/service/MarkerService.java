@@ -32,8 +32,8 @@ public class MarkerService {
 		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
 			try {
 				Marker marker = MarkerClass.newInstance();
-				logger.info("Adding Marker : " + marker.getClass().getName());
 				if (marker.getType().equals(markerDTO.getType())) {
+					logger.info("Adding Marker : " + marker.getClass().getName());
 					marker = marker.fill(markerDTO);
 					marker.setLayer(layer);
 					markerDAO.save(marker);

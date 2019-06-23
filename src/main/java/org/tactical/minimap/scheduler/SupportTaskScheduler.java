@@ -1,7 +1,5 @@
 package org.tactical.minimap.scheduler;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +18,6 @@ import org.tactical.minimap.util.MarkerCache;
 public class SupportTaskScheduler {
 	public final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-
 	@Autowired
 	RedisService redisService;
 
@@ -31,7 +27,8 @@ public class SupportTaskScheduler {
 	@Scheduled(fixedRate = 3000)
 	// @Scheduled(cron = "0 0 */4 * * *")
 	public void makerManager() {
-		//logger.info("Cron Task :: Execution Time - " + dateTimeFormatter.format(LocalDateTime.now()));
+		// logger.info("Cron Task :: Execution Time - " +
+		// dateTimeFormatter.format(LocalDateTime.now()));
 
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();
@@ -39,12 +36,13 @@ public class SupportTaskScheduler {
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
 				// turn expire = 0 to D active
-				logger.info("( Updating " + mc.getMarkerId() + " to D");
+				logger.info("> Updating " + mc.getMarkerId() + " to D");
 				markerService.updateStatusUpDown(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED, mc.getUpVote(), mc.getDownVote());
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire(mc.getExpire() - 3);
+				mc.setExpire(mc.getExpire() - 1);
+
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());
@@ -60,9 +58,10 @@ public class SupportTaskScheduler {
 		}
 
 		for (Marker marker : markerList) {
-			logger.info("found marker : " + marker.getMarkerId());
+			logger.info("Processing : " + marker);
 			redisService.saveMarkerCache(marker);
 		}
+
 	}
 
 }

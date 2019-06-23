@@ -40,6 +40,7 @@ public class MarkerRestController {
 	@Autowired
 	RedisService redisService;
 
+    
 	@PostMapping("/{layer}/add")
 	public DefaultResult addMarker(@PathVariable("layer") String layer, HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
@@ -141,7 +142,9 @@ public class MarkerRestController {
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
 		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
-		logger.info("up expirerate : " + expireRate);
+
+		logger.info("up " + markerId + " second : " + (expireRate * mc.getRate()));
+
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate * mc.getRate(), "up")) {
@@ -159,7 +162,9 @@ public class MarkerRestController {
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
 		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
-		logger.info("up expirerate : " + expireRate);
+
+		logger.info("down " + markerId + " second : " + (expireRate * mc.getRate()));
+
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, expireRate * mc.getRate(), "down")) {
@@ -185,7 +190,7 @@ public class MarkerRestController {
 				mc.setExpire(mc.getExpire() - expireRate);
 				markerResponseService.downVote(marker, uuid);
 			}
-			logger.info("markerCache : " + mc.toHashMap());
+
 			redisService.saveMarkerCache(mc);
 
 			return true;

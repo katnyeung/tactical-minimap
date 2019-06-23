@@ -37,18 +37,18 @@ public class InfoMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 42;
 	}
 
 	@Override
 	public int getRate() {
-		return 5;
+		return 10;
 	}
 
 	@Override
 	public long getMarkerExpire() {
 		// TODO Auto-generated method stub
-		return (long) 120;
+		return 180;
 	}
 
 }
