@@ -37,7 +37,7 @@
 		var pause = false;
 		
 		String.prototype.toMMSS = function () {
-		    var sec_num = parseInt(this, 10); // don't forget the second param
+		    var sec_num = parseInt(this, 10); 
 		    var hours   = Math.floor(sec_num / 3600);
 		    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
 		    var seconds = sec_num - (hours * 3600) - (minutes * 60);
@@ -47,12 +47,10 @@
 		    if (seconds < 10) {seconds = "0"+seconds;}
 		    
 		    if(Math.floor(sec_num / 3600) > 1){
-			    return hours + ':' + minutes+':'+seconds;
+			    return hours+':'+minutes+':'+seconds;
 		    }else{
 			    return minutes+':'+seconds;
 		    }
-		    
-		    
 		}
 		
 		String.prototype.formatDate = function () {
