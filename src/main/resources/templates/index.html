@@ -92,12 +92,19 @@
 				
 			});
 
+			updateMarkers(map.getCenter().lat, map.getCenter().lng);
+			
 			clickRegister($("#btnInfoMarker"), 'info');
 			clickRegister($("#btnWarningMarker"), 'warning');
 			clickRegister($("#btnDangerMarker"), 'danger');
+			
 			clickRegister($("#btnMedicalMarker"), 'medical');
 			clickRegister($("#btnGroupMarker"), 'group');
-			clickRegister($("#btnProtestingMarker"), 'protesting');
+			clickRegister($("#btnSupplyMarker"), 'supply');
+
+			clickRegister($("#btnBlockadeMarker"), 'blockade');
+			clickRegister($("#btnConflictMarker"), 'conflict');
+			
 			clickRegister($("#btnPoliceMarker"), 'police');
 			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
@@ -164,11 +171,12 @@
 					
 					var upDownButton = 'loading';
 					var counter = '**';
+					var textMessage = item.message == '' ? '' : '<mark class="rounded" style="white-space: nowrap;">' + item.message +  '</mark><br/>';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
 					
-					if (item.controllable){
+					if (item.controllable){						
 						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = '&nbsp;&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
@@ -187,7 +195,7 @@
 					
 					var divIcon = L.divIcon({
 					    className:'location-icon',
-					    html: '<div>' + '<img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton + '</div>',
+					    html: '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + textMessage + counter + upDownButton + '</div>',
 					    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
 					});
 								
@@ -304,7 +312,6 @@
 			}
 		});
 	</script>
-
 	<div id="coord" style="width: 185px; display: none">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
@@ -318,19 +325,30 @@
 			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
 			<div>危險</div>
 		</button>
+
 		<button id="btnMedicalMarker" class="btn btn-light mt-1">
 			<img src="/icon/010-first-aid-kit.png" style="width: 32px; height: 32px" />
 			<div>救護</div>
 		</button>
-		<button id="btnGroupMarker" class="btn btn-success mt-1">
+		<button id="btnGroupMarker" class="btn btn-info mt-1">
 			<img src="/icon/group.png" style="width: 32px; height: 32px" />
 			<div>人群</div>
 		</button>
-		<button id="btnProtestingMarker" class="btn btn-secondary mt-1">
-			<img src="/icon/protesting.png" style="width: 32px; height: 32px" />
-			<div>示威</div>
+		<button id="btnSupplyMarker" class="btn btn-success mt-1">
+			<img src="/icon/supply.png" style="width: 32px; height: 32px" />
+			<div>補給</div>
 		</button>
-		<button id="btnPoliceMarker" class="btn btn-light mt-1">
+
+		<button id="btnBlockadeMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/ironbarrier.png" style="width: 32px; height: 32px" />
+			<div>封鎖</div>
+		</button>
+		<button id="btnConflictMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/conflict.png" style="width: 32px; height: 32px" />
+			<div>爭執</div>
+		</button>
+
+		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/police.png" style="width: 32px; height: 32px" />
 			<div>警察</div>
 		</button>

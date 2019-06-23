@@ -32,7 +32,6 @@ public class MarkerEventController {
 		emitter.setLng(lng);
 
 		markerEventScheduler.addEmitter(emitter);
-		markerEventScheduler.doNotify();
 		emitter.onCompletion(() -> markerEventScheduler.removeEmitter(emitter));
 		emitter.onTimeout(() -> markerEventScheduler.removeEmitter(emitter));
 

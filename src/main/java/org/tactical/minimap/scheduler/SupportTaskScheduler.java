@@ -41,7 +41,7 @@ public class SupportTaskScheduler {
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire(mc.getExpire() - 1);
+				mc.setExpire(mc.getExpire() - 3);
 
 				redisService.saveMarkerCache(mc);
 			}

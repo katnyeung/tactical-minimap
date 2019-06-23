@@ -2,7 +2,6 @@ package org.tactical.minimap.repository.marker;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -10,29 +9,18 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "protesting")
+@DiscriminatorValue(value = "supply")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class ProtestingMarker extends Marker {
-
-	@NotNull
-	int level;
-
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
+public class SupplyMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "protesting";
+		return "supply";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		ProtestingMarker marker = new ProtestingMarker();
+		SupplyMarker marker = new SupplyMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -44,22 +32,22 @@ public class ProtestingMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "protesting.png";
+		return "supply.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 50;
+		return 52;
 	}
 
 	@Override
 	public int getRate() {
-		return 5;
+		return 10;
 	}
 
 	@Override
 	public long getMarkerExpire() {
-		return 60;
+		return 240;
 	}
 
 }
