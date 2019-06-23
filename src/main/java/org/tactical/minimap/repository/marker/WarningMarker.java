@@ -56,12 +56,12 @@ public class WarningMarker extends Marker {
 	@Override
 	public int getRate() {
 		// TODO Auto-generated method stub
-		return 5;
+		return 8;
 	}
 
 	@Override
 	public long getMarkerExpire() {
-		return 5;
+		return 90;
 	}
 
 }

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -85,13 +86,9 @@
 			map.on('contextmenu', onMapClick);
 
 			map.on('dragend zoomend', function(e) {
-				
-				//updateMarkers(map.getCenter().lat, map.getCenter().lng);
-				
 				history.replaceState(null, null, '/[[${layer}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
-				
 			});
-
+						
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			
 			clickRegister($("#btnInfoMarker"), 'info');
@@ -258,7 +255,6 @@
 				});
 				
 				$(".btnUp").on("click", function(e) {
-					console.log("up");
 					e.preventDefault();
 
 					$.ajax({

@@ -54,12 +54,12 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public int getRate() {
-		return 5;
+		return 10;
 	}
 
 	@Override
 	public long getMarkerExpire() {
-		return 180;
+		return 240;
 	}
 
 }

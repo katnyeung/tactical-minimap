@@ -42,7 +42,7 @@ public class MedicalMarker extends Marker {
 
 	@Override
 	public int getRate() {
-		return 10;
+		return 15;
 	}
 
 	@Override

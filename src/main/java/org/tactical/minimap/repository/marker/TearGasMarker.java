@@ -61,7 +61,7 @@ public class TearGasMarker extends Marker {
 	@Override
 	public long getMarkerExpire() {
 		// TODO Auto-generated method stub
-		return 60;
+		return 120;
 	}
 
 }

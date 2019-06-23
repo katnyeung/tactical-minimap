@@ -54,7 +54,7 @@ public class ConflictMarker extends Marker {
 
 	@Override
 	public int getRate() {
-		return 5;
+		return 10;
 	}
 
 	@Override
