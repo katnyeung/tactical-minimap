@@ -40,7 +40,6 @@ public class MarkerRestController {
 	@Autowired
 	RedisService redisService;
 
-    
 	@PostMapping("/{layer}/add")
 	public DefaultResult addMarker(@PathVariable("layer") String layer, HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
@@ -141,13 +140,11 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
-
-		logger.info("up " + markerId + " second : " + (expireRate * mc.getRate()));
+		logger.info("up " + markerId + " second : " + (mc.getUpRate() * mc.getUpVote()));
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, expireRate * mc.getRate(), "up")) {
+		if (vote(uuid, markerId, mc.getUpRate(), "up")) {
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
@@ -161,13 +158,11 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		int expireRate = markerResponseService.getExpireRate(mc.getLayer(), mc.getLat(), mc.getLng(), ConstantsUtil.RANGE);
-
-		logger.info("down " + markerId + " second : " + (expireRate * mc.getRate()));
+		logger.info("down " + markerId + " second : " + (mc.getDownRate()));
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, expireRate * mc.getRate(), "down")) {
+		if (vote(uuid, markerId, mc.getDownRate(), "down")) {
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
@@ -182,7 +177,8 @@ public class MarkerRestController {
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 			if (type.equals("up")) {
 				mc.setUpVote(mc.getUpVote() + 1);
-				mc.setExpire(mc.getExpire() + expireRate);
+				// make it curve
+				mc.setExpire(mc.getExpire() + (expireRate * mc.getUpVote()));
 				markerResponseService.upVote(marker, uuid);
 
 			} else if (type.equals("down")) {

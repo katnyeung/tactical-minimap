@@ -53,15 +53,21 @@ public class RiotPoliceMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
+	public int getUpRate() {
 		// TODO Auto-generated method stub
-		return 7;
+		return 20;
 	}
+
+	@Override
+	public int getDownRate() {
+		return 20;
+	}
+	
 
 	@Override
 	public long getMarkerExpire() {
 		// TODO Auto-generated method stub
-		return 120;
+		return 60;
 	}
 
 }

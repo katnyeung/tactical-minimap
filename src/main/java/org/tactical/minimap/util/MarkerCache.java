@@ -19,7 +19,10 @@ public class MarkerCache {
 	Long expire;
 
 	@JsonIgnore
-	int rate;
+	int upRate;
+
+	@JsonIgnore
+	int downRate;
 
 	@JsonIgnore
 	String layer;
@@ -76,12 +79,20 @@ public class MarkerCache {
 		this.expire = expire;
 	}
 
-	public int getRate() {
-		return rate;
+	public int getUpRate() {
+		return upRate;
 	}
 
-	public void setRate(int rate) {
-		this.rate = rate;
+	public void setUpRate(int upRate) {
+		this.upRate = upRate;
+	}
+
+	public int getDownRate() {
+		return downRate;
+	}
+
+	public void setDownRate(int downRate) {
+		this.downRate = downRate;
 	}
 
 	public String getLayer() {
@@ -98,7 +109,8 @@ public class MarkerCache {
 		hashMap.put("lng", "" + lng);
 		hashMap.put("upVote", "" + upVote);
 		hashMap.put("downVote", "" + downVote);
-		hashMap.put("rate", "" + rate);
+		hashMap.put("upRate", "" + upRate);
+		hashMap.put("downRate", "" + downRate);
 		hashMap.put("expire", "" + expire);
 		hashMap.put("layer", "" + layer);
 		return hashMap;
@@ -112,7 +124,8 @@ public class MarkerCache {
 			mc.setUpVote(Integer.parseInt((String) objMap.get("upVote")));
 			mc.setDownVote(Integer.parseInt((String) objMap.get("downVote")));
 			mc.setExpire(Long.parseLong((String) objMap.get("expire")));
-			mc.setRate(Integer.parseInt((String) objMap.get("rate")));
+			mc.setUpRate(Integer.parseInt((String) objMap.get("upRate")));
+			mc.setDownRate(Integer.parseInt((String) objMap.get("downRate")));
 			mc.setLayer((String) objMap.get("layer"));
 			return mc;
 		} else {

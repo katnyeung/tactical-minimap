@@ -53,9 +53,15 @@ public class GroupMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
-		return 15;
+	public int getUpRate() {
+		return 90;
 	}
+
+	@Override
+	public int getDownRate() {
+		return 90;
+	}
+	
 
 	@Override
 	public long getMarkerExpire() {

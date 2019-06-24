@@ -53,10 +53,16 @@ public class TearGasMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
+	public int getUpRate() {
 		// TODO Auto-generated method stub
-		return 5;
+		return 15;
 	}
+
+	@Override
+	public int getDownRate() {
+		return 15;
+	}
+	
 
 	@Override
 	public long getMarkerExpire() {

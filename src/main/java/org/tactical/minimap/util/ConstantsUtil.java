@@ -3,7 +3,7 @@ package org.tactical.minimap.util;
 public class ConstantsUtil {
 	public static final String STATUS_SUCCESS = "success";
 	public static final String STATUS_ERROR = "error";
-	public static final Double RANGE = 10.0;
+	public static final Double RANGE = 1.0;
 
 	public static final String REDIS_MARKER_PREFIX = "marker";
 	public static final String REDIS_MARKER_RESPONSE_PREFIX = "marker_response";

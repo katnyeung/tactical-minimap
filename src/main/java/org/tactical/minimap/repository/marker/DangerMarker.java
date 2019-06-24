@@ -53,10 +53,15 @@ public class DangerMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
-		// TODO Auto-generated method stub
-		return 8;
+	public int getUpRate() {
+		return 40;
 	}
+
+	@Override
+	public int getDownRate() {
+		return 40;
+	}
+	
 
 	@Override
 	public long getMarkerExpire() {

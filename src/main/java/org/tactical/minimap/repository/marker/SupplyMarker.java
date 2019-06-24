@@ -41,9 +41,15 @@ public class SupplyMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
-		return 10;
+	public int getUpRate() {
+		return 90;
 	}
+
+	@Override
+	public int getDownRate() {
+		return 90;
+	}
+	
 
 	@Override
 	public long getMarkerExpire() {

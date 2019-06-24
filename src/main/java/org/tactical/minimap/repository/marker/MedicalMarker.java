@@ -39,11 +39,17 @@ public class MedicalMarker extends Marker {
 	public int getIconSize() {
 		return 40;
 	}
+	
+	@Override
+	public int getUpRate() {
+		return 90;
+	}
 
 	@Override
-	public int getRate() {
-		return 15;
+	public int getDownRate() {
+		return 90;
 	}
+	
 
 	@Override
 	public long getMarkerExpire() {

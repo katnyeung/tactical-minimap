@@ -54,9 +54,14 @@ public class WarningMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
+	public int getUpRate() {
 		// TODO Auto-generated method stub
-		return 8;
+		return 60;
+	}
+
+	@Override
+	public int getDownRate() {
+		return 60;
 	}
 
 	@Override

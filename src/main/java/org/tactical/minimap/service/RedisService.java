@@ -39,7 +39,8 @@ public class RedisService {
 		mc.setLng(marker.getLng());
 		mc.setMarkerId(marker.getMarkerId());
 		mc.setExpire(marker.getExpire());
-		mc.setRate(marker.getRate());
+		mc.setUpRate(marker.getUpRate());
+		mc.setDownRate(marker.getDownRate());
 		mc.setLayer(marker.getLayer());
 		saveMarkerCache(mc);
 	}

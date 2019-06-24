@@ -82,4 +82,8 @@ public class MarkerService {
 		marker.setMessage(message);
 		markerDAO.save(marker);
 	}
+
+	public int getMarkerCountInRange(String layer, Double lat, Double lng, Double range) {
+		return markerDAO.getMarkerCountInRange(layer, lat - range, lat + range, lng - range, lng + range);
+	}
 }

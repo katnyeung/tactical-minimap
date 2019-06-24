@@ -26,4 +26,9 @@ public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 	@Modifying
 	@Query("UPDATE Marker m SET m.status = :status, upVote = :upVote, downVote = :downVote WHERE m.markerId = :markerId")
 	public void updateStatusUpDown(@Param("markerId") Long markerId, @Param("status") String status, @Param("upVote") int upVote, @Param("downVote") int downVote);
+	
+
+	@Query(value = "SELECT COUNT(1) AS markerCount FROM marker m WHERE m.layer = :layer AND m.status = 'A' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng", nativeQuery = true)
+	int getMarkerCountInRange(@Param("layer") String layer, @Param("fromLat") Double fromLat, @Param("toLat") Double toLat, @Param("fromLng") Double fromLng, @Param("toLng") Double toLng);
+
 }

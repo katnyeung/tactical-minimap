@@ -127,7 +127,11 @@
 							'message' : message
 						},
 						success : function(data) {
-							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							if(data.status == 'success'){
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}else{
+								toggleAlert(data.remarks);
+							}
 						}
 					});
 				});
@@ -269,7 +273,11 @@
 							'markerId' : $(this).data("id")
 						},
 						success : function(data) {
-							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							if(data.status == 'success'){
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}else{
+								toggleAlert(data.remarks);
+							}
 						}
 					});
 				});
@@ -284,7 +292,11 @@
 							'markerId' : $(this).data("id")
 						},
 						success : function(data) {
-							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							if(data.status == 'success'){
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}else{
+								toggleAlert(data.remarks);
+							}
 						}
 					});
 				});
@@ -310,7 +322,17 @@
 					});	
 					
 				});
+				
+				function toggleAlert(message){
+					$("#bsalert").find('.message').text(message);
+					
+				    $("#bsalert").toggleClass('in out'); 
+				    
+				    return false; 
+				}
+
 			}
+			
 		});
 	</script>
 	<div id="coord" style="width: 185px; display: none">
@@ -362,5 +384,9 @@
 			<div>催淚</div>
 		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
+	</div>
+	<div class="alert alert-info fade out" id="bsalert">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong>Info!</strong>
+		<p class="message"></p>
 	</div>
 </html>

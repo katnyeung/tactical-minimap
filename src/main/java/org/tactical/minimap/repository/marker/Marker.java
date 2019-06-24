@@ -61,7 +61,11 @@ public abstract class Marker extends Auditable<String> {
 
 	@JsonIgnore
 	@Transient
-	public abstract int getRate();
+	public abstract int getUpRate();
+
+	@JsonIgnore
+	@Transient
+	public abstract int getDownRate();
 
 	@Transient
 	public abstract String getType();
@@ -225,7 +229,7 @@ public abstract class Marker extends Auditable<String> {
 
 	@Override
 	public String toString() {
-		return "Marker [markerId=" + markerId + ", lat=" + lat + ", lng=" + lng + ", upVote=" + upVote + ", downVote=" + downVote + ", message=" + message + ", expire=" + expire + ", status=" + status + ", uuid=" + uuid + ", layer=" + layer + ", markerResponseList=" + markerResponseList + ", markerCache=" + markerCache + ", controllable=" + controllable + "]";
+		return "Marker [markerId=" + markerId + ", lat=" + lat + ", lng=" + lng + ", upVote=" + upVote + ", downVote=" + downVote + ", message=" + message + ", expire=" + expire + ", status=" + status + ", uuid=" + uuid + ", layer=" + layer + ", markerCache=" + markerCache + ", controllable=" + controllable + "]";
 	}
 
 }

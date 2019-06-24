@@ -53,10 +53,15 @@ public class ConflictMarker extends Marker {
 	}
 
 	@Override
-	public int getRate() {
-		return 10;
+	public int getUpRate() {
+		return 50;
 	}
 
+	@Override
+	public int getDownRate() {
+		return 50;
+	}
+	
 	@Override
 	public long getMarkerExpire() {
 		return 120;
