@@ -140,11 +140,10 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		logger.info("up " + markerId + " second : " + (mc.getUpRate() * mc.getUpVote()));
-
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, mc.getUpRate(), "up")) {
+			logger.info("up " + (mc.getUpRate() * mc.getUpVote()) + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
@@ -158,11 +157,10 @@ public class MarkerRestController {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 
-		logger.info("down " + markerId + " second : " + (mc.getDownRate()));
-
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		if (vote(uuid, markerId, mc.getDownRate(), "down")) {
+			logger.info("down" + mc.getUpRate() + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");

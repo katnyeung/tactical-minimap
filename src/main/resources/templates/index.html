@@ -130,7 +130,13 @@
 							if(data.status == 'success'){
 								updateMarkers(map.getCenter().lat, map.getCenter().lng);
 							}else{
-								toggleAlert(data.remarks);
+								if(data.status == 'success'){
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}else{
+									var alertPopup = L.popup();
+					
+									alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+								}
 							}
 						}
 					});
@@ -177,21 +183,21 @@
 					
 					var upDownButton = 'loading';
 					var counter = '**';
-					var textMessage = item.message == '' ? '' : '<mark class="rounded" style="white-space: nowrap;">' + item.message +  '</mark><br/>';
+					var textMessage = item.message == '' ? '' : '<mark class="rounded message" style="white-space: nowrap;">' + item.message +  '</mark><br/>';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
 					
 					if (item.controllable){						
 						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
-						deleteBtn = '&nbsp;&nbsp;<a href="#" data-id="'+item.markerId+'" class="btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
+						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
 						message = '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
 					}
 					
 					if (item.markerCache != null) {
-						upDownButton = '<div style="width:120px;font-size:14px"><mark class="rounded"><a href="#" data-id="'+item.markerId+'" class="btnUp"><i class="fas fa-arrow-up fa-1x"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btnDown"><i class="fas fa-arrow-down fa-1x"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
-						counter = '<mark class="rounded" style="font-size:16px">' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px">' + ("" + item.markerCache.expire).toMMSS() + '</mark>';
+						upDownButton = '<div style="width:120px;font-size:14px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnUp"><i class="fas fa-plus-square"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDown"><i class="fas fa-minus-square"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
+						counter = '<div style="width:170px"><mark class="rounded" style="font-size:16px"><i class="far fa-clock"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0"><i class="fas fa-stopwatch"></i> ' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 					}
 					
@@ -225,7 +231,7 @@
 									'markerId' : item.markerId
 								},
 								success : function(data) {
-									 pause = false;
+									pause = false;
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}
 							});
@@ -248,6 +254,7 @@
 				});
 				
 				$(".btnDelete").on("click", function(e) {
+					var button = $(this);
 					e.preventDefault();
 					if(confirm("delete?")){
 						$.ajax({
@@ -257,13 +264,22 @@
 								'markerId' : $(this).data("id")
 							},
 							success : function(data) {
-								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								if(data.status == 'success'){
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}else{
+									var markers = $.grep(allMarkerList, function(e){ return e.markerId == button.data("id") });
+									
+									var alertPopup = L.popup();
+					
+									alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);
+								}
 							}
 						});
 					}
 				});
 				
 				$(".btnUp").on("click", function(e) {
+					var button = $(this);
 					e.preventDefault();
 
 					$.ajax({
@@ -276,13 +292,18 @@
 							if(data.status == 'success'){
 								updateMarkers(map.getCenter().lat, map.getCenter().lng);
 							}else{
-								toggleAlert(data.remarks);
+								var markers = $.grep(allMarkerList, function(e){ return e.markerId == button.data("id") });
+								
+								var alertPopup = L.popup();
+				
+								alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);
 							}
 						}
 					});
 				});
 
 				$(".btnDown").on("click", function(e) {
+					var button = $(this);
 					e.preventDefault();
 					
 					$.ajax({
@@ -295,7 +316,11 @@
 							if(data.status == 'success'){
 								updateMarkers(map.getCenter().lat, map.getCenter().lng);
 							}else{
-								toggleAlert(data.remarks);
+								var markers = $.grep(allMarkerList, function(e){ return e.markerId == button.data("id") });
+								
+								var alertPopup = L.popup();
+				
+								alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);
 							}
 						}
 					});
@@ -323,14 +348,6 @@
 					
 				});
 				
-				function toggleAlert(message){
-					$("#bsalert").find('.message').text(message);
-					
-				    $("#bsalert").toggleClass('in out'); 
-				    
-				    return false; 
-				}
-
 			}
 			
 		});
@@ -384,9 +401,5 @@
 			<div>催淚</div>
 		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
-	</div>
-	<div class="alert alert-info fade out" id="bsalert">
-		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> <strong>Info!</strong>
-		<p class="message"></p>
 	</div>
 </html>
