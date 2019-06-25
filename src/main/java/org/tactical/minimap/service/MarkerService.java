@@ -125,12 +125,9 @@ public class MarkerService {
 				if (totalUpVoteInList == 0.0) {
 					marker.setOpacity(1);
 				} else {
-					double weight = 1.0 / totalUpVoteInList;
-					if (mc.getUpVote() * weight < 0.5) {
-						marker.setOpacity(0.5);
-					} else {
-						marker.setOpacity((mc.getUpVote() * weight) + weight);
-					}
+					double weight = 0.2 / totalUpVoteInList;
+					marker.setOpacity((mc.getUpVote() * weight) + 0.8);
+
 				}
 			}
 		}
