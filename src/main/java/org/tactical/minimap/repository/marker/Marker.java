@@ -47,7 +47,7 @@ public abstract class Marker extends Auditable<String> {
 
 		ClassList.add(BlockadeMarker.class);
 		ClassList.add(ConflictMarker.class);
-		
+
 		ClassList.add(PoliceMarker.class);
 		ClassList.add(RiotPoliceMarker.class);
 		ClassList.add(TearGasMarker.class);
@@ -66,6 +66,10 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@Transient
 	public abstract int getDownRate();
+
+	@JsonIgnore
+	@Transient
+	public abstract int getDelay();
 
 	@Transient
 	public abstract String getType();
@@ -122,6 +126,9 @@ public abstract class Marker extends Auditable<String> {
 
 	@Transient
 	boolean controllable;
+
+	@Transient
+	double opacity;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -225,6 +232,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setLayer(String layer) {
 		this.layer = layer;
+	}
+
+	public double getOpacity() {
+		return opacity;
+	}
+
+	public void setOpacity(double opacity) {
+		this.opacity = opacity;
 	}
 
 	@Override

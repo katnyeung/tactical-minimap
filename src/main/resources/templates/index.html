@@ -27,6 +27,11 @@
 .location-icon {
 	width: 200px;
 }
+
+
+html * {
+	font-family: Trebuchet MS;
+}
 </style>
 </head>
 <body>
@@ -82,8 +87,10 @@
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 
 			var menu = L.popup();
-
+			var menuLatLng;
+			
 			function onMapClick(e) {
+				 menuLatLng = e.latlng;
 				$('#coord').show();
 				menu.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);
 			}
@@ -134,8 +141,7 @@
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}else{
 									var alertPopup = L.popup();
-					
-									alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
 								}
 							}
 						}
@@ -196,8 +202,14 @@
 					}
 					
 					if (item.markerCache != null) {
-						upDownButton = '<div style="width:120px;font-size:14px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnUp"><i class="fas fa-plus-square"></i>' + item.markerCache.upVote + '</a> <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDown"><i class="fas fa-minus-square"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
-						counter = '<div style="width:170px"><mark class="rounded" style="font-size:16px"><i class="far fa-clock"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0"><i class="fas fa-stopwatch"></i> ' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						upDownButton = '<div style="width:120px;font-size:16px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
+						
+						var stopWatchClass = '';
+						if(item.markerCache.expire < 30){
+							stopWatchClass = 'text-danger';
+						}
+						
+						counter = '<div style="width:150px"><mark class="rounded" style="font-size:16px"><i class="far fa-clock"></i> ' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch"></i> ' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 					}
 					
@@ -210,7 +222,7 @@
 					    html: '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + textMessage + counter + upDownButton + '</div>',
 					    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
 					});
-								
+					
 					if(marker.length == 0){
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : item.controllable,
@@ -238,12 +250,15 @@
 						})
 						
 						marker.markerId = item.markerId;
+						marker.setOpacity(item.opacity);
 						
 						allMarkerList.push(marker);
 					}else{
 						
 						marker[0].setIcon(divIcon);
 						marker[0]._popup.setContent(content);
+
+						marker[0].setOpacity((item.opacity));
 						
 						if(item.lat != marker.lat || item.lng != marker.lng){
 							var newLatLng = new L.LatLng(item.lat, item.lng);

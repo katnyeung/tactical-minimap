@@ -57,4 +57,10 @@ public class InfoMarker extends Marker {
 		return 180;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 5;
+	}
+
 }

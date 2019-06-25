@@ -73,12 +73,7 @@ public class MarkerRestController {
 
 		List<Marker> markerList = markerService.findMarkers(layer, lat, lng, ConstantsUtil.RANGE);
 
-		markerList.stream().forEach(m -> {
-			m.setMarkerCache(redisService.getMarkerCacheByMarkerId(m.getMarkerId()));
-			if (m.getUuid().equals(uuid)) {
-				m.setControllable(true);
-			}
-		});
+		markerService.addMarkerCache(markerList, uuid);
 
 		return MarkerListResult.success(markerList);
 
@@ -95,7 +90,7 @@ public class MarkerRestController {
 			markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
@@ -112,7 +107,7 @@ public class MarkerRestController {
 			redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerDTO.getMarkerId());
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
@@ -129,7 +124,7 @@ public class MarkerRestController {
 
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
@@ -146,7 +141,7 @@ public class MarkerRestController {
 			logger.info("up " + (mc.getUpRate() * mc.getUpVote()) + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}
@@ -163,7 +158,7 @@ public class MarkerRestController {
 			logger.info("down" + mc.getUpRate() + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
 		}
 
 	}

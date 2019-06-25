@@ -62,11 +62,15 @@ public class DangerMarker extends Marker {
 		return 40;
 	}
 	
-
 	@Override
 	public long getMarkerExpire() {
 		// TODO Auto-generated method stub
 		return 90;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 15;
+	}
 }

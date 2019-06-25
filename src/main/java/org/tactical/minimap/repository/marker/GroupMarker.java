@@ -62,10 +62,14 @@ public class GroupMarker extends Marker {
 		return 90;
 	}
 	
-
 	@Override
 	public long getMarkerExpire() {
 		return 240;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 5;
+	}
 }

@@ -63,11 +63,15 @@ public class RiotPoliceMarker extends Marker {
 		return 20;
 	}
 	
-
 	@Override
 	public long getMarkerExpire() {
 		// TODO Auto-generated method stub
 		return 60;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 15;
+	}
 }

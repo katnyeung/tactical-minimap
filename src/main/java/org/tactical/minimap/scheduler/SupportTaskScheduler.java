@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.marker.Marker;
-import org.tactical.minimap.service.MarkerResponseService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
@@ -43,7 +42,6 @@ public class SupportTaskScheduler {
 			} else {
 				// count down the timer of those marker in redis
 				mc.setExpire(mc.getExpire() - 3);
-
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());

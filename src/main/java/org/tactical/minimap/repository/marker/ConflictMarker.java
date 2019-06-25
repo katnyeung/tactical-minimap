@@ -61,10 +61,15 @@ public class ConflictMarker extends Marker {
 	public int getDownRate() {
 		return 50;
 	}
-	
+
 	@Override
 	public long getMarkerExpire() {
 		return 120;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 15;
+	}
 }

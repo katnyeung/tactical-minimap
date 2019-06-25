@@ -69,4 +69,9 @@ public class WarningMarker extends Marker {
 		return 90;
 	}
 
+	@Override
+	public int getDelay() {
+		// TODO Auto-generated method stub
+		return 15;
+	}
 }

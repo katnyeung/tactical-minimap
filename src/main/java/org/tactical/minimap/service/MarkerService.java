@@ -1,5 +1,6 @@
 package org.tactical.minimap.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
+import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 @Service
@@ -19,6 +21,9 @@ public class MarkerService {
 
 	@Autowired
 	MarkerDAO<Marker> markerDAO;
+
+	@Autowired
+	RedisService redisService;
 
 	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
 		return markerDAO.findAllByLatLng(layer, lat - range, lng - range, lat + range, lng + range);
@@ -86,4 +91,49 @@ public class MarkerService {
 	public int getMarkerCountInRange(String layer, Double lat, Double lng, Double range) {
 		return markerDAO.getMarkerCountInRange(layer, lat - range, lat + range, lng - range, lng + range);
 	}
+
+	public double getTotalUpVoteInList(List<Marker> markerList) {
+		double totalUpVote = 0.0;
+		for (Marker marker : markerList) {
+			totalUpVote = marker.getUpVote();
+		}
+
+		return totalUpVote;
+	}
+
+	public void addMarkerCache(List<Marker> markerList, String uuid) {
+		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
+		double totalUpVoteInList = 0.0;
+
+		for (Marker marker : markerList) {
+			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+			if (mc != null) {
+				markerCacheMap.put(marker.getMarkerId(), mc);
+				totalUpVoteInList += mc.getUpVote();
+			}
+		}
+
+		for (Marker marker : markerList) {
+			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
+			if (mc != null) {
+				marker.setMarkerCache(mc);
+				if (marker.getUuid().equals(uuid)) {
+					marker.setControllable(true);
+				}
+
+				// set opacity
+				if (totalUpVoteInList == 0.0) {
+					marker.setOpacity(1);
+				} else {
+					double weight = 1.0 / totalUpVoteInList;
+					if (mc.getUpVote() * weight < 0.5) {
+						marker.setOpacity(0.5);
+					} else {
+						marker.setOpacity((mc.getUpVote() * weight) + weight);
+					}
+				}
+			}
+		}
+	}
+
 }
