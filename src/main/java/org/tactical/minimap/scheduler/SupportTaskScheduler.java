@@ -27,7 +27,7 @@ public class SupportTaskScheduler {
 	@Scheduled(fixedRate = 3000)
 	// @Scheduled(cron = "0 0 */4 * * *")
 	public void makerManager() {
-		// logger.info("Cron Task :: Execution Time - " +
+		// logger.info("Cron Task :: Execution Time -
 		// dateTimeFormatter.format(LocalDateTime.now()));
 
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
@@ -56,13 +56,14 @@ public class SupportTaskScheduler {
 			markerList = markerService.findActiveMarkers();
 		}
 
+		// put new marker on map
 		for (Marker marker : markerList) {
 			logger.info("Processing : " + marker);
 
 			int markerCount = markerService.getMarkerCountInRange(marker.getLayer(), marker.getLat(), marker.getLng(), ConstantsUtil.RANGE);
-			
+
 			marker.setExpire(marker.getExpire() - (markerCount * 5));
-			
+
 			redisService.saveMarkerCache(marker);
 		}
 

@@ -1,5 +1,7 @@
 package org.tactical.minimap.controller;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,15 +47,42 @@ public class MarkerRestController {
 		String uuid = CookieUtil.getUUID(request, response, session);
 		markerDTO.setUuid(uuid);
 
-		if (redisService.addLock(layer, uuid, ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND)) {
+		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
+			try {
+				Marker marker = MarkerClass.newInstance();
 
-			markerService.addMarker(layer, markerDTO);
+				if (marker.getType().equals(markerDTO.getType())) {
+					String lockedTimeString = redisService.addLock(layer, uuid);
+					if (lockedTimeString != null) {
 
-			return DefaultResult.success();
-		} else {
+						Calendar lockedTime = Calendar.getInstance();
+						lockedTime.setTimeInMillis(Long.parseLong(lockedTimeString));
+						lockedTime.add(Calendar.SECOND, marker.getDelay());
 
-			return DefaultResult.error("Please Wait " + ConstantsUtil.REDIS_MARKER_ADD_INTERVAL_IN_SECOND + " seconds");
+						Calendar currentTime = Calendar.getInstance();
+
+						Long diffInSecond = currentTime.getTimeInMillis() - lockedTime.getTimeInMillis();
+
+						if (diffInSecond > 0) {
+							markerService.addMarker(layer, markerDTO, marker);
+							redisService.updateLock(layer, uuid);
+						} else {
+							return DefaultResult.error("Please wait " + (diffInSecond / 1000.0 * -1) + " seconds");
+						}
+
+					} else {
+						markerService.addMarker(layer, markerDTO, marker);
+					}
+
+				}
+
+			} catch (InstantiationException | IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+
+		return DefaultResult.success();
 	}
 
 	@GetMapping("/{layer}/listAll")
@@ -137,13 +166,19 @@ public class MarkerRestController {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, mc.getUpRate(), "up")) {
+		String lockedTimeInMillis = vote(uuid, markerId, mc.getUpRate(), "up");
+
+		if (lockedTimeInMillis == null) {
 			logger.info("up " + (mc.getUpRate() * mc.getUpVote()) + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
-		}
+			Calendar currentTime = Calendar.getInstance();
+			Calendar lockedTime = Calendar.getInstance();
+			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
+			lockedTime.add(Calendar.SECOND, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
 
+			return DefaultResult.error("Please wait " + ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0) + " seconds");
+		}
 	}
 
 	@PostMapping("/down")
@@ -154,17 +189,25 @@ public class MarkerRestController {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		if (vote(uuid, markerId, mc.getDownRate(), "down")) {
+		String lockedTimeInMillis = vote(uuid, markerId, mc.getDownRate(), "down");
+
+		if (lockedTimeInMillis == null) {
 			logger.info("down" + mc.getUpRate() + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
-		}
+			Calendar currentTime = Calendar.getInstance();
+			Calendar lockedTime = Calendar.getInstance();
+			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
+			lockedTime.add(Calendar.SECOND, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
 
+			return DefaultResult.error("Please wait " + ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0) + " seconds");
+		}
 	}
 
-	public boolean vote(String uuid, Long markerId, int expireRate, String type) {
-		if (redisService.voteLock(markerId, uuid, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND)) {
+	public String vote(String uuid, Long markerId, int expireRate, String type) {
+		String lockedTimeInMillis = redisService.addVoteLock(markerId, uuid, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
+
+		if (lockedTimeInMillis == null) {
 			Marker marker = markerService.findMarkerByMarkerId(markerId);
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
@@ -182,9 +225,9 @@ public class MarkerRestController {
 
 			redisService.saveMarkerCache(mc);
 
-			return true;
+			return null;
 		} else {
-			return false;
+			return lockedTimeInMillis;
 		}
 	}
 }

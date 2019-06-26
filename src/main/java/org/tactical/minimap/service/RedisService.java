@@ -2,6 +2,7 @@ package org.tactical.minimap.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,30 +55,43 @@ public class RedisService {
 		return mc;
 	}
 
-	public boolean voteLock(Long markerId, String uuid, int time) {
+	public String addVoteLock(Long markerId, String uuid, int time) {
 		String key = ConstantsUtil.REDIS_MARKER_RESPONSE_PREFIX + ":" + markerId.toString() + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value == null) {
 
-			stringRedisTemplate.opsForValue().set(key, "1");
+			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
 			stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
 
-			return true;
+			return null;
 		} else {
-			return false;
+			return value;
 		}
 	}
 
-	public boolean addLock(String layer, String uuid, int time) {
+	public String addLock(String layer, String uuid) {
 		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value == null) {
 
-			stringRedisTemplate.opsForValue().set(key, "1");
-			stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
+			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
 
+			return null;
+		} else {
+			return value;
+		}
+	}
+
+	public boolean updateLock(String layer, String uuid) {
+		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
+		String value = stringRedisTemplate.opsForValue().get(key);
+
+		if (value != null) {
+
+			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
+			
 			return true;
 		} else {
 			return false;
@@ -101,7 +115,7 @@ public class RedisService {
 	public List<String> scanKeys(String pattern) {
 		List<String> keySet = new ArrayList<>();
 
-		//logger.info("Searching for pattern {}", pattern);
+		// logger.info("Searching for pattern {}", pattern);
 		Iterable<byte[]> byters = stringRedisTemplate.execute(new RedisCallback<Iterable<byte[]>>() {
 
 			@Override

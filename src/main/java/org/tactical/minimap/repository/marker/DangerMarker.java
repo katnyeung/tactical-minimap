@@ -49,12 +49,12 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 48;
+		return 38;
 	}
 
 	@Override
 	public int getUpRate() {
-		return 40;
+		return 15;
 	}
 
 	@Override
@@ -64,13 +64,11 @@ public class DangerMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		// TODO Auto-generated method stub
-		return 90;
+		return 45;
 	}
 
 	@Override
 	public int getDelay() {
-		// TODO Auto-generated method stub
-		return 15;
+		return 20;
 	}
 }

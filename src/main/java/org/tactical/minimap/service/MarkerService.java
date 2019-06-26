@@ -33,24 +33,14 @@ public class MarkerService {
 		return markerDAO.findAll();
 	}
 
-	public Marker addMarker(String layer, MarkerDTO markerDTO) {
-		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
-			try {
-				Marker marker = MarkerClass.newInstance();
-				if (marker.getType().equals(markerDTO.getType())) {
-					logger.info("Adding Marker : " + marker.getClass().getName());
-					marker = marker.fill(markerDTO);
-					marker.setLayer(layer);
-					markerDAO.save(marker);
-				}
+	public Marker addMarker(String layer, MarkerDTO markerDTO, Marker marker) {
 
-			} catch (InstantiationException | IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		logger.info("Adding Marker : " + marker.getClass().getName());
+		marker = marker.fill(markerDTO);
+		marker.setLayer(layer);
+		markerDAO.save(marker);
 
-		return null;
+		return marker;
 	}
 
 	public Marker findMarkerByMarkerId(Long markerId) {
@@ -103,30 +93,36 @@ public class MarkerService {
 
 	public void addMarkerCache(List<Marker> markerList, String uuid) {
 		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
-		double totalUpVoteInList = 0.0;
+		double maxUpVoteInList = 0.0;
 
 		for (Marker marker : markerList) {
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
 			if (mc != null) {
 				markerCacheMap.put(marker.getMarkerId(), mc);
-				totalUpVoteInList += mc.getUpVote();
+				if(mc.getUpVote() > maxUpVoteInList) {
+					maxUpVoteInList = mc.getUpVote();
+				}
 			}
 		}
-
+		
 		for (Marker marker : markerList) {
 			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
+
+			if (marker.getUuid().equals(uuid)) {
+				marker.setControllable(true);
+			}
+
+			marker.setOpacity(1);
+
 			if (mc != null) {
 				marker.setMarkerCache(mc);
-				if (marker.getUuid().equals(uuid)) {
-					marker.setControllable(true);
-				}
 
 				// set opacity
-				if (totalUpVoteInList == 0.0) {
+				if (maxUpVoteInList == 0.0) {
 					marker.setOpacity(1);
 				} else {
-					double weight = 0.2 / totalUpVoteInList;
-					marker.setOpacity((mc.getUpVote() * weight) + 0.8);
+					double weight = 0.3 / maxUpVoteInList;
+					marker.setOpacity((mc.getUpVote() * weight) + 0.7);
 
 				}
 			}
