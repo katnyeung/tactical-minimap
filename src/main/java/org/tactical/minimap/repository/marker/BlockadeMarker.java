@@ -68,8 +68,12 @@ public class BlockadeMarker extends Marker {
 	}
 
 	@Override
-	public int getDelay() {
-		// TODO Auto-generated method stub
+	public int getAddDelay() {
 		return 10;
+	}
+	
+	@Override
+	public int getVoteDelay() {
+		return 5;
 	}
 }

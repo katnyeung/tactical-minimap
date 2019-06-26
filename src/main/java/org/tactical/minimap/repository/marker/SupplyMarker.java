@@ -49,15 +49,19 @@ public class SupplyMarker extends Marker {
 	public int getDownRate() {
 		return 90;
 	}
-	
+
 	@Override
 	public long getMarkerExpire() {
 		return 240;
 	}
 
 	@Override
-	public int getDelay() {
-		// TODO Auto-generated method stub
+	public int getAddDelay() {
+		return 5;
+	}
+
+	@Override
+	public int getVoteDelay() {
 		return 5;
 	}
 }

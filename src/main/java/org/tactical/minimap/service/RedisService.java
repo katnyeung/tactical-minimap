@@ -56,11 +56,10 @@ public class RedisService {
 	}
 
 	public String addVoteLock(Long markerId, String uuid, int time) {
-		String key = ConstantsUtil.REDIS_MARKER_RESPONSE_PREFIX + ":" + markerId.toString() + ":" + uuid;
+		String key = ConstantsUtil.REDIS_MARKER_RESPONSE_LOCK_PREFIX + ":" + markerId.toString() + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value == null) {
-
 			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
 			stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
 
@@ -70,28 +69,25 @@ public class RedisService {
 		}
 	}
 
-	public String addLock(String layer, String uuid) {
+	public String addMarkerLock(String layer, String uuid, int time) {
 		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value == null) {
-
 			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
-
 			return null;
 		} else {
 			return value;
 		}
 	}
 
-	public boolean updateLock(String layer, String uuid) {
+	public boolean updateLock(String layer, String uuid, int time) {
 		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value != null) {
-
 			stringRedisTemplate.opsForValue().set(key, "" + Calendar.getInstance().getTimeInMillis());
-			
+
 			return true;
 		} else {
 			return false;

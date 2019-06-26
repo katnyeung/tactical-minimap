@@ -104,6 +104,7 @@ html * {
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			
 			clickRegister($("#btnInfoMarker"), 'info');
+			clickRegister($("#btnRedInfoMarker"), 'redinfo');
 			clickRegister($("#btnWarningMarker"), 'warning');
 			
 			clickRegister($("#btnMedicalMarker"), 'medical');
@@ -201,7 +202,7 @@ html * {
 							stopWatchClass = 'text-danger';
 						}
 						
-						counter = '<div style="width:150px"><mark class="rounded" style="font-size:16px"><i class="far fa-clock"></i> ' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch"></i> ' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 					}
 					
@@ -362,6 +363,10 @@ html * {
 	<div id="coord" style="width: 185px; display: none">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
+			<div>資訊</div>
+		</button>		
+		<button id="btnRedInfoMarker" class="btn btn-info mt-1">
+			<img src="/icon/017-pin-6.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
 		</button>
 		<button id="btnWarningMarker" class="btn btn-warning mt-1">

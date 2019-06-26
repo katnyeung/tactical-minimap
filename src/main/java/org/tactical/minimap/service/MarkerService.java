@@ -34,7 +34,6 @@ public class MarkerService {
 	}
 
 	public Marker addMarker(String layer, MarkerDTO markerDTO, Marker marker) {
-
 		logger.info("Adding Marker : " + marker.getClass().getName());
 		marker = marker.fill(markerDTO);
 		marker.setLayer(layer);
@@ -121,8 +120,8 @@ public class MarkerService {
 				if (maxUpVoteInList == 0.0) {
 					marker.setOpacity(1);
 				} else {
-					double weight = 0.3 / maxUpVoteInList;
-					marker.setOpacity((mc.getUpVote() * weight) + 0.7);
+					double weight = 0.2 / maxUpVoteInList;
+					marker.setOpacity((mc.getUpVote() * weight) + 0.8);
 
 				}
 			}

@@ -38,6 +38,7 @@ public abstract class Marker extends Auditable<String> {
 
 	static {
 		ClassList.add(InfoMarker.class);
+		ClassList.add(RedInfoMarker.class);
 		ClassList.add(WarningMarker.class);
 		ClassList.add(DangerMarker.class);
 
@@ -69,8 +70,12 @@ public abstract class Marker extends Auditable<String> {
 
 	@JsonIgnore
 	@Transient
-	public abstract int getDelay();
+	public abstract int getAddDelay();
 
+	@JsonIgnore
+	@Transient
+	public abstract int getVoteDelay();
+	
 	@Transient
 	public abstract String getType();
 

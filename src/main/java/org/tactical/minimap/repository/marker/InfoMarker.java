@@ -49,18 +49,19 @@ public class InfoMarker extends Marker {
 	public int getDownRate() {
 		return 90;
 	}
-	
 
 	@Override
 	public long getMarkerExpire() {
-		// TODO Auto-generated method stub
 		return 180;
 	}
 
 	@Override
-	public int getDelay() {
-		// TODO Auto-generated method stub
+	public int getAddDelay() {
 		return 5;
 	}
 
+	@Override
+	public int getVoteDelay() {
+		return 5;
+	}
 }

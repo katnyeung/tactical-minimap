@@ -1,7 +1,6 @@
 package org.tactical.minimap.controller;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,26 +51,28 @@ public class MarkerRestController {
 				Marker marker = MarkerClass.newInstance();
 
 				if (marker.getType().equals(markerDTO.getType())) {
-					String lockedTimeString = redisService.addLock(layer, uuid);
-					if (lockedTimeString != null) {
+					String lockedTimeInMillis = redisService.addMarkerLock(layer, uuid, marker.getAddDelay());
 
+					if (lockedTimeInMillis == null) {
+						markerService.addMarker(layer, markerDTO, marker);
+						return DefaultResult.success();
+					} else {
 						Calendar lockedTime = Calendar.getInstance();
-						lockedTime.setTimeInMillis(Long.parseLong(lockedTimeString));
-						lockedTime.add(Calendar.SECOND, marker.getDelay());
+						lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
+						lockedTime.add(Calendar.SECOND, marker.getAddDelay());
 
 						Calendar currentTime = Calendar.getInstance();
 
-						Long diffInSecond = currentTime.getTimeInMillis() - lockedTime.getTimeInMillis();
+						Double remainSecond = (lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0;
 
-						if (diffInSecond > 0) {
+						if (remainSecond < 0) {
 							markerService.addMarker(layer, markerDTO, marker);
-							redisService.updateLock(layer, uuid);
-						} else {
-							return DefaultResult.error("Please wait " + (diffInSecond / 1000.0 * -1) + " seconds");
+							redisService.updateLock(layer, uuid, marker.getAddDelay());
+							
+							return DefaultResult.success();
 						}
 
-					} else {
-						markerService.addMarker(layer, markerDTO, marker);
+						return DefaultResult.error("Please wait " + remainSecond + " seconds");
 					}
 
 				}
@@ -82,7 +83,7 @@ public class MarkerRestController {
 			}
 		}
 
-		return DefaultResult.success();
+		return DefaultResult.error("some error happen");
 	}
 
 	@GetMapping("/{layer}/listAll")
@@ -119,7 +120,7 @@ public class MarkerRestController {
 			markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Non authorized action");
 		}
 
 	}
@@ -136,7 +137,7 @@ public class MarkerRestController {
 			redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerDTO.getMarkerId());
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Non authorized action");
 		}
 
 	}
@@ -153,7 +154,7 @@ public class MarkerRestController {
 
 			return DefaultResult.success();
 		} else {
-			return DefaultResult.error("Please wait " + ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND + " seconds");
+			return DefaultResult.error("Non authorized action");
 		}
 
 	}
@@ -166,18 +167,13 @@ public class MarkerRestController {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		String lockedTimeInMillis = vote(uuid, markerId, mc.getUpRate(), "up");
+		Double remainSecond = vote(uuid, markerId, mc.getUpRate(), "up");
 
-		if (lockedTimeInMillis == null) {
+		if (remainSecond == null) {
 			logger.info("up " + (mc.getUpRate() * mc.getUpVote()) + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			Calendar currentTime = Calendar.getInstance();
-			Calendar lockedTime = Calendar.getInstance();
-			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
-			lockedTime.add(Calendar.SECOND, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
-
-			return DefaultResult.error("Please wait " + ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0) + " seconds");
+			return DefaultResult.error("Please wait " + remainSecond + " seconds");
 		}
 	}
 
@@ -189,26 +185,22 @@ public class MarkerRestController {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		String lockedTimeInMillis = vote(uuid, markerId, mc.getDownRate(), "down");
+		Double remainSecond = vote(uuid, markerId, mc.getDownRate(), "down");
 
-		if (lockedTimeInMillis == null) {
+		if (remainSecond == null) {
 			logger.info("down" + mc.getUpRate() + " second. #" + markerId);
 			return DefaultResult.success();
 		} else {
-			Calendar currentTime = Calendar.getInstance();
-			Calendar lockedTime = Calendar.getInstance();
-			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
-			lockedTime.add(Calendar.SECOND, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
-
-			return DefaultResult.error("Please wait " + ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0) + " seconds");
+			return DefaultResult.error("Please wait " + remainSecond + " seconds");
 		}
 	}
 
-	public String vote(String uuid, Long markerId, int expireRate, String type) {
-		String lockedTimeInMillis = redisService.addVoteLock(markerId, uuid, ConstantsUtil.REDIS_MARKER_RESPONSE_INTERVAL_IN_SECOND);
+	public Double vote(String uuid, Long markerId, int expireRate, String type) {
+		Marker marker = markerService.findMarkerByMarkerId(markerId);
+
+		String lockedTimeInMillis = redisService.addVoteLock(markerId, uuid, marker.getVoteDelay());
 
 		if (lockedTimeInMillis == null) {
-			Marker marker = markerService.findMarkerByMarkerId(markerId);
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 			if (type.equals("up")) {
@@ -227,7 +219,12 @@ public class MarkerRestController {
 
 			return null;
 		} else {
-			return lockedTimeInMillis;
+			Calendar currentTime = Calendar.getInstance();
+			Calendar lockedTime = Calendar.getInstance();
+			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
+			lockedTime.add(Calendar.SECOND, marker.getVoteDelay());
+
+			return ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0);
 		}
 	}
 }

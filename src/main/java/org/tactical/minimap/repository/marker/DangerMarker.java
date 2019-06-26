@@ -68,7 +68,12 @@ public class DangerMarker extends Marker {
 	}
 
 	@Override
-	public int getDelay() {
+	public int getAddDelay() {
 		return 20;
+	}
+	
+	@Override
+	public int getVoteDelay() {
+		return 5;
 	}
 }

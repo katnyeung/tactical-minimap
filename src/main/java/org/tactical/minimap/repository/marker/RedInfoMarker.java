@@ -2,7 +2,6 @@ package org.tactical.minimap.repository.marker;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -10,29 +9,18 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "teargas")
+@DiscriminatorValue(value = "redinfo")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class TearGasMarker extends Marker {
-
-	@NotNull
-	int level;
-
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
+public class RedInfoMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "teargas";
+		return "redinfo";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		TearGasMarker marker = new TearGasMarker();
+		RedInfoMarker marker = new RedInfoMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -44,36 +32,36 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "009-gas-mask.png";
+		return "017-pin-6.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 60;
+		return 42;
 	}
 
 	@Override
 	public int getUpRate() {
-		return 15;
+		return 90;
 	}
 
 	@Override
 	public int getDownRate() {
-		return 15;
+		return 90;
 	}
 
 	@Override
 	public long getMarkerExpire() {
-		return 60;
+		return 180;
 	}
 
 	@Override
 	public int getAddDelay() {
-		return 30;
+		return 5;
 	}
 
 	@Override
 	public int getVoteDelay() {
-		return 30;
+		return 5;
 	}
 }

@@ -64,13 +64,16 @@ public class PoliceMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		// TODO Auto-generated method stub
 		return 160;
 	}
 
 	@Override
-	public int getDelay() {
-		// TODO Auto-generated method stub
+	public int getAddDelay() {
+		return 10;
+	}
+	
+	@Override
+	public int getVoteDelay() {
 		return 10;
 	}
 }
