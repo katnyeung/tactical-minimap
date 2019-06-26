@@ -105,11 +105,19 @@ html * {
 			
 			clickRegister($("#btnInfoMarker"), 'info');
 			clickRegister($("#btnWarningMarker"), 'warning');
+			//clickRegister($("#btnDangerMarker"), 'danger');
 			
 			clickRegister($("#btnMedicalMarker"), 'medical');
 			clickRegister($("#btnGroupMarker"), 'group');
 			clickRegister($("#btnSupplyMarker"), 'supply');
 
+			//clickRegister($("#btnBlockadeMarker"), 'blockade');
+			//clickRegister($("#btnConflictMarker"), 'conflict');
+			
+			//clickRegister($("#btnPoliceMarker"), 'police');
+			//clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
+			//clickRegister($("#btnTearGasMarker"), 'teargas');
+			
 
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -368,7 +376,11 @@ html * {
 			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
 			<div>警示</div>
 		</button>
-		
+		<button id="btnDangerMarker" class="btn btn-danger mt-1">
+			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
+			<div>危險</div>
+		</button>
+
 		<button id="btnMedicalMarker" class="btn btn-light mt-1">
 			<img src="/icon/010-first-aid-kit.png" style="width: 32px; height: 32px" />
 			<div>救護</div>
@@ -382,6 +394,27 @@ html * {
 			<div>補給</div>
 		</button>
 
+		<button id="btnBlockadeMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/ironbarrier.png" style="width: 32px; height: 32px" />
+			<div>封鎖</div>
+		</button>
+		<button id="btnConflictMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/conflict.png" style="width: 32px; height: 32px" />
+			<div>爭執</div>
+		</button>
+
+		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/police.png" style="width: 32px; height: 32px" />
+			<div>警察</div>
+		</button>
+		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">
+			<img src="/icon/riotpolice.png" style="width: 32px; height: 32px" />
+			<div>防暴</div>
+		</button>
+		<button id="btnTearGasMarker" class="btn btn-danger mt-1">
+			<img src="/icon/009-gas-mask.png" style="width: 32px; height: 32px" />
+			<div>催淚</div>
+		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 </html>
