@@ -10,6 +10,7 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+<script src="/js/leaflet-search.js"></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 <style>
@@ -27,7 +28,6 @@
 .location-icon {
 	width: 200px;
 }
-
 
 html * {
 	font-family: Trebuchet MS;
@@ -100,7 +100,18 @@ html * {
 			map.on('dragend zoomend', function(e) {
 				history.replaceState(null, null, '/[[${layer}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
-						
+			
+			map.addControl( new L.Control.Search({
+				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+				jsonpParam: 'json_callback',
+				propertyName: 'display_name',
+				propertyLoc: ['lat','lon'],
+				marker: L.circleMarker([0,0],{radius:30}),
+				autoCollapse: true,
+				autoType: false,
+				minLength: 2
+			}) );	
+			
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			
 			clickRegister($("#btnInfoMarker"), 'info');
@@ -364,7 +375,7 @@ html * {
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
-		</button>		
+		</button>
 		<button id="btnRedInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/017-pin-6.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
@@ -373,7 +384,7 @@ html * {
 			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
 			<div>警示</div>
 		</button>
-		
+
 		<button id="btnMedicalMarker" class="btn btn-light mt-1">
 			<img src="/icon/010-first-aid-kit.png" style="width: 32px; height: 32px" />
 			<div>救護</div>
