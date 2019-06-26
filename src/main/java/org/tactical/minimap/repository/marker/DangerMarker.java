@@ -74,6 +74,6 @@ public class DangerMarker extends Marker {
 	
 	@Override
 	public int getVoteDelay() {
-		return 5;
+		return 25;
 	}
 }

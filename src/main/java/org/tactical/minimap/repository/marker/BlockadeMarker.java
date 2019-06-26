@@ -69,11 +69,11 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public int getAddDelay() {
-		return 10;
+		return 15;
 	}
 	
 	@Override
 	public int getVoteDelay() {
-		return 5;
+		return 15;
 	}
 }

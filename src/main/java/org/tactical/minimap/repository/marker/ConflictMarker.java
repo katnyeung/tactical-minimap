@@ -74,6 +74,6 @@ public class ConflictMarker extends Marker {
 	
 	@Override
 	public int getVoteDelay() {
-		return 5;
+		return 15;
 	}
 }

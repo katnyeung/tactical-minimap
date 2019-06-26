@@ -57,11 +57,11 @@ public class SupplyMarker extends Marker {
 
 	@Override
 	public int getAddDelay() {
-		return 5;
+		return 15;
 	}
 
 	@Override
 	public int getVoteDelay() {
-		return 5;
+		return 10;
 	}
 }

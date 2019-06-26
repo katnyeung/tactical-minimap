@@ -54,13 +54,12 @@ public class RiotPoliceMarker extends Marker {
 
 	@Override
 	public int getUpRate() {
-		// TODO Auto-generated method stub
-		return 20;
+		return 30;
 	}
 
 	@Override
 	public int getDownRate() {
-		return 20;
+		return 60;
 	}
 	
 	@Override
@@ -70,7 +69,7 @@ public class RiotPoliceMarker extends Marker {
 
 	@Override
 	public int getAddDelay() {
-		return 15;
+		return 20;
 	}
 	
 	@Override

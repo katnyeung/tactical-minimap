@@ -69,11 +69,11 @@ public class PoliceMarker extends Marker {
 
 	@Override
 	public int getAddDelay() {
-		return 10;
+		return 15;
 	}
 	
 	@Override
 	public int getVoteDelay() {
-		return 10;
+		return 15;
 	}
 }

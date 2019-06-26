@@ -54,12 +54,12 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public int getUpRate() {
-		return 15;
+		return 25;
 	}
 
 	@Override
 	public int getDownRate() {
-		return 15;
+		return 50;
 	}
 
 	@Override
@@ -74,6 +74,6 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public int getVoteDelay() {
-		return 30;
+		return 15;
 	}
 }
