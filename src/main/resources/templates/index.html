@@ -10,6 +10,7 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+<link rel="stylesheet" href="/css/leaflet-search.css" />
 <script src="/js/leaflet-search.js"></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -79,13 +80,19 @@ html * {
 		
 		$(document).ready(function() {
 			
-			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', osm = L.tileLayer(osmUrl, {
-				maxZoom : 19,
-				attribution : osmAttrib
-			});
+			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+				osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
+				osm = L.tileLayer(osmUrl, {	maxZoom : 19,attribution : osmAttrib});
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
-
+			
+			map.addControl( new L.Control.Search({
+			    url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			    jsonpParam: 'json_callback',
+			    propertyName: 'display_name',
+			    propertyLoc: ['lat','lon']
+			}) );
+			
 			var menu = L.popup();
 			var menuLatLng;
 			
@@ -100,29 +107,22 @@ html * {
 			map.on('dragend zoomend', function(e) {
 				history.replaceState(null, null, '/[[${layer}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
-			
-			map.addControl( new L.Control.Search({
-				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
-				jsonpParam: 'json_callback',
-				propertyName: 'display_name',
-				propertyLoc: ['lat','lon'],
-				marker: L.circleMarker([0,0],{radius:30}),
-				autoCollapse: true,
-				autoType: false,
-				minLength: 2
-			}) );	
+
 			
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			
 			clickRegister($("#btnInfoMarker"), 'info');
 			clickRegister($("#btnRedInfoMarker"), 'redinfo');
-			clickRegister($("#btnWarningMarker"), 'warning');
+			clickRegister($("#btnYellowInfoMarker"), 'yellowinfo');
 			
 			clickRegister($("#btnMedicalMarker"), 'medical');
 			clickRegister($("#btnGroupMarker"), 'group');
 			clickRegister($("#btnSupplyMarker"), 'supply');
 
-
+			clickRegister($("#btnBlockadeMarker"), 'blockade');
+			clickRegister($("#btnWarningMarker"), 'warning');
+			clickRegister($("#btnPoliceMarker"), 'police');
+			
 			function clickRegister(button,type){
 				button.click(function(e) {
 					e.preventDefault();
@@ -380,9 +380,9 @@ html * {
 			<img src="/icon/017-pin-6.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
 		</button>
-		<button id="btnWarningMarker" class="btn btn-warning mt-1">
-			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
-			<div>警示</div>
+		<button id="btnYellowInfoMarker" class="btn btn-info mt-1">
+			<img src="/icon/018-pin-5.png" style="width: 32px; height: 32px" />
+			<div>資訊</div>
 		</button>
 
 		<button id="btnMedicalMarker" class="btn btn-light mt-1">
@@ -398,6 +398,18 @@ html * {
 			<div>補給</div>
 		</button>
 
+		<button id="btnWarningMarker" class="btn btn-warning mt-1">
+			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
+			<div>警示</div>
+		</button>
+		<button id="btnBlockadeMarker" class="btn btn-danger mt-1">
+			<img src="/icon/ironbarrier.png" style="width: 32px; height: 32px" />
+			<div>封鎖</div>
+		</button>
+		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/police.png" style="width: 32px; height: 32px" />
+			<div>警察</div>
+		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 </html>

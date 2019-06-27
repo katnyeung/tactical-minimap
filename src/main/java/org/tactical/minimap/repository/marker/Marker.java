@@ -39,6 +39,7 @@ public abstract class Marker extends Auditable<String> {
 	static {
 		ClassList.add(InfoMarker.class);
 		ClassList.add(RedInfoMarker.class);
+		ClassList.add(YellowInfoMarker.class);
 		ClassList.add(WarningMarker.class);
 		ClassList.add(DangerMarker.class);
 
