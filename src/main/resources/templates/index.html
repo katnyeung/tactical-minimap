@@ -90,12 +90,16 @@ html * {
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 			
 			map.addControl( new L.Control.Search({
-			    url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			    url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 			    jsonpParam: 'json_callback',
 			    propertyName: 'display_name',
-			    propertyLoc: ['lat','lon']
+			    propertyLoc: ['lat','lon'],
+			    marker: L.circleMarker([0,0],{radius:20}),
+				autoCollapse: true,
+				autoType: false,
+				minLength: 2
 			}) );
-			
+
 			var menu = L.popup();
 			var menuLatLng;
 			
