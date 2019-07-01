@@ -14,6 +14,9 @@
 <script src="/js/leaflet-search.js"></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
+
+
 <style>
 .iconMarkup {
 	margin-left: -50px!improtant;
@@ -122,6 +125,8 @@ html * {
 			clickRegister($("#btnBlockadeMarker"), 'blockade');
 			clickRegister($("#btnWarningMarker"), 'warning');
 			clickRegister($("#btnPoliceMarker"), 'police');
+
+			clickRegister($("#btnLiveStreamMarker"), 'livestream');
 			
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -204,7 +209,7 @@ html * {
 					}else{
 						message = '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
 					}
-					
+
 					if (item.markerCache != null) {
 						upDownButton = '<div style="width:120px;font-size:16px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 						
@@ -214,11 +219,15 @@ html * {
 						}
 						
 						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
-						
 					}
-					
-					content = message;
-					
+					if(item.type == 'livestream'){
+						var fbStream = '<div class="fb-video" data-href="' + item.message + '" data-width="500" data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>'
+					    
+						message = fbStream;
+					}else{
+						content = message;
+					}
+
 					var popup = L.popup().setContent(content);
 					
 					var divIcon = L.divIcon({
@@ -257,11 +266,10 @@ html * {
 						marker.setOpacity(item.opacity);
 						
 						allMarkerList.push(marker);
-					}else{
-						
+					}else{						
 						marker[0].setIcon(divIcon);
 						marker[0]._popup.setContent(content);
-
+						
 						marker[0].setOpacity((item.opacity));
 						
 						if(item.lat != marker.lat || item.lng != marker.lng){
@@ -409,6 +417,11 @@ html * {
 		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/police.png" style="width: 32px; height: 32px" />
 			<div>警察</div>
+		</button>
+
+		<button id="btnLiveStreamMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/live.png" style="width: 32px; height: 32px" />
+			<div>Live</div>
 		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>

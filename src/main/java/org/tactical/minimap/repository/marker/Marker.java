@@ -53,6 +53,10 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(PoliceMarker.class);
 		ClassList.add(RiotPoliceMarker.class);
 		ClassList.add(TearGasMarker.class);
+		
+		ClassList.add(LiveStreamMarker.class);
+		
+		
 	}
 
 	@Transient
