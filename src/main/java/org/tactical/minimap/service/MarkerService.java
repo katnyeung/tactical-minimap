@@ -3,6 +3,7 @@ package org.tactical.minimap.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
+import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
@@ -33,10 +35,11 @@ public class MarkerService {
 		return markerDAO.findAll();
 	}
 
-	public Marker addMarker(String layer, MarkerDTO markerDTO, Marker marker) {
+	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
 		marker = marker.fill(markerDTO);
 		marker.setLayer(layer);
+		
 		markerDAO.save(marker);
 
 		return marker;
@@ -77,8 +80,8 @@ public class MarkerService {
 		markerDAO.save(marker);
 	}
 
-	public int getMarkerCountInRange(String layer, Double lat, Double lng, Double range) {
-		return markerDAO.getMarkerCountInRange(layer, lat - range, lat + range, lng - range, lng + range);
+	public int getMarkerCountInRange(String layerKey, Double lat, Double lng, Double range) {
+		return markerDAO.getMarkerCountInRange(layerKey, lat - range, lat + range, lng - range, lng + range);
 	}
 
 	public double getTotalUpVoteInList(List<Marker> markerList) {
@@ -90,7 +93,9 @@ public class MarkerService {
 		return totalUpVote;
 	}
 
-	public void addMarkerCache(List<Marker> markerList, String uuid) {
+	public void addMarkerCache(List<Marker> markerList, String layerKey, String uuid) {
+		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
+		
 		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
 		double maxUpVoteInList = 0.0;
 
@@ -107,7 +112,7 @@ public class MarkerService {
 		for (Marker marker : markerList) {
 			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
 
-			if (marker.getUuid().equals(uuid)) {
+			if (loggedLayer.contains(marker.getLayer().getLayerKey())) {
 				marker.setControllable(true);
 			}
 

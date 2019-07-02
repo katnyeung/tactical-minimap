@@ -45,9 +45,9 @@ public class MarkerEventScheduler {
 
 		emitters.forEach(emitter -> {
 			try {
-				List<Marker> markerList = markerService.findMarkers(emitter.getLayer(), emitter.getLat(), emitter.getLng(), ConstantsUtil.RANGE);
+				List<Marker> markerList = markerService.findMarkers(emitter.getLayerKey(), emitter.getLat(), emitter.getLng(), ConstantsUtil.RANGE);
 				
-				markerService.addMarkerCache(markerList, emitter.getUuid());
+				markerService.addMarkerCache(markerList, emitter.getLayerKey(), emitter.getUuid());
 				
 				emitter.send(SseEmitter.event().data(markerList));
 			} catch (Exception e) {

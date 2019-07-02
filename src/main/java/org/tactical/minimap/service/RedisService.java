@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class RedisService {
 		mc.setExpire(marker.getExpire());
 		mc.setUpRate(marker.getUpRate());
 		mc.setDownRate(marker.getDownRate());
-		mc.setLayer(marker.getLayer());
+		mc.setLayer(marker.getLayer().getLayerKey());
 		saveMarkerCache(mc);
 	}
 
@@ -69,8 +70,8 @@ public class RedisService {
 		}
 	}
 
-	public String addMarkerLock(String layer, String uuid, int time) {
-		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
+	public String addMarkerLock(String layerKey, String uuid, int time) {
+		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layerKey + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value == null) {
@@ -81,8 +82,8 @@ public class RedisService {
 		}
 	}
 
-	public boolean updateLock(String layer, String uuid, int time) {
-		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layer + ":" + uuid;
+	public boolean updateLock(String layerKey, String uuid, int time) {
+		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layerKey + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);
 
 		if (value != null) {
@@ -144,6 +145,14 @@ public class RedisService {
 
 	public void deleteKey(String key) {
 		stringRedisTemplate.delete(key);
+	}
+
+	public Set<String> getLoggedLayer(String uuid) {
+		return stringRedisTemplate.opsForSet().members(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid);
+	}
+
+	public void addLoggedLayer(String layerKey, String uuid) {
+		stringRedisTemplate.opsForSet().add(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid, layerKey);
 	}
 
 }

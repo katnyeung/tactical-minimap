@@ -60,7 +60,7 @@ public class SupportTaskScheduler {
 		for (Marker marker : markerList) {
 			logger.info("Processing : " + marker);
 
-			int markerCount = markerService.getMarkerCountInRange(marker.getLayer(), marker.getLat(), marker.getLng(), ConstantsUtil.RANGE);
+			int markerCount = markerService.getMarkerCountInRange(marker.getLayer().getLayerKey(), marker.getLat(), marker.getLng(), ConstantsUtil.RANGE);
 
 			marker.setExpire(marker.getExpire() - (markerCount * 5));
 

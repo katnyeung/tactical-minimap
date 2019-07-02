@@ -24,19 +24,19 @@ public class RouteController {
 		return "redirect:/" + ConstantsUtil.DEFAULT_LAYER + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
-	@GetMapping(path = "/{layer}")
-	public String layer(@PathVariable("layer") String layer, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-		return "redirect:/" + layer + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
+	@GetMapping(path = "/{layerKey}")
+	public String layer(@PathVariable("layerKey") String layerKey, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
+		return "redirect:/" + layerKey + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
-	@GetMapping(path = "/{layer}/{zoom}/{lat}/{lng}")
-	public String layerXY(@PathVariable("layer") String layer, @PathVariable("zoom") Integer zoom, @PathVariable("lat") Double lat, @PathVariable("lng") Double lng, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
+	@GetMapping(path = "/{layerKey}/{zoom}/{lat}/{lng}")
+	public String layerXY(@PathVariable("layerKey") String layerKey, @PathVariable("zoom") Integer zoom, @PathVariable("lat") Double lat, @PathVariable("lng") Double lng, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		model.addAttribute("key", uuid);
 		model.addAttribute("zoom", zoom);
-		model.addAttribute("layer", layer);
+		model.addAttribute("layerKey", layerKey);
 		model.addAttribute("lat", lat);
 		model.addAttribute("lng", lng);
 

@@ -7,19 +7,23 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.MarkerResponse;
 import org.tactical.minimap.util.Auditable;
 import org.tactical.minimap.util.MarkerCache;
@@ -29,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer,lat,lng,status") })
+@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer_Id, lat,lng,status") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "marker_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -53,10 +57,9 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(PoliceMarker.class);
 		ClassList.add(RiotPoliceMarker.class);
 		ClassList.add(TearGasMarker.class);
-		
+
 		ClassList.add(LiveStreamMarker.class);
-		
-		
+
 	}
 
 	@Transient
@@ -80,7 +83,7 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@Transient
 	public abstract int getVoteDelay();
-	
+
 	@Transient
 	public abstract String getType();
 
@@ -123,9 +126,9 @@ public abstract class Marker extends Auditable<String> {
 	@NotNull
 	private String uuid;
 
-	@JsonIgnore
-	@NotNull
-	private String layer;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "layer_id", referencedColumnName = "layerId")
+	Layer layer;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
@@ -236,11 +239,11 @@ public abstract class Marker extends Auditable<String> {
 		this.downVote = downVote;
 	}
 
-	public String getLayer() {
+	public Layer getLayer() {
 		return layer;
 	}
 
-	public void setLayer(String layer) {
+	public void setLayer(Layer layer) {
 		this.layer = layer;
 	}
 

@@ -24,10 +24,10 @@ public class MarkerEventController {
 	final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
 	@GetMapping("/markerEvents")
-	public SseEmitter doNotify(@RequestParam("key") String key, @RequestParam("layer") String layer, @RequestParam("lat") Double lat, @RequestParam("lng") Double lng) throws InterruptedException, IOException {
+	public SseEmitter doNotify(@RequestParam("key") String key, @RequestParam("layerKey") String layerKey, @RequestParam("lat") Double lat, @RequestParam("lng") Double lng) throws InterruptedException, IOException {
 		final MarkerUserSseEmitter emitter = new MarkerUserSseEmitter();
 		emitter.setUuid(key);
-		emitter.setLayer(layer);
+		emitter.setLayerKey(layerKey);
 		emitter.setLat(lat);
 		emitter.setLng(lng);
 

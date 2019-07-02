@@ -18,5 +18,6 @@ public class ConstantsUtil {
 
 	public static final Object DEFAULT_LAT = "22.2757";
 	public static final Object DEFAULT_LNG = "114.1648";
+	public static final String USER_LOGGED_LAYER_PREFIX = "user_logged_layer";
 
 }
