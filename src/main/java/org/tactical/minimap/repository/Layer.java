@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Table(name = "layer", indexes = { @Index(name = "layerKey", columnList = "layerId, layerKey") })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public abstract class Layer extends Auditable<String> {
+public class Layer extends Auditable<String> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

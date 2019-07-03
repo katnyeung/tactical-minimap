@@ -153,6 +153,7 @@ public class RedisService {
 
 	public void addLoggedLayer(String layerKey, String uuid) {
 		stringRedisTemplate.opsForSet().add(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid, layerKey);
+		stringRedisTemplate.expire(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid, 1, TimeUnit.DAYS);
 	}
 
 }

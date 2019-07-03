@@ -1,0 +1,1 @@
+INSERT INTO layer (layer_key, password , duration, status) VALUES ('public', 1428, -1 , 'A');
