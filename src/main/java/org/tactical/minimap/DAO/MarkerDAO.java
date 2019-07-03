@@ -11,11 +11,11 @@ import org.tactical.minimap.util.ConstantsUtil;
 
 public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 
-	@Query("SELECT m FROM Marker m INNER JOIN Layer l WHERE l.layerKey = :layerKey")
-	public List<T> findAllMarker(@Param("layerKey") String layerKey);
-
+	@Query("SELECT m FROM Marker m INNER JOIN Layer l WHERE l.layerKey IN (:layerkeys) AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng")
+	public List<T> findAllByLatLng(@Param("layerkeys") List<String> layerkeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
+	
 	@Query("SELECT m FROM Marker m INNER JOIN Layer l WHERE l.layerKey = :layerKey AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng")
-	public List<T> findAllByLatLng(@Param("layerKey") String layerKey, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
+	public List<T> findByLatLngLayer(@Param("layerKey") String layerKey, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
 
 	@Query("SELECT m FROM Marker m WHERE m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.markerId NOT IN :markerIdList")
 	public List<Marker> findActiveMarkersNotInCache(@Param("markerIdList") List<Long> markerIdList);

@@ -1,5 +1,6 @@
 package org.tactical.minimap.controller;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -49,31 +50,31 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@PostMapping("/{layerKey}/login")
-	public DefaultResult loginLayer(@PathVariable("layerKey") String layerKey,  HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
+	public DefaultResult loginLayer(@PathVariable("layerKey") String layerKey, HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
-		
-		if(!loggedLayer.contains(layerKey)) {
+
+		if (!loggedLayer.contains(layerKey)) {
 			Layer layer = layerService.getLayerByKey(layerKey);
-			if(layer.getPassword() != null && layer.getPassword().equals(layerDTO.getPassword())) {
+			if (layer.getPassword() != null && layer.getPassword().equals(layerDTO.getPassword())) {
 
 				redisService.addLoggedLayer(layer.getLayerKey(), uuid);
-				
+
 				return DefaultResult.success("logged ok");
-			}else {
+			} else {
 				return DefaultResult.error("password incorrect");
 			}
-		}else {
+		} else {
 			return DefaultResult.error("already logged");
 		}
-		
+
 	}
-	
+
 	@PostMapping("/{layerKey}/add")
 	public DefaultResult addMarker(@PathVariable("layerKey") String layerKey, HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
-		
+
 		markerDTO.setUuid(uuid);
 
 		Layer layer = layerService.getLayerByKey(layerKey);
@@ -123,24 +124,18 @@ public class MarkerRestController {
 		return DefaultResult.error("some error happen");
 	}
 
-	@GetMapping("/{layerKey}/listAll")
-	public DefaultResult getAllMarker(@PathVariable("layerKey") String layerKey) {
-
-		List<Marker> marketList = markerService.findAllMarkers(layerKey);
-
-		return MarkerListResult.success(marketList);
-	}
-
-	@GetMapping("/{layerKey}/list")
-	public DefaultResult getMarker(@PathVariable("layerKey") String layerKey, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	@GetMapping("/{layerKeys}/list")
+	public DefaultResult getMarker(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Double lat = markerDTO.getLat();
 		Double lng = markerDTO.getLng();
 
-		List<Marker> markerList = markerService.findMarkers(layerKey, lat, lng, ConstantsUtil.RANGE);
+		List<String> layerKeyList = Arrays.asList(layerKeys.split(","));
 
-		markerService.addMarkerCache(markerList, layerKey, uuid);
+		List<Marker> markerList = markerService.findMultiLayerMarkers(layerKeyList, lat, lng, ConstantsUtil.RANGE);
+
+		markerService.addMarkerCache(markerList, uuid);
 
 		return MarkerListResult.success(markerList);
 

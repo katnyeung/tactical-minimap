@@ -2,6 +2,7 @@ package org.tactical.minimap.scheduler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
@@ -45,10 +47,13 @@ public class MarkerEventScheduler {
 
 		emitters.forEach(emitter -> {
 			try {
-				List<Marker> markerList = markerService.findMarkers(emitter.getLayerKey(), emitter.getLat(), emitter.getLng(), ConstantsUtil.RANGE);
-				
-				markerService.addMarkerCache(markerList, emitter.getLayerKey(), emitter.getUuid());
-				
+
+				List<String> layerKeyList = Arrays.asList(emitter.getLayerKeys().split(","));
+
+				List<Marker> markerList = markerService.findMultiLayerMarkers(layerKeyList, emitter.getLat(), emitter.getLng(), ConstantsUtil.RANGE);
+
+				markerService.addMarkerCache(markerList, emitter.getUuid());
+
 				emitter.send(SseEmitter.event().data(markerList));
 			} catch (Exception e) {
 				deadEmitters.add(emitter);

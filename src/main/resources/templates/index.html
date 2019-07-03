@@ -112,7 +112,7 @@ html * {
 			map.on('contextmenu', onMapClick);
 
 			map.on('dragend zoomend', function(e) {
-				history.replaceState(null, null, '/[[${layerKey}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				history.replaceState(null, null, '/[[${layerKeys}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
 
 			
@@ -139,7 +139,7 @@ html * {
 
 					$.ajax({
 						type : "POST",
-						url : '/marker/[[${layerKey}]]/add',
+						url : '/marker/[[${layerKeys}]]/add',
 						data : {
 							'lat' : menu.getLatLng().lat,
 							'lng' : menu.getLatLng().lng,
@@ -163,7 +163,7 @@ html * {
 			}
 			
 			if(typeof(EventSource) !== "undefined") {
-			    var eventSource = new EventSource("/markerEvents?key=[[${key}]]&layerKey=[[${layerKey}]]&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
+			    var eventSource = new EventSource("/markerEvents?key=[[${key}]]&layerKeys=[[${layerKeys}]]&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
 			    
 				eventSource.onmessage = e => {
 					if(!pause){
@@ -177,7 +177,7 @@ html * {
 				if(!pause){
 					$.ajax({
 						type : "GET",
-						url : '/marker/[[${layerKey}]]/list',
+						url : '/marker/[[${layerKeys}]]/list',
 						data : {
 							'lat' : lat,
 							'lng' : lng

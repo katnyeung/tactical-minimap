@@ -6,7 +6,7 @@ public class MarkerUserSseEmitter extends SseEmitter {
 
 	String uuid;
 
-	String layerKey;
+	String layerKeys;
 
 	Double lat;
 
@@ -20,12 +20,12 @@ public class MarkerUserSseEmitter extends SseEmitter {
 		this.uuid = uuid;
 	}
 
-	public String getLayerKey() {
-		return layerKey;
+	public String getLayerKeys() {
+		return layerKeys;
 	}
 
-	public void setLayerKey(String layerKey) {
-		this.layerKey = layerKey;
+	public void setLayerKeys(String layerKeys) {
+		this.layerKeys = layerKeys;
 	}
 
 	public Double getLat() {

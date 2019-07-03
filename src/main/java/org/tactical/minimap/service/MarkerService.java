@@ -27,19 +27,19 @@ public class MarkerService {
 	@Autowired
 	RedisService redisService;
 
-	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
-		return markerDAO.findAllByLatLng(layer, lat - range, lng - range, lat + range, lng + range);
+	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
+		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 	}
 
-	public List<Marker> findAllMarkers(String layer) {
-		return markerDAO.findAll();
+	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
+		return markerDAO.findByLatLngLayer(layer, lat - range, lng - range, lat + range, lng + range);
 	}
 
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
 		marker = marker.fill(markerDTO);
 		marker.setLayer(layer);
-		
+
 		markerDAO.save(marker);
 
 		return marker;
@@ -93,9 +93,9 @@ public class MarkerService {
 		return totalUpVote;
 	}
 
-	public void addMarkerCache(List<Marker> markerList, String layerKey, String uuid) {
+	public void addMarkerCache(List<Marker> markerList, String uuid) {
 		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
-		
+
 		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
 		double maxUpVoteInList = 0.0;
 
@@ -103,12 +103,12 @@ public class MarkerService {
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
 			if (mc != null) {
 				markerCacheMap.put(marker.getMarkerId(), mc);
-				if(mc.getUpVote() > maxUpVoteInList) {
+				if (mc.getUpVote() > maxUpVoteInList) {
 					maxUpVoteInList = mc.getUpVote();
 				}
 			}
 		}
-		
+
 		for (Marker marker : markerList) {
 			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
 
