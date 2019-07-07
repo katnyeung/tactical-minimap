@@ -17,4 +17,13 @@ public class LayerService {
 
 		return !layerList.isEmpty() ? layerList.get(0) : null;
 	}
+
+	public List<Layer> findActiveLayers() {
+		return layerDAO.findActiveLayers();
+
+	}
+
+	public void save(Layer layer) {
+		layerDAO.save(layer);
+	}
 }

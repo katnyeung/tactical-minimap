@@ -1,6 +1,8 @@
 package org.tactical.minimap.controller;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.tactical.minimap.repository.Layer;
@@ -30,10 +33,10 @@ public class RouteController {
 
 	@Autowired
 	RedisService redisService;
-	
+
 	@Autowired
 	LayerService layerService;
-	
+
 	@GetMapping(path = "/")
 	public String index(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 		return "redirect:/" + ConstantsUtil.DEFAULT_LAYER + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
@@ -55,30 +58,67 @@ public class RouteController {
 		model.addAttribute("lat", lat);
 		model.addAttribute("lng", lng);
 
+		model.addAttribute("loggedLayers", redisService.getLoggedLayer(uuid));
+
+		List<Layer> validLayers = layerService.findActiveLayers();
+
+		model.addAttribute("validLayers", validLayers.stream().map(Layer::getLayerKey).collect(Collectors.toList()));
+
 		return "index";
 	}
-	
+
 	@ResponseBody
-	@GetMapping("/{layerKey}/login")
-	public DefaultResult loginLayer(@PathVariable("layerKey") String layerKey, HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
+	@GetMapping("/login")
+	public DefaultResult loginLayer(HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
 
-		if (!loggedLayer.contains(layerKey)) {
-			Layer layer = layerService.getLayerByKey(layerKey);
-			if (layer.getPassword() != null && layer.getPassword().equals(layerDTO.getPassword())) {
+		if (!loggedLayer.contains(layerDTO.getLayerKey())) {
+			Layer layer = layerService.getLayerByKey(layerDTO.getLayerKey());
+			if (layer != null) {
+				if (layer.getPassword() != null && layer.getPassword().equals(layerDTO.getPassword())) {
 
-				redisService.addLoggedLayer(layer.getLayerKey(), uuid);
+					redisService.addLoggedLayer(layer.getLayerKey(), uuid);
 
-				return DefaultResult.success("logged ok");
+					return DefaultResult.success("logged ok");
+				} else {
+					return DefaultResult.error("password incorrect");
+				}
 			} else {
-				return DefaultResult.error("password incorrect");
+				return DefaultResult.error("layer not reigstered");
 			}
+
 		} else {
 			return DefaultResult.error("already logged");
 		}
 
+	}
+
+	@ResponseBody
+	@PostMapping("/register")
+	public DefaultResult registerLayer(HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
+		Layer layer = layerService.getLayerByKey(layerDTO.getLayerKey());
+
+		if (layer == null) {
+			if(layerDTO.getPassword() != null) {
+				layer = new Layer();
+				layer.setLayerKey(layerDTO.getLayerKey());
+				layer.setPassword(layerDTO.getPassword());
+				layer.setDuration(24);
+				layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
+
+				layerService.save(layer);
+				return DefaultResult.success();
+			}else {
+
+				return DefaultResult.error("password required");
+			}
+
+
+		} else {
+			return DefaultResult.error("layer already registered");
+		}
 	}
 
 }

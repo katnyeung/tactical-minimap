@@ -1,6 +1,7 @@
 package org.tactical.minimap.scheduler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
@@ -24,12 +27,11 @@ public class SupportTaskScheduler {
 	@Autowired
 	MarkerService markerService;
 
-	@Scheduled(fixedRate = 3000)
-	// @Scheduled(cron = "0 0 */4 * * *")
-	public void makerManager() {
-		// logger.info("Cron Task :: Execution Time -
-		// dateTimeFormatter.format(LocalDateTime.now()));
+	@Autowired
+	LayerService layerService;
 
+	@Scheduled(fixedRate = 3000)
+	public void makerManager() {
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();
 
@@ -68,5 +70,23 @@ public class SupportTaskScheduler {
 		}
 
 	}
-
+	
+	@Scheduled(cron = "0 0 */4 * * *")
+	public void layerManager() {
+		// handle layer expire
+		List<Layer> activeLayerList = layerService.findActiveLayers();
+		for (Layer layer : activeLayerList) {
+			if (layer.getDuration() > 0) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(layer.getCreatedate());
+				calendar.add(Calendar.HOUR_OF_DAY, layer.getDuration());
+				//logger.info(calendar + " : " + Calendar.getInstance() + " " + calendar.compareTo(Calendar.getInstance()) );
+				if (calendar.compareTo(Calendar.getInstance()) < 0) {
+					logger.info("Setting : " + layer.getLayerKey() + " to deactive");
+					layer.setStatus(ConstantsUtil.LAYER_STATUS_DEACTIVED);
+					layerService.save(layer);
+				}
+			}
+		}
+	}
 }

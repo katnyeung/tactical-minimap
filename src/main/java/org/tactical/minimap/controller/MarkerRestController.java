@@ -72,6 +72,31 @@ public class MarkerRestController {
 
 		return DefaultResult.error("some error happen");
 	}
+	
+	@Auth
+	@PostMapping("/add")
+	public DefaultResult addMarkerByLayer(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
+		String uuid = CookieUtil.getUUID(request, response, session);
+		markerDTO.setUuid(uuid);
+
+		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
+			try {
+				Marker marker = MarkerClass.newInstance();
+
+				if (marker.getType().equals(markerDTO.getType())) {
+
+					Layer layer = layerService.getLayerByKey(markerDTO.getLayer());
+
+					return createMarker(marker, markerDTO, layer, uuid);
+
+				}
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return DefaultResult.error("some error happen");
+	}
 
 	private DefaultResult createMarker(Marker marker, MarkerDTO markerDTO, Layer layer, String uuid) throws InstantiationException, IllegalAccessException {
 		String lockedTimeInMillis = redisService.addMarkerLock(layer.getLayerKey(), uuid, marker.getAddDelay());

@@ -52,7 +52,7 @@ public class LiveStreamMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 3600;
+		return 1200;
 	}
 
 	@Override

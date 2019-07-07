@@ -22,11 +22,23 @@
 	margin-left: -50px!improtant;
 	margin-top: -10px !important;
 }
-</style>
-<style>
+
+.livestream-icon {
+	width: 600px !important;
+	margin-left: -150px !important;
+	margin-top: -300px !important;
+}
+
+.btn-sm {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 10px;
+	opacity: 0.6;
+}
+
 #map {
 	width: 100%;
-	height: 100vh
+	height: 100vh;
 }
 
 .location-icon {
@@ -41,7 +53,13 @@ html * {
 <body>
 	<div id="map"></div>
 
-	<script>
+	<script th:inline="javascript">
+		var loggedLayers = [[${loggedLayers}]];
+		var layerKeys = [[${layerKeys}]];
+		var validLayers = [[${validLayers}]];
+		
+		var key = [[${key}]];
+		
 		var allMarkerList = [];
 		var pause = false;
 		
@@ -79,9 +97,44 @@ html * {
 		        m = this.toString().match(re);
 		    return m ? parseFloat(m[1]) : this.valueOf();
 		};
+		
+		jQuery.fn.center = function () {
+		    this.css("position","absolute");
+		    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
+		                                                $(window).scrollTop()) + "px");
+		    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
+		                                                $(window).scrollLeft()) + "px");
+		    this.css("z-index" , 999);
+		    return this;
+		}
+		
+		function showRegister(layer) {
+			$('#registerLayerKey').val(layer);
+			$('#registerFormDiv').center();
+			$('#registerFormDiv').show();
+		}
 
 		
 		$(document).ready(function() {
+			$('#registerFormDiv').hide();
+			$('#registerForm').submit(function(e){
+				e.preventDefault();
+				
+				$.ajax({
+					type : "POST",
+					url : '/register',
+					data : $(this).serialize(),
+					
+					success : function(data) {
+						if(data.status == "success"){
+							window.location.reload();
+						}else{
+							alert(data.remarks);
+						}
+						
+					}
+				});
+			});
 			
 			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
 				osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
@@ -100,6 +153,54 @@ html * {
 				minLength: 2
 			}) );
 
+			var command = L.control({position: 'bottomleft'});
+			
+			command.onAdd = function (map) {
+			    var div = L.DomUtil.create('div', 'command');
+			    
+			    div.innerHTML = "<div class='container' >";
+			    
+			    layerKeys.split(",").forEach(function (item) {
+			    	
+			    	if(loggedLayers.includes(item)){
+			    		div.innerHTML += '<div class="row ml-1">' + item + ' logged</div>'; 
+			    	}else{
+			    		if(validLayers.includes(item)){
+			    			div.innerHTML += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
+			    		}else{
+			    			div.innerHTML += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
+
+			    		}
+			    		
+			    	}
+				 });
+
+			    div.innerHTML += "</div>";
+			    
+			    return div;
+
+			}
+
+			command.addTo(map);
+
+			
+		    $('.layerLoginForm').submit(function(e){
+		    	e.preventDefault();
+				$.ajax({
+					type : "GET",
+					url : '/login',
+					data : $(this).serialize(),
+					
+					success : function(data){
+						if(data.status == 'success'){
+							window.location.reload(false); 
+						}else{
+							alert(data.remarks);
+						}
+					}
+				});
+		    })
+			
 			var menu = L.popup();
 			var menuLatLng;
 			
@@ -110,9 +211,16 @@ html * {
 			}
 
 			map.on('contextmenu', onMapClick);
-
+			
+			$.each(loggedLayers, function(key, value) {   
+			     $('#markerLayer')
+			         .append($("<option></option>")
+			                    .attr("value",value)
+			                    .text(value)); 
+			});
+			
 			map.on('dragend zoomend', function(e) {
-				history.replaceState(null, null, '/[[${layerKeys}]]/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				history.replaceState(null, null, '/' + layerKeys + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
 
 			
@@ -136,34 +244,43 @@ html * {
 				button.click(function(e) {
 					e.preventDefault();
 					var message = $('#markerMessage').val();
-
-					$.ajax({
-						type : "POST",
-						url : '/marker/[[${layerKeys}]]/add',
-						data : {
-							'lat' : menu.getLatLng().lat,
-							'lng' : menu.getLatLng().lng,
-							'type' : type,
-							'message' : message
-						},
-						success : function(data) {
-							if(data.status == 'success'){
-								updateMarkers(map.getCenter().lat, map.getCenter().lng);
-							}else{
+					var layer = $('#markerLayer').val();
+					
+					if(layer){
+						$.ajax({
+							type : "POST",
+							url : '/marker/add',
+							data : {
+								'lat' : menu.getLatLng().lat,
+								'lng' : menu.getLatLng().lng,
+								'type' : type,
+								'layer' : layer,
+								'message' : message
+							},
+							
+							success : function(data) {
 								if(data.status == 'success'){
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}else{
-									var alertPopup = L.popup();
-									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
+									if(data.status == 'success'){
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+									}else{
+										var alertPopup = L.popup();
+										alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
+									}
 								}
 							}
-						}
-					});
+						});
+					}else{
+						alert('no logged layer');
+					}
+					
+
 				});
 			}
 			
 			if(typeof(EventSource) !== "undefined") {
-			    var eventSource = new EventSource("/markerEvents?key=[[${key}]]&layerKeys=[[${layerKeys}]]&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
+			    var eventSource = new EventSource("/markerEvents?key="+ key +"&layerKeys=" + layerKeys + "&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
 			    
 				eventSource.onmessage = e => {
 					if(!pause){
@@ -177,7 +294,7 @@ html * {
 				if(!pause){
 					$.ajax({
 						type : "GET",
-						url : '/marker/[[${layerKeys}]]/list',
+						url : '/marker/' + layerKeys + '/list',
 						data : {
 							'lat' : lat,
 							'lng' : lng
@@ -192,6 +309,9 @@ html * {
 				allMarkerList.forEach(function(item, index, object){
 					var marker = $.grep(markerList, function(e){ return e.markerId == item.markerId; });
 					if(marker.length == 0){
+						if(item.relatedMarker){
+							map.removeLayer(item.relatedMarker);
+						}
 						map.removeLayer(item);
 						object.splice(index, 1);
 					}
@@ -223,29 +343,80 @@ html * {
 						}
 						
 						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						
 					}
-					if(item.type == 'livestream'){
-						var fbStream = '<div class="fb-video" data-href="' + item.message + '" data-width="500" data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>'
-					    
-						message = fbStream;
-					}else{
-						content = message;
-					}
-
+					
+					content = message;
+					
 					var popup = L.popup().setContent(content);
 					
-					var divIcon = L.divIcon({
+					var htmlContent;
+						
+					if(item.type == 'livestream'){
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton + '</div>'
+					}else{
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + textMessage + counter + upDownButton + '</div>'
+					}
+					
+					divIcon = L.divIcon({
 					    className:'location-icon',
-					    html: '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + textMessage + counter + upDownButton + '</div>',
+					    html: htmlContent,
 					    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
 					});
 					
 					if(marker.length == 0){
+						
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : item.controllable,
 							icon : divIcon
 						}).addTo(map).bindPopup(popup);
 						
+						
+						if(item.type == 'livestream'){
+							
+							var fbStream = '<div class="row" id="fb_live_frame_' + item.markerId + '"><div id="fb_live_' + item.markerId + '" class="fb-video col-12" data-href="' + item.message + '" data-width="500"  data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>' + 
+							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="fb_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="fb_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="fb_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="fb_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
+							
+							var fbStreamIcon = L.divIcon({
+							    className:'livestream-icon',
+							    html: fbStream
+							});
+							
+							var fbMarker = L.marker([ item.lat, item.lng ], {
+								icon : fbStreamIcon,
+							}).addTo(map);
+							
+							marker.relatedMarker = fbMarker;
+							
+							$('#fb_live_button_' + item.markerId).click(function(){
+								$('#fb_live_' + item.markerId).hide();
+								$('#fb_live_button_' + item.markerId).hide();
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '275px' });
+							});
+							
+							$('#fb_live_button_small_' + item.markerId).click(function(){
+								$('#fb_live_' + item.markerId).show();
+								$('#fb_live_frame_' + item.markerId).width(200);
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '150px' });
+								$('#fb_live_button_' + item.markerId).show();
+							});
+							
+							$('#fb_live_button_big_' + item.markerId).click(function(){
+								$('#fb_live_' + item.markerId).show();
+								$('#fb_live_frame_' + item.markerId).width(400);
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '75px' });
+								$('#fb_live_button_' + item.markerId).show();
+							});							
+							
+							$('#fb_live_button_biggest_' + item.markerId).click(function(){
+								$('#fb_live_' + item.markerId).show();
+								$('#fb_live_frame_' + item.markerId).width(600);
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '0px' });
+								$('#fb_live_button_' + item.markerId).show();
+							});
+							FB.XFBML.parse(null);
+						}
+
 					    marker.on('dragstart', function(e) {
 					    	  pause = true;
 					    });
@@ -264,6 +435,10 @@ html * {
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}
 							});
+							
+							if(marker.relatedMarker){
+								marker.relatedMarker.setLatLng(e.target.getLatLng());
+							}
 						})
 						
 						marker.markerId = item.markerId;
@@ -425,8 +600,38 @@ html * {
 
 		<button id="btnLiveStreamMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
-			<div>Live</div>
+			<div>FB Live</div>
 		</button>
+		<div class="card">
+			<select name="layer" id="markerLayer">
+
+			</select>
+		</div>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
+	</div>
+
+	<div id="registerFormDiv" class="card shadow-sm m-2 p-2 rounded">
+		<form method="post" id="registerForm" class="container">
+			<div class="row">&nbsp;</div>
+			<div class="row form-group">
+				<div class="col-4">Layer : </div>
+				<div class="col-8">
+					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey"/>
+				</div>
+			</div>
+
+			<div class="row form-group">
+				<div class="col-4">Password : </div>
+				<div class="col-8">
+					<input class="form-control" type="password" placeholder="(password)" name="password" />
+				</div>
+			</div>
+
+			<div class="row">
+				<button class="col-8 btn btn-primary" type="submit">Create</button>
+				<button class="col-4 btn btn-light" type="button" onclick="$('#registerFormDiv').hide()">Cancel</button>
+			</div>
+
+		</form>
 	</div>
 </html>

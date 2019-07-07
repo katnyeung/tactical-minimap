@@ -9,6 +9,8 @@ public class MarkerDTO {
 
 	String uuid;
 
+	String layer;
+
 	Long markerId;
 
 	public Double getLat() {
@@ -57,6 +59,14 @@ public class MarkerDTO {
 
 	public void setMarkerId(Long markerId) {
 		this.markerId = markerId;
+	}
+
+	public String getLayer() {
+		return layer;
+	}
+
+	public void setLayer(String layer) {
+		this.layer = layer;
 	}
 
 }
