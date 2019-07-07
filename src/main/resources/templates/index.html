@@ -454,6 +454,10 @@ html * {
 						if(item.lat != marker.lat || item.lng != marker.lng){
 							var newLatLng = new L.LatLng(item.lat, item.lng);
 							marker[0].setLatLng(newLatLng); 
+							
+							if(marker[0].relatedMarker){
+								marker[0].relatedMarker.setLatLng(e.target.getLatLng());
+							}
 						}
 					}
 
