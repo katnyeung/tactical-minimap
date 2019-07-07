@@ -614,24 +614,23 @@ html * {
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 
-	<div id="registerFormDiv" class="card shadow-sm m-2 p-2 rounded">
+	<div id="registerFormDiv" class="card shadow-sm m-2 p-4 rounded border border-info">
 		<form method="post" id="registerForm" class="container">
-			<div class="row">&nbsp;</div>
 			<div class="row form-group">
-				<div class="col-4">Layer : </div>
+				<div class="col-4 btn">Layer : </div>
 				<div class="col-8">
-					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey"/>
+					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey" disabled="disabled"/>
 				</div>
 			</div>
 
 			<div class="row form-group">
-				<div class="col-4">Password : </div>
+				<div class="col-4 btn">Password : </div>
 				<div class="col-8">
 					<input class="form-control" type="password" placeholder="(password)" name="password" />
 				</div>
 			</div>
-
-			<div class="row">
+	
+			<div class="row m-1">
 				<button class="col-8 btn btn-primary" type="submit">Create</button>
 				<button class="col-4 btn btn-light" type="button" onclick="$('#registerFormDiv').hide()">Cancel</button>
 			</div>
