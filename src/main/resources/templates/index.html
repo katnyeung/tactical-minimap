@@ -12,10 +12,11 @@
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
 <link rel="stylesheet" href="/css/leaflet-search.css" />
 <script src="/js/leaflet-search.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
-
 
 <style>
 .iconMarkup {
@@ -131,7 +132,6 @@ html * {
 						}else{
 							alert(data.remarks);
 						}
-						
 					}
 				});
 			});
@@ -152,7 +152,54 @@ html * {
 				autoType: false,
 				minLength: 2
 			}) );
+			
+			drawnItems = L.featureGroup().addTo(map);
+			
+		    map.addControl(new L.Control.Draw({
+		         draw: {
+		             circle: false,
+		             marker: false
+		         },
+		         edit: {
+		             featureGroup: drawnItems
+		         }
+		    }));
+		    
+		    map.on(L.Draw.Event.CREATED, function (e) {
+		    	   var type = e.layerType;
+		    	   var layerObject = e.layer;
 
+					var latlngArr = [];
+					
+					latlngArr = layerObject.getLatLngs();
+					
+
+					var layer = $('#markerLayer').val();
+					console.log(layer);
+			    	   if(layer){
+							$.ajax({
+								type : "POST",
+								url : '/marker/add',
+								data : JSON.stringify({
+									'lat' : latlngArr[0].lat,
+									'lng' : latlngArr[0].lng,
+									'type' : 'shape',
+									'layer' : layer,
+									'shapeList' : latlngArr
+								}),
+								
+								success : function(data) {
+									console.log(data);
+								}
+							});
+						}else{
+							alert('no logged layer');
+						}
+		    	   
+		    	   map.addLayer(layerObject);
+		    });
+		    
+		    
 			var command = L.control({position: 'bottomleft'});
 			
 			command.onAdd = function (map) {
@@ -169,9 +216,7 @@ html * {
 			    			div.innerHTML += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
 			    		}else{
 			    			div.innerHTML += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
-
 			    		}
-			    		
 			    	}
 				 });
 

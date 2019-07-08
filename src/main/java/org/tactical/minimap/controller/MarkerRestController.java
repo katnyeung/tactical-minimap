@@ -49,31 +49,6 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@Auth
-	@PostMapping("/{layerKey}/add")
-	public DefaultResult addMarker(@PathVariable("layerKey") String layerKey, HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
-		String uuid = CookieUtil.getUUID(request, response, session);
-		markerDTO.setUuid(uuid);
-
-		for (Class<? extends Marker> MarkerClass : Marker.ClassList) {
-			try {
-				Marker marker = MarkerClass.newInstance();
-
-				if (marker.getType().equals(markerDTO.getType())) {
-
-					Layer layer = layerService.getLayerByKey(layerKey);
-
-					return createMarker(marker, markerDTO, layer, uuid);
-
-				}
-			} catch (InstantiationException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return DefaultResult.error("some error happen");
-	}
-	
-	@Auth
 	@PostMapping("/add")
 	public DefaultResult addMarkerByLayer(HttpServletRequest request, HttpServletResponse response, HttpSession session, MarkerDTO markerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
@@ -84,7 +59,7 @@ public class MarkerRestController {
 				Marker marker = MarkerClass.newInstance();
 
 				if (marker.getType().equals(markerDTO.getType())) {
-
+					logger.info("handing add marker request : " + markerDTO);
 					Layer layer = layerService.getLayerByKey(markerDTO.getLayer());
 
 					return createMarker(marker, markerDTO, layer, uuid);

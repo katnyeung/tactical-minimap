@@ -25,6 +25,7 @@ import javax.validation.constraints.Size;
 
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.MarkerResponse;
+import org.tactical.minimap.repository.marker.shape.ShapeMarker;
 import org.tactical.minimap.util.Auditable;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -60,6 +61,7 @@ public abstract class Marker extends Auditable<String> {
 
 		ClassList.add(LiveStreamMarker.class);
 
+		ClassList.add(ShapeMarker.class);
 	}
 
 	@Transient
