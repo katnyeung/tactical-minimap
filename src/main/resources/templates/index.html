@@ -180,13 +180,15 @@ html * {
 							$.ajax({
 								type : "POST",
 								url : '/marker/add',
-								data : JSON.stringify({
+								data : {
 									'lat' : latlngArr[0].lat,
 									'lng' : latlngArr[0].lng,
+									'shapeType' : type,
 									'type' : 'shape',
 									'layer' : layer,
-									'shapeList' : latlngArr
-								}),
+									'message' : '',
+									'shapeList' : JSON.stringify(latlngArr)
+								},
 								
 								success : function(data) {
 									console.log(data);

@@ -1,26 +1,33 @@
 package org.tactical.minimap.repository.marker.shape;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
-import org.tactical.minimap.web.DTO.ShapeDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Entity
 @DiscriminatorValue(value = "shape")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ShapeMarker extends Marker {
+	@Transient
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "shapeMarker", cascade = CascadeType.ALL)
@@ -34,25 +41,42 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		ShapeMarker marker = new ShapeMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setUuid(markerDTO.getUuid());
+		try {
+			ShapeMarker marker = new ShapeMarker();
+			marker.setLat(markerDTO.getLat());
+			marker.setLng(markerDTO.getLng());
+			marker.setMessage(markerDTO.getMessage());
+			marker.setExpire(getMarkerExpire());
+			marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+			marker.setUuid(markerDTO.getUuid());
 
-		List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
+			marker.setShapeType(markerDTO.getShapeType());
+			
+			List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
+			logger.info("shape list : " + markerDTO.getShapeList());
+			ObjectMapper om = new ObjectMapper();
 
-		for (ShapeDTO shapeDTO : markerDTO.getShapeList()) {
-			ShapeMarkerDetail smd = new ShapeMarkerDetail();
-			smd.setLat(shapeDTO.getLat());
-			smd.setLng(shapeDTO.getLng());
+			List<LinkedHashMap<String, String>> shapeList;
+
+			shapeList = om.readValue(markerDTO.getShapeList(), List.class);
+			
+			for (LinkedHashMap shapeMap : shapeList) {
+				ShapeMarkerDetail smd = new ShapeMarkerDetail();
+				smd.setLat(Double.parseDouble("" + shapeMap.get("lat")));
+				smd.setLng(Double.parseDouble("" + shapeMap.get("lng")));
+				smd.setShapeMarker(marker);
+				shapeMarkerDetailList.add(smd);
+			}
+
+			marker.setShapeMarkerDetailList(shapeMarkerDetailList);
+
+			return marker;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
 		}
 
-		marker.setShapeMarkerDetailList(shapeMarkerDetailList);
-
-		return marker;
 	}
 
 	public int getLevel() {
@@ -86,12 +110,12 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "015-pin-8";
+		return "015-pin-8.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 48;
+		return 28;
 	}
 
 	@Override

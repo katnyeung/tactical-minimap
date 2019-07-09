@@ -1,7 +1,5 @@
 package org.tactical.minimap.web.DTO;
 
-import java.util.List;
-
 public class MarkerDTO {
 	Double lat;
 	Double lng;
@@ -15,7 +13,9 @@ public class MarkerDTO {
 
 	Long markerId;
 
-	List<ShapeDTO> shapeList;
+	String shapeType;
+
+	String shapeList;
 
 	public Double getLat() {
 		return lat;
@@ -73,11 +73,19 @@ public class MarkerDTO {
 		this.layer = layer;
 	}
 
-	public List<ShapeDTO> getShapeList() {
+	public String getShapeType() {
+		return shapeType;
+	}
+
+	public void setShapeType(String shapeType) {
+		this.shapeType = shapeType;
+	}
+
+	public String getShapeList() {
 		return shapeList;
 	}
 
-	public void setShapeList(List<ShapeDTO> shapeList) {
+	public void setShapeList(String shapeList) {
 		this.shapeList = shapeList;
 	}
 
