@@ -12,7 +12,7 @@
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
 <link rel="stylesheet" href="/css/leaflet-search.css" />
 <script src="/js/leaflet-search.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -94,17 +94,16 @@ html * {
 		}
 		
 		Number.prototype.toFixedDown = function(digits) {
-		    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
-		        m = this.toString().match(re);
+		    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)");
+		    var m = this.toString().match(re);
+		    
 		    return m ? parseFloat(m[1]) : this.valueOf();
 		};
 		
 		jQuery.fn.center = function () {
 		    this.css("position","absolute");
-		    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
-		                                                $(window).scrollTop()) + "px");
-		    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
-		                                                $(window).scrollLeft()) + "px");
+		    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop()) + "px");
+		    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft()) + "px");
 		    this.css("z-index" , 999);
 		    return this;
 		}
@@ -143,62 +142,63 @@ html * {
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 			
 			map.addControl( new L.Control.Search({
-			    url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
-			    jsonpParam: 'json_callback',
-			    propertyName: 'display_name',
-			    propertyLoc: ['lat','lon'],
-			    marker: L.circleMarker([0,0],{radius:20}),
+				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+				jsonpParam: 'json_callback',
+				propertyName: 'display_name',
+				propertyLoc: ['lat','lon'],
+				marker: L.circleMarker([0,0],{radius:20}),
 				autoCollapse: true,
 				autoType: false,
 				minLength: 2
-			}) );
+			}));
 			
 			drawnItems = L.featureGroup().addTo(map);
 			
 		    map.addControl(new L.Control.Draw({
-		         draw: {
-		             circle: false,
-		             marker: false
-		         },
-		         edit: {
-		             featureGroup: drawnItems
-		         }
+				draw: {
+					circle: false,
+					marker: false
+				},
+				edit: {
+					featureGroup: drawnItems
+				}
 		    }));
 		    
 		    map.on(L.Draw.Event.CREATED, function (e) {
-		    	   var type = e.layerType;
-		    	   var layerObject = e.layer;
-
-					var latlngArr = [];
-					
+				var type = e.layerType;
+				var layerObject = e.layer;
+				
+				var latlngArr = [];
+				console.log(layerObject.getLatLngs());
+				if(Array.isArray(layerObject.getLatLngs()[0])){
+					latlngArr = layerObject.getLatLngs()[0];
+				}else{
 					latlngArr = layerObject.getLatLngs();
-					
-
-					var layer = $('#markerLayer').val();
-					console.log(layer);
-			    	   if(layer){
-							$.ajax({
-								type : "POST",
-								url : '/marker/add',
-								data : {
-									'lat' : latlngArr[0].lat,
-									'lng' : latlngArr[0].lng,
-									'shapeType' : type,
-									'type' : 'shape',
-									'layer' : layer,
-									'message' : '',
-									'shapeList' : JSON.stringify(latlngArr)
-								},
-								
-								success : function(data) {
-									console.log(data);
-								}
-							});
-						}else{
-							alert('no logged layer');
+				}
+				
+				var layer = $('#markerLayer').val();
+				
+				if(layer){
+					$.ajax({
+						type : "POST",
+						url : '/marker/add',
+						data : {
+							'lat' : latlngArr[0].lat,
+							'lng' : latlngArr[0].lng,
+							'shapeType' : type,
+							'type' : 'shape',
+							'layer' : layer,
+							'message' : '',
+							'shapeList' : JSON.stringify(latlngArr)
+						},
+						success : function(data) {
+							console.log(data);
 						}
-		    	   
-		    	   map.addLayer(layerObject);
+					});
+				}else{
+					alert('no logged layer');
+				}
+				map.addLayer(layerObject);
 		    });
 		    
 		    
@@ -209,18 +209,17 @@ html * {
 			    
 			    div.innerHTML = "<div class='container' >";
 			    
-			    layerKeys.split(",").forEach(function (item) {
-			    	
-			    	if(loggedLayers.includes(item)){
-			    		div.innerHTML += '<div class="row ml-1">' + item + ' logged</div>'; 
-			    	}else{
-			    		if(validLayers.includes(item)){
-			    			div.innerHTML += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
-			    		}else{
-			    			div.innerHTML += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
-			    		}
-			    	}
-				 });
+				layerKeys.split(",").forEach(function (item) {
+					if(loggedLayers.includes(item)){
+						div.innerHTML += '<div class="row ml-1">' + item + ' logged</div>'; 
+					}else{
+						if(validLayers.includes(item)){
+							div.innerHTML += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
+						}else{
+							div.innerHTML += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
+						}
+					}
+				});
 
 			    div.innerHTML += "</div>";
 			    
@@ -304,7 +303,6 @@ html * {
 								'layer' : layer,
 								'message' : message
 							},
-							
 							success : function(data) {
 								if(data.status == 'success'){
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
@@ -321,8 +319,7 @@ html * {
 					}else{
 						alert('no logged layer');
 					}
-					
-
+				
 				});
 			}
 			
@@ -380,7 +377,7 @@ html * {
 					}else{
 						message = '<span style="font-size:20px" class="font-weight-normal">' + item.message + '</span>';
 					}
-
+					
 					if (item.markerCache != null) {
 						upDownButton = '<div style="width:120px;font-size:16px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 						
@@ -392,13 +389,13 @@ html * {
 						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 					}
-					
+
 					content = message;
 					
 					var popup = L.popup().setContent(content);
 					
 					var htmlContent;
-						
+					
 					if(item.type == 'livestream'){
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton + '</div>'
 					}else{
@@ -406,9 +403,9 @@ html * {
 					}
 					
 					divIcon = L.divIcon({
-					    className:'location-icon',
-					    html: htmlContent,
-					    popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
+						className:'location-icon',
+						html: htmlContent,
+						popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
 					});
 					
 					if(marker.length == 0){
@@ -418,6 +415,28 @@ html * {
 							icon : divIcon
 						}).addTo(map).bindPopup(popup);
 						
+						if(item.type == 'shape'){
+							if(item.shapeType =='polyline'){
+
+								var line = L.polyline([],{color: "#ff7800", weight: 5}).addTo(map);
+								
+								item.shapeList.forEach(function(shapePoint) {
+									line.addLatLng(shapePoint);
+								});
+							} else if(item.shapeType =='polygon'){
+								var line = L.polygon([]).addTo(map);
+								
+								item.shapeList.forEach(function(shapePoint) {
+									line.addLatLng(shapePoint);
+								});
+							} else if(item.shapeType =='rectangle'){
+								var line = L.polygon([]).addTo(map);
+								
+								item.shapeList.forEach(function(shapePoint) {
+									line.addLatLng(shapePoint);
+								});
+							}
+						}
 						
 						if(item.type == 'livestream'){
 							
@@ -461,6 +480,7 @@ html * {
 								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '0px' });
 								$('#fb_live_button_' + item.markerId).show();
 							});
+							
 							FB.XFBML.parse(null);
 						}
 
@@ -661,22 +681,22 @@ html * {
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 
-	<div id="registerFormDiv" class="card shadow-sm m-2 p-4 rounded border border-info">
+	<div id="registerFormDiv" class="card shadow-sm m-2 p-4 rounded border border-info" style="display: none">
 		<form method="post" id="registerForm" class="container">
 			<div class="row form-group">
-				<div class="col-4 btn">Layer : </div>
+				<div class="col-4 btn">Layer :</div>
 				<div class="col-8">
-					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey" disabled="disabled"/>
+					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey" disabled="disabled" />
 				</div>
 			</div>
 
 			<div class="row form-group">
-				<div class="col-4 btn">Password : </div>
+				<div class="col-4 btn">Password :</div>
 				<div class="col-8">
 					<input class="form-control" type="password" placeholder="(password)" name="password" />
 				</div>
 			</div>
-	
+
 			<div class="row m-1">
 				<button class="col-8 btn btn-primary" type="submit">Create</button>
 				<button class="col-4 btn btn-light" type="button" onclick="$('#registerFormDiv').hide()">Cancel</button>

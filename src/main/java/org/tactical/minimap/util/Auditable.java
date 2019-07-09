@@ -20,7 +20,7 @@ public class Auditable<U> {
 	@CreatedDate
 	@Column(name = "createdate")
 	private Date createdate;
-
+	
 	@LastModifiedDate
 	@Column(name = "lastupdatedate")
 	private Date lastupdatedate;

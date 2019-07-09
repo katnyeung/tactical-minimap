@@ -10,16 +10,19 @@ import javax.persistence.ManyToOne;
 
 import org.tactical.minimap.util.Auditable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ShapeMarkerDetail extends Auditable<String> {
 
+	@JsonIgnore
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long shapeMarkerDetailId;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "marker_id", referencedColumnName = "markerId")
 	ShapeMarker shapeMarker;

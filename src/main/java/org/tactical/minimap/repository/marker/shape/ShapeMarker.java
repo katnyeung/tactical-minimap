@@ -18,8 +18,8 @@ import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Entity
@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ShapeMarker extends Marker {
 	@Transient
 	Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@JsonIgnore
+	
+	@JsonProperty("shapeList")
 	@OneToMany(mappedBy = "shapeMarker", cascade = CascadeType.ALL)
 	List<ShapeMarkerDetail> shapeMarkerDetailList;
 
@@ -51,21 +51,23 @@ public class ShapeMarker extends Marker {
 			marker.setUuid(markerDTO.getUuid());
 
 			marker.setShapeType(markerDTO.getShapeType());
-			
+
 			List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
 			logger.info("shape list : " + markerDTO.getShapeList());
 			ObjectMapper om = new ObjectMapper();
 
-			List<LinkedHashMap<String, String>> shapeList;
+			List<LinkedHashMap<String, Double>> shapeList;
 
 			shapeList = om.readValue(markerDTO.getShapeList(), List.class);
-			
-			for (LinkedHashMap shapeMap : shapeList) {
+			Long i = (long) 0 ;
+			for (LinkedHashMap<String, Double> shapeMap : shapeList) {
 				ShapeMarkerDetail smd = new ShapeMarkerDetail();
-				smd.setLat(Double.parseDouble("" + shapeMap.get("lat")));
-				smd.setLng(Double.parseDouble("" + shapeMap.get("lng")));
+				smd.setLat(shapeMap.get("lat"));
+				smd.setLng(shapeMap.get("lng"));
+				smd.setSeq(i);
 				smd.setShapeMarker(marker);
 				shapeMarkerDetailList.add(smd);
+				i++;
 			}
 
 			marker.setShapeMarkerDetailList(shapeMarkerDetailList);

@@ -37,14 +37,17 @@ public class Layer extends Auditable<String> {
 	@Size(max = 100)
 	String layerKey;
 
+	@JsonIgnore
 	@Column(nullable = true)
 	@Size(max = 30)
 	String password;
 
+	@JsonIgnore
 	@NotNull
 	@Size(max = 1)
 	String status;
 
+	@JsonIgnore
 	@Column(nullable = true)
 	int duration;
 
