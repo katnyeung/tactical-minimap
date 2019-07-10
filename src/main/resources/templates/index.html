@@ -438,7 +438,7 @@ html * {
 							var shape;
 							
 							if(item.shapeType =='polyline'){
-								shape = L.polyline([],{color: "#ff7800", weight: 3});
+								shape = L.polyline([],{weight: 3});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
