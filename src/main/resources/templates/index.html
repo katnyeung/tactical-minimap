@@ -156,11 +156,17 @@ html * {
 			
 		    map.addControl(new L.Control.Draw({
 				draw: {
-					circle: false,
-					marker: false
+					polygon: true,
+					polyline: true,
+					circlemarker: false,
+					circle:false,
+					rectangle: true,
+					marker: false,
 				},
 				edit: {
-					featureGroup: drawnItems
+					featureGroup: drawnItems,
+					remove: false,
+					edit:false
 				}
 		    }));
 		    
@@ -169,7 +175,7 @@ html * {
 				var layerObject = e.layer;
 				
 				var latlngArr = [];
-				console.log(layerObject.getLatLngs());
+				
 				if(Array.isArray(layerObject.getLatLngs()[0])){
 					latlngArr = layerObject.getLatLngs()[0];
 				}else{
@@ -192,13 +198,22 @@ html * {
 							'shapeList' : JSON.stringify(latlngArr)
 						},
 						success : function(data) {
-							console.log(data);
+							if(data.status == 'success'){
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}else{
+								if(data.status == 'success'){
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}else{
+									var alertPopup = L.popup();
+									alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+								}
+							}
 						}
 					});
 				}else{
-					alert('no logged layer');
+					var alertPopup = L.popup();
+					alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
 				}
-				map.addLayer(layerObject);
 		    });
 		    
 		    
@@ -229,7 +244,6 @@ html * {
 
 			command.addTo(map);
 
-			
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -241,7 +255,8 @@ html * {
 						if(data.status == 'success'){
 							window.location.reload(false); 
 						}else{
-							alert(data.remarks);
+							var alertPopup = L.popup();
+							alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
 						}
 					}
 				});
@@ -356,6 +371,9 @@ html * {
 						if(item.relatedMarker){
 							map.removeLayer(item.relatedMarker);
 						}
+						if(item.relatedShape){
+							map.removeLayer(item.relatedShape);
+						}
 						map.removeLayer(item);
 						object.splice(index, 1);
 					}
@@ -366,7 +384,7 @@ html * {
 					
 					var upDownButton = 'loading';
 					var counter = '**';
-					var textMessage = item.message == '' ? '' : '<mark class="rounded message" style="white-space: nowrap;">' + item.message +  '</mark><br/>';
+					var textMessage = '<mark class="rounded message" style="white-space: nowrap;">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
@@ -397,7 +415,7 @@ html * {
 					var htmlContent;
 					
 					if(item.type == 'livestream'){
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + counter + upDownButton + '</div>'
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><mark class="rounded message" style="white-space: nowrap;">' + item.layer.layerKey + '</mark>' + counter + upDownButton + '</div>'
 					}else{
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/>' + textMessage + counter + upDownButton + '</div>'
 					}
@@ -416,20 +434,24 @@ html * {
 						}).addTo(map).bindPopup(popup);
 						
 						if(item.type == 'shape'){
+							
+							var shape;
+							
 							if(item.shapeType =='polyline'){
-
-								var shape = L.polyline([],{color: "#ff7800", weight: 5}).addTo(map);
+								shape = L.polyline([],{color: "#ff7800", weight: 3});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
 								});
 							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
-								var shape = L.polygon([]).addTo(map);
+								shape = L.polygon([],{weight: 3});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
 								});
 							} 
+							shape.addTo(map);
+							
 							marker.relatedShape = shape;
 						}
 						
@@ -502,10 +524,6 @@ html * {
 								marker.relatedMarker.setLatLng(e.target.getLatLng());
 							}
 							
-							if(marker.relatedShape){
-								
-							}
-							
 						})
 						
 						marker.markerId = item.markerId;
@@ -524,6 +542,28 @@ html * {
 							
 							if(marker[0].relatedMarker){
 								marker[0].relatedMarker.setLatLng(newLatLng);
+							}							
+							
+							if(marker[0].relatedShape){
+								if(item.shapeList){
+									var shape;
+									
+									if(item.shapeType =='polyline'){
+										shape = L.polyline([]);
+										
+										item.shapeList.forEach(function(shapePoint) {
+											shape.addLatLng(shapePoint);
+										});
+									} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
+										shape = L.polygon([]);
+										
+										item.shapeList.forEach(function(shapePoint) {
+											shape.addLatLng(shapePoint);
+										});
+									}
+									
+									marker[0].relatedShape.setLatLngs(shape.getLatLngs());
+								}
 							}
 						}
 					}
@@ -686,7 +726,7 @@ html * {
 			<div class="row form-group">
 				<div class="col-4 btn">Layer :</div>
 				<div class="col-8">
-					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey" disabled="disabled" />
+					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey"/>
 				</div>
 			</div>
 

@@ -27,8 +27,6 @@ public class ShapeMarkerDetail extends Auditable<String> {
 	@JoinColumn(name = "marker_id", referencedColumnName = "markerId")
 	ShapeMarker shapeMarker;
 
-	Long seq;
-
 	Double lat;
 	Double lng;
 
@@ -46,14 +44,6 @@ public class ShapeMarkerDetail extends Auditable<String> {
 
 	public void setShapeMarker(ShapeMarker shapeMarker) {
 		this.shapeMarker = shapeMarker;
-	}
-
-	public Long getSeq() {
-		return seq;
-	}
-
-	public void setSeq(Long seq) {
-		this.seq = seq;
 	}
 
 	public Double getLat() {

@@ -59,15 +59,13 @@ public class ShapeMarker extends Marker {
 			List<LinkedHashMap<String, Double>> shapeList;
 
 			shapeList = om.readValue(markerDTO.getShapeList(), List.class);
-			Long i = (long) 0 ;
+			
 			for (LinkedHashMap<String, Double> shapeMap : shapeList) {
 				ShapeMarkerDetail smd = new ShapeMarkerDetail();
 				smd.setLat(shapeMap.get("lat"));
 				smd.setLng(shapeMap.get("lng"));
-				smd.setSeq(i);
 				smd.setShapeMarker(marker);
 				shapeMarkerDetailList.add(smd);
-				i++;
 			}
 
 			marker.setShapeMarkerDetailList(shapeMarkerDetailList);
@@ -112,7 +110,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "015-pin-8.png";
+		return "016-pin-7.png";
 	}
 
 	@Override
