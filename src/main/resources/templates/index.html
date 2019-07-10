@@ -418,24 +418,19 @@ html * {
 						if(item.type == 'shape'){
 							if(item.shapeType =='polyline'){
 
-								var line = L.polyline([],{color: "#ff7800", weight: 5}).addTo(map);
+								var shape = L.polyline([],{color: "#ff7800", weight: 5}).addTo(map);
 								
 								item.shapeList.forEach(function(shapePoint) {
-									line.addLatLng(shapePoint);
+									shape.addLatLng(shapePoint);
 								});
-							} else if(item.shapeType =='polygon'){
-								var line = L.polygon([]).addTo(map);
+							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
+								var shape = L.polygon([]).addTo(map);
 								
 								item.shapeList.forEach(function(shapePoint) {
-									line.addLatLng(shapePoint);
+									shape.addLatLng(shapePoint);
 								});
-							} else if(item.shapeType =='rectangle'){
-								var line = L.polygon([]).addTo(map);
-								
-								item.shapeList.forEach(function(shapePoint) {
-									line.addLatLng(shapePoint);
-								});
-							}
+							} 
+							marker.relatedShape = shape;
 						}
 						
 						if(item.type == 'livestream'){
@@ -506,6 +501,11 @@ html * {
 							if(marker.relatedMarker){
 								marker.relatedMarker.setLatLng(e.target.getLatLng());
 							}
+							
+							if(marker.relatedShape){
+								
+							}
+							
 						})
 						
 						marker.markerId = item.markerId;

@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.repository.marker.shape.ShapeMarker;
+import org.tactical.minimap.repository.marker.shape.ShapeMarkerDetail;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
@@ -65,8 +67,21 @@ public class MarkerService {
 	}
 
 	public void moveMarker(Marker marker, Double lat, Double lng) {
+		if(marker instanceof ShapeMarker) {
+			Double diffLat = lat - marker.getLat();
+			Double diffLng = lng - marker.getLng();
+						
+			ShapeMarker shapeMarker = (ShapeMarker) marker;
+			List<ShapeMarkerDetail> shapeList = shapeMarker.getShapeMarkerDetailList();
+			for(ShapeMarkerDetail smd : shapeList) {
+				smd.setLat(smd.getLat() + diffLat);
+				smd.setLng(smd.getLng() + diffLng);
+			}
+		}
+
 		marker.setLat(lat);
 		marker.setLng(lng);
+		
 		markerDAO.save(marker);
 	}
 
