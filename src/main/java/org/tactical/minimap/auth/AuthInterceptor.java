@@ -64,7 +64,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 						HttpSession session = request.getSession();
 
 						String uuid = CookieUtil.getUUID(request, response, session);
-						Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
+						Set<String> loggedLayer = redisService.getLoggedLayers(uuid);
 
 						Layer layer = layerService.getLayerByKey(layerKey);
 

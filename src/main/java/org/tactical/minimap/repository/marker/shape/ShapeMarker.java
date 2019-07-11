@@ -115,7 +115,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 28;
+		return 34;
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 240;
+		return 600;
 	}
 
 	@Override

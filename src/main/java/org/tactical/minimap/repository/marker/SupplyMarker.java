@@ -52,7 +52,7 @@ public class SupplyMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 240;
+		return 600;
 	}
 
 	@Override

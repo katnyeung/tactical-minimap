@@ -58,11 +58,10 @@ public class RouteController {
 		model.addAttribute("lat", lat);
 		model.addAttribute("lng", lng);
 
-		model.addAttribute("loggedLayers", redisService.getLoggedLayer(uuid));
+		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
 
-		List<Layer> validLayers = layerService.findActiveLayers();
-
-		model.addAttribute("validLayers", validLayers.stream().map(Layer::getLayerKey).collect(Collectors.toList()));
+		model.addAttribute("validLayers", layerService.getActiveLayers().stream().map(Layer::getLayerKey).collect(Collectors.toList()));
+		model.addAttribute("loggedLayers", loggedLayers);
 
 		return "index";
 	}
@@ -72,7 +71,7 @@ public class RouteController {
 	public DefaultResult loginLayer(HttpServletRequest request, HttpServletResponse response, HttpSession session, LayerDTO layerDTO) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
-		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
+		Set<String> loggedLayer = redisService.getLoggedLayers(uuid);
 
 		if (!loggedLayer.contains(layerDTO.getLayerKey())) {
 			Layer layer = layerService.getLayerByKey(layerDTO.getLayerKey());
@@ -101,7 +100,7 @@ public class RouteController {
 		Layer layer = layerService.getLayerByKey(layerDTO.getLayerKey());
 
 		if (layer == null) {
-			if(layerDTO.getPassword() != null) {
+			if (layerDTO.getPassword() != null) {
 				layer = new Layer();
 				layer.setLayerKey(layerDTO.getLayerKey());
 				layer.setPassword(layerDTO.getPassword());
@@ -110,11 +109,10 @@ public class RouteController {
 
 				layerService.save(layer);
 				return DefaultResult.success();
-			}else {
+			} else {
 
 				return DefaultResult.error("password required");
 			}
-
 
 		} else {
 			return DefaultResult.error("layer already registered");

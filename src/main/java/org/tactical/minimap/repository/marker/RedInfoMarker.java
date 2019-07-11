@@ -52,7 +52,7 @@ public class RedInfoMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 180;
+		return 600;
 	}
 
 	@Override

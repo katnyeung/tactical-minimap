@@ -29,6 +29,9 @@ public class MarkerService {
 	@Autowired
 	RedisService redisService;
 
+	@Autowired
+	LayerService layerService;
+
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 	}
@@ -67,13 +70,13 @@ public class MarkerService {
 	}
 
 	public void moveMarker(Marker marker, Double lat, Double lng) {
-		if(marker instanceof ShapeMarker) {
+		if (marker instanceof ShapeMarker) {
 			Double diffLat = lat - marker.getLat();
 			Double diffLng = lng - marker.getLng();
-						
+
 			ShapeMarker shapeMarker = (ShapeMarker) marker;
 			List<ShapeMarkerDetail> shapeList = shapeMarker.getShapeMarkerDetailList();
-			for(ShapeMarkerDetail smd : shapeList) {
+			for (ShapeMarkerDetail smd : shapeList) {
 				smd.setLat(smd.getLat() + diffLat);
 				smd.setLng(smd.getLng() + diffLng);
 			}
@@ -81,7 +84,7 @@ public class MarkerService {
 
 		marker.setLat(lat);
 		marker.setLng(lng);
-		
+
 		markerDAO.save(marker);
 	}
 
@@ -109,7 +112,7 @@ public class MarkerService {
 	}
 
 	public void addMarkerCache(List<Marker> markerList, String uuid) {
-		Set<String> loggedLayer = redisService.getLoggedLayer(uuid);
+		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
 
 		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
 		double maxUpVoteInList = 0.0;
@@ -127,7 +130,7 @@ public class MarkerService {
 		for (Marker marker : markerList) {
 			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
 
-			if (loggedLayer.contains(marker.getLayer().getLayerKey())) {
+			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
 				marker.setControllable(true);
 			}
 

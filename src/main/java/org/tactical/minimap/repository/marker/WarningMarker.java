@@ -66,7 +66,7 @@ public class WarningMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 90;
+		return 180;
 	}
 
 	@Override

@@ -147,7 +147,7 @@ public class RedisService {
 		stringRedisTemplate.delete(key);
 	}
 
-	public Set<String> getLoggedLayer(String uuid) {
+	public Set<String> getLoggedLayers(String uuid) {
 		return stringRedisTemplate.opsForSet().members(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid);
 	}
 
