@@ -151,92 +151,43 @@ html * {
 				autoType: false,
 				minLength: 2
 			}));
-			
-			drawnItems = L.featureGroup().addTo(map);
-			
-		    map.addControl(new L.Control.Draw({
-				draw: {
-					polygon: true,
-					polyline: true,
-					circlemarker: false,
-					circle:false,
-					rectangle: true,
-					marker: false,
-				},
-				edit: {
-					featureGroup: drawnItems,
-					remove: false,
-					edit:false
-				}
-		    }));
-		    
-		    map.on(L.Draw.Event.CREATED, function (e) {
-				var type = e.layerType;
-				var layerObject = e.layer;
-				
-				var latlngArr = [];
-				
-				if(Array.isArray(layerObject.getLatLngs()[0])){
-					latlngArr = layerObject.getLatLngs()[0];
-				}else{
-					latlngArr = layerObject.getLatLngs();
-				}
-				
-				var layer = $('#markerLayer').val();
-				
-				if(layer){
-					$.ajax({
-						type : "POST",
-						url : '/marker/add',
-						data : {
-							'lat' : latlngArr[0].lat,
-							'lng' : latlngArr[0].lng,
-							'shapeType' : type,
-							'type' : 'shape',
-							'layer' : layer,
-							'message' : '',
-							'shapeList' : JSON.stringify(latlngArr)
-						},
-						success : function(data) {
-							if(data.status == 'success'){
-								updateMarkers(map.getCenter().lat, map.getCenter().lng);
-							}else{
-								if(data.status == 'success'){
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-								}else{
-									var alertPopup = L.popup();
-									alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
-								}
-							}
-						}
-					});
-				}else{
-					var alertPopup = L.popup();
-					alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
-				}
-		    });
-		    
-		    
+
+
 			var command = L.control({position: 'bottomleft'});
 			
 			command.onAdd = function (map) {
-			    var div = L.DomUtil.create('div', 'command');
 			    
-			    div.innerHTML = "<div class='container' >";
+			    var htmlContent = "<div class='container'>";
+			    
+			    if(loggedLayers.length > 0){
+			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="form-control btn-warning rounded">';
+			    	
+			    	loggedLayers.forEach(function(loggedItem){
+						if(layerKeys.split(",").includes(loggedItem)){
+			    			htmlContent += '<option value="' + loggedItem + '">' + loggedItem + "</option>";
+						}
+			    	});
+			    	
+			    	htmlContent += '</select></div>'; 
+				}
 			    
 				layerKeys.split(",").forEach(function (item) {
-					if(loggedLayers.includes(item)){
-						div.innerHTML += '<div class="row ml-1">' + item + ' logged</div>'; 
-					}else{
+					htmlContent += '<div class="row ml-1">';
+					
+					if(!loggedLayers.includes(item)){
 						if(validLayers.includes(item)){
-							div.innerHTML += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
+							htmlContent += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 
 						}else{
-							div.innerHTML += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
+							htmlContent += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 
 						}
 					}
+					htmlContent += '</div>';
 				});
 
-			    div.innerHTML += "</div>";
+			    htmlContent += "</div>";
+
+			    var div = L.DomUtil.create('div', 'command');
+			    div.innerHTML = htmlContent;
 			    
 			    return div;
 
@@ -244,6 +195,77 @@ html * {
 
 			command.addTo(map);
 
+			if(loggedLayers.length > 0){
+				
+				drawnItems = L.featureGroup().addTo(map);
+				
+				map.addControl(new L.Control.Draw({
+					draw: {
+						polygon: true,
+						polyline: true,
+						circlemarker: false,
+						circle:false,
+						rectangle: true,
+						marker: false,
+					},
+					edit: {
+						featureGroup: drawnItems,
+						remove: false,
+						edit:false
+					}
+				}));
+
+
+			    map.on(L.Draw.Event.CREATED, function (e) {
+					var type = e.layerType;
+					var layerObject = e.layer;
+					
+					var latlngArr = [];
+					
+					if(Array.isArray(layerObject.getLatLngs()[0])){
+						latlngArr = layerObject.getLatLngs()[0];
+					}else{
+						latlngArr = layerObject.getLatLngs();
+					}
+					
+					var layer = $('#markerLayer').val();
+					
+					if(layer){
+						$.ajax({
+							type : "POST",
+							url : '/marker/add',
+							data : {
+								'lat' : latlngArr[0].lat,
+								'lng' : latlngArr[0].lng,
+								'shapeType' : type,
+								'type' : 'shape',
+								'layer' : layer,
+								'message' : '',
+								'shapeList' : JSON.stringify(latlngArr)
+							},
+							success : function(data) {
+								if(data.status == 'success'){
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}else{
+									if(data.status == 'success'){
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+									}else{
+										var alertPopup = L.popup();
+										alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+									}
+								}
+							}
+						});
+					}else{
+						var alertPopup = L.popup();
+						alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
+					}
+			    });
+			    
+			}
+
+			
+			
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -272,14 +294,7 @@ html * {
 			}
 
 			map.on('contextmenu', onMapClick);
-			
-			$.each(loggedLayers, function(key, value) {   
-			     $('#markerLayer')
-			         .append($("<option></option>")
-			                    .attr("value",value)
-			                    .text(value)); 
-			});
-			
+
 			map.on('dragend zoomend', function(e) {
 				history.replaceState(null, null, '/' + layerKeys + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
@@ -713,11 +728,6 @@ html * {
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
 			<div>FB Live</div>
 		</button>
-		<div class="card">
-			<select name="layer" id="markerLayer">
-
-			</select>
-		</div>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 
