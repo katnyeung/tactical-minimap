@@ -485,6 +485,8 @@ html * {
 							}).addTo(map);
 							
 							marker.relatedMarker = fbMarker;
+
+							FB.XFBML.parse(null);
 							
 							$('#fb_live_button_' + item.markerId).click(function(){
 								$('#fb_live_' + item.markerId).hide();
@@ -517,7 +519,6 @@ html * {
 								$('#fb_live_button_' + item.markerId).show();
 							});
 							
-							FB.XFBML.parse(null);
 							
 							$('#fb_live_' + item.markerId).hide();
 							$('#fb_live_button_' + item.markerId).hide();
