@@ -235,8 +235,8 @@ html * {
 							type : "POST",
 							url : '/marker/add',
 							data : {
-								'lat' : latlngArr[0].lat,
-								'lng' : latlngArr[0].lng,
+								'lat' : latlngArr[latlngArr.length-1].lat,
+								'lng' : latlngArr[latlngArr.length-1].lng,
 								'shapeType' : type,
 								'type' : 'shape',
 								'layer' : layer,
@@ -489,19 +489,22 @@ html * {
 							$('#fb_live_button_' + item.markerId).click(function(){
 								$('#fb_live_' + item.markerId).hide();
 								$('#fb_live_button_' + item.markerId).hide();
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '275px' });
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
 							});
 							
 							$('#fb_live_button_small_' + item.markerId).click(function(){
 								$('#fb_live_' + item.markerId).show();
 								$('#fb_live_frame_' + item.markerId).width(200);
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '150px' });
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '155px' });
 								$('#fb_live_button_' + item.markerId).show();
 							});
 							
 							$('#fb_live_button_big_' + item.markerId).click(function(){
 								$('#fb_live_' + item.markerId).show();
 								$('#fb_live_frame_' + item.markerId).width(400);
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
 								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '75px' });
 								$('#fb_live_button_' + item.markerId).show();
 							});							
@@ -509,11 +512,17 @@ html * {
 							$('#fb_live_button_biggest_' + item.markerId).click(function(){
 								$('#fb_live_' + item.markerId).show();
 								$('#fb_live_frame_' + item.markerId).width(600);
+								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
 								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '0px' });
 								$('#fb_live_button_' + item.markerId).show();
 							});
 							
 							FB.XFBML.parse(null);
+							
+							$('#fb_live_' + item.markerId).hide();
+							$('#fb_live_button_' + item.markerId).hide();
+							$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
+							$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
 						}
 
 					    marker.on('dragstart', function(e) {
