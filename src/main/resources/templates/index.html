@@ -447,6 +447,7 @@ html * {
 						
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : item.controllable,
+							autoPan: false,
 							icon : divIcon
 						}).addTo(map).bindPopup(popup);
 						
