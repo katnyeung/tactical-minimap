@@ -115,6 +115,9 @@ public class RouteController {
 			}
 
 		} else {
+			layer.setPassword(layerDTO.getPassword());
+			layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
+			layerService.save(layer);
 			return DefaultResult.error("layer already registered");
 		}
 	}

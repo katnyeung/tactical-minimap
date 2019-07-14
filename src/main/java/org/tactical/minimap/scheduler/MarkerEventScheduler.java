@@ -47,7 +47,7 @@ public class MarkerEventScheduler {
 		emitters.forEach(emitter -> {
 			try {
 
-				List<String> layerKeyList = Arrays.asList(emitter.getLayerKeys().split(","));
+				List<String> layerKeyList = Arrays.asList(emitter.getLayerKeys().split("|"));
 
 				List<Marker> markerList = markerService.findMultiLayerMarkers(layerKeyList, emitter.getLat(), emitter.getLng(), ConstantsUtil.RANGE);
 
