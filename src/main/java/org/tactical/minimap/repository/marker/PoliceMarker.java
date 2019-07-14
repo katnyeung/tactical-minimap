@@ -64,7 +64,7 @@ public class PoliceMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 360;
+		return 1600;
 	}
 
 	@Override

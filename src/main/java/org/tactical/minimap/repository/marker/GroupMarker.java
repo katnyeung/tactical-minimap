@@ -64,7 +64,7 @@ public class GroupMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 600;
+		return 2400;
 	}
 
 	@Override

@@ -1,26 +1,27 @@
-package org.tactical.minimap.repository.marker;
+package org.tactical.minimap.repository.marker.livestream;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "redinfo")
+@DiscriminatorValue(value = "twitch_livestream")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class RedInfoMarker extends Marker {
+public class TwtichLiveStreamMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "redinfo";
+		return "twitch_livestream";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		RedInfoMarker marker = new RedInfoMarker();
+		TwtichLiveStreamMarker marker = new TwtichLiveStreamMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -32,7 +33,7 @@ public class RedInfoMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "017-pin-6.png";
+		return "live.png";
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class RedInfoMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 1800;
+		return 4800;
 	}
 
 	@Override

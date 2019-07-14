@@ -17,6 +17,7 @@
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
+<script src="https://embed.twitch.tv/embed/v1.js"></script>
 
 <style>
 .iconMarkup {
@@ -314,7 +315,8 @@ html * {
 			clickRegister($("#btnWarningMarker"), 'warning');
 			clickRegister($("#btnPoliceMarker"), 'police');
 
-			clickRegister($("#btnLiveStreamMarker"), 'livestream');
+			clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
+			clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
 			
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -470,7 +472,74 @@ html * {
 							marker.relatedShape = shape;
 						}
 						
-						if(item.type == 'livestream'){
+						if(item.type == 'twitch_livestream'){
+							
+							var twitchStream = '<div class="row" id="twitch_live_frame_'+item.markerId+'"><div id="twitch_live_' + item.markerId + '" class="col-12"></div>'+
+							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="twitch_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="twitch_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="twitch_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="twitch_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
+							
+							var twitchStreamIcon = L.divIcon({
+							    className:'livestream-icon',
+							    html: twitchStream
+							});
+							
+							var twitchMarker = L.marker([ item.lat, item.lng ], {
+								icon : twitchStreamIcon,
+							}).addTo(map);
+							
+							marker.relatedMarker = twitchMarker;
+							
+							new Twitch.Embed('twitch_live_' + item.markerId + '', {
+								width:'100%',
+								height:'100%',
+								layout:'video',
+								channel: item.message
+							});
+							
+							
+							$('#twitch_live_button_' + item.markerId).click(function(){
+								$('#twitch_live_' + item.markerId).hide();
+								$('#twitch_live_button_' + item.markerId).hide();
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
+							});
+							
+							$('#twitch_live_button_small_' + item.markerId).click(function(){
+								$('#twitch_live_' + item.markerId).show();
+								$('#twitch_live_frame_' + item.markerId).width(300);
+								$('#twitch_live_frame_' + item.markerId).height(70);
+								
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '125px' });
+								$('#twitch_live_button_' + item.markerId).show();
+							});
+							
+							$('#twitch_live_button_big_' + item.markerId).click(function(){
+								$('#twitch_live_' + item.markerId).show();
+								$('#twitch_live_frame_' + item.markerId).width(400);
+								$('#twitch_live_frame_' + item.markerId).height(300);
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '65px' });
+								$('#twitch_live_button_' + item.markerId).show();
+							});							
+							
+							$('#twitch_live_button_biggest_' + item.markerId).click(function(){
+								$('#twitch_live_' + item.markerId).show();
+								$('#twitch_live_frame_' + item.markerId).width(600);
+								$('#twitch_live_frame_' + item.markerId).height(450);
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
+								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '-10px' });
+								$('#twitch_live_button_' + item.markerId).show();
+							});
+							
+							
+							$('#twitch_live_' + item.markerId).hide();
+							$('#twitch_live_button_' + item.markerId).hide();
+							$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
+							$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
+							
+						}
+
+						if(item.type == 'fb_livestream'){
 							
 							var fbStream = '<div class="row" id="fb_live_frame_' + item.markerId + '"><div id="fb_live_' + item.markerId + '" class="fb-video col-12" data-href="' + item.message + '" data-width="500"  data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>' + 
 							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="fb_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="fb_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="fb_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="fb_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
@@ -734,9 +803,14 @@ html * {
 			<div>警察</div>
 		</button>
 
-		<button id="btnLiveStreamMarker" class="btn btn-secondary mt-1">
+		<button id="btnFBLiveStreamMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
-			<div>FB Live</div>
+			<div>FB</div>
+		</button>
+		
+		<button id="btnTwitchLiveStreamMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/live.png" style="width: 32px; height: 32px" />
+			<div>Twitch</div>
 		</button>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>

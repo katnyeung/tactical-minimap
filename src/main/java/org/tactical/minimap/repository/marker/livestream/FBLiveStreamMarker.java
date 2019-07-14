@@ -1,26 +1,27 @@
-package org.tactical.minimap.repository.marker;
+package org.tactical.minimap.repository.marker.livestream;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "livestream")
+@DiscriminatorValue(value = "fb_livestream")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class LiveStreamMarker extends Marker {
+public class FBLiveStreamMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "livestream";
+		return "fb_livestream";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		LiveStreamMarker marker = new LiveStreamMarker();
+		FBLiveStreamMarker marker = new FBLiveStreamMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -52,7 +53,7 @@ public class LiveStreamMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 1200;
+		return 4800;
 	}
 
 	@Override
