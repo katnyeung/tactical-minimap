@@ -164,7 +164,7 @@ html * {
 			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="form-control btn-warning rounded">';
 			    	
 			    	loggedLayers.forEach(function(loggedItem){
-						if(layerKeys.split("|").includes(loggedItem)){
+						if(layerKeys.split(",").includes(loggedItem)){
 			    			htmlContent += '<option value="' + loggedItem + '">' + loggedItem + "</option>";
 						}
 			    	});
@@ -172,7 +172,7 @@ html * {
 			    	htmlContent += '</select></div>'; 
 				}
 			    
-				layerKeys.split("|").forEach(function (item) {
+				layerKeys.split(",").forEach(function (item) {
 					htmlContent += '<div class="row ml-1">';
 					
 					if(!loggedLayers.includes(item)){

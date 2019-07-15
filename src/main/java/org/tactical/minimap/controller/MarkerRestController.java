@@ -107,7 +107,7 @@ public class MarkerRestController {
 		Double lat = markerDTO.getLat();
 		Double lng = markerDTO.getLng();
 
-		List<String> layerKeyList = Arrays.asList(layerKeys.split("|"));
+		List<String> layerKeyList = Arrays.asList(layerKeys.split(","));
 
 		List<Marker> markerList = markerService.findMultiLayerMarkers(layerKeyList, lat, lng, ConstantsUtil.RANGE);
 
