@@ -130,6 +130,18 @@ public class MarkerRestController {
 	}
 
 	@Auth
+	@PostMapping("/pulse")
+	public DefaultResult pulse(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
+		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
+
+		markerService.pulseMarker(marker);
+		
+		return DefaultResult.success();
+
+	}
+
+	@Auth
 	@PostMapping("/delete")
 	public DefaultResult delete(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 

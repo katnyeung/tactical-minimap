@@ -151,4 +151,13 @@ public class MarkerService {
 		}
 	}
 
+	public void pulseMarker(Marker marker) {
+		
+		MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+		mc.setPulse(10);
+		
+		redisService.saveMarkerCache(mc);
+		
+	}
+
 }

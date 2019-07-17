@@ -44,6 +44,9 @@ public class SupportTaskScheduler {
 			} else {
 				// count down the timer of those marker in redis
 				mc.setExpire(mc.getExpire() - 3);
+				if(mc.getPulse() > 0) {
+					mc.setPulse(mc.getPulse() - 1);
+				}
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());

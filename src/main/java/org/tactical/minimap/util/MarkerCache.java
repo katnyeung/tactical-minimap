@@ -18,6 +18,8 @@ public class MarkerCache {
 
 	Long expire;
 
+	int pulse = 0;
+	
 	@JsonIgnore
 	int upRate;
 
@@ -103,6 +105,14 @@ public class MarkerCache {
 		this.layer = layer;
 	}
 
+	public int getPulse() {
+		return pulse;
+	}
+
+	public void setPulse(int pulse) {
+		this.pulse = pulse;
+	}
+
 	public Map<String, String> toHashMap() {
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("lat", "" + lat);
@@ -113,6 +123,7 @@ public class MarkerCache {
 		hashMap.put("downRate", "" + downRate);
 		hashMap.put("expire", "" + expire);
 		hashMap.put("layer", "" + layer);
+		hashMap.put("pulse", "" + pulse);
 		return hashMap;
 	}
 
@@ -127,6 +138,7 @@ public class MarkerCache {
 			mc.setUpRate(Integer.parseInt((String) objMap.get("upRate")));
 			mc.setDownRate(Integer.parseInt((String) objMap.get("downRate")));
 			mc.setLayer((String) objMap.get("layer"));
+			mc.setPulse(Integer.parseInt((String) objMap.get("pulse")));
 			return mc;
 		} else {
 			return null;

@@ -421,7 +421,7 @@ html * {
 							stopWatchClass = 'text-danger';
 						}
 						
-						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px">'+ item.markerCache.pulse +'<i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 					}
 
@@ -622,9 +622,27 @@ html * {
 							}
 							
 						})
+												
+						marker.on('dblclick', function(event){
+							if(item.controllable){
+								$.ajax({
+									type : "POST",
+									url : '/marker/pulse',
+									data : {
+										'markerId' : item.markerId
+									},
+									success : function(data) {
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+									}
+								});
+							}
+
+						});
 						
 						marker.markerId = item.markerId;
 						marker.setOpacity(item.opacity);
+						
+
 						
 						allMarkerList.push(marker);
 					}else{						
