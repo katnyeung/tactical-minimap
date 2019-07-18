@@ -216,16 +216,15 @@ public class MarkerRestController {
 				mc.setExpire(mc.getExpire() + (expireRate * mc.getUpVote()));
 				markerResponseService.upVote(marker, uuid);
 
+				marker.setLastupdatedate(Calendar.getInstance().getTime());
+				markerService.update(marker);
 			} else if (type.equals("down")) {
 				mc.setDownVote(mc.getDownVote() + 1);
 				mc.setExpire(mc.getExpire() - expireRate);
 				markerResponseService.downVote(marker, uuid);
 			}
 			redisService.saveMarkerCache(mc);
-			
-			marker.setLastupdatedate(Calendar.getInstance().getTime());
-			markerService.update(marker);
-			
+						
 			return null;
 		} else {
 			Calendar currentTime = Calendar.getInstance();
