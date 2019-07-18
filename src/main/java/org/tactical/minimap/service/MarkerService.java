@@ -1,6 +1,7 @@
 package org.tactical.minimap.service;
 
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,6 +98,10 @@ public class MarkerService {
 		marker.setMessage(message);
 		markerDAO.save(marker);
 	}
+	
+	public void update(Marker marker) {
+		markerDAO.save(marker);
+	}
 
 	public int getMarkerCountInRange(String layerKey, Double lat, Double lng, Double range) {
 		return markerDAO.getMarkerCountInRange(layerKey, lat - range, lat + range, lng - range, lng + range);
@@ -114,21 +119,8 @@ public class MarkerService {
 	public void addMarkerCache(List<Marker> markerList, String uuid) {
 		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
 
-		HashMap<Long, MarkerCache> markerCacheMap = new HashMap<>();
-		double maxUpVoteInList = 0.0;
-
 		for (Marker marker : markerList) {
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
-			if (mc != null) {
-				markerCacheMap.put(marker.getMarkerId(), mc);
-				if (mc.getUpVote() > maxUpVoteInList) {
-					maxUpVoteInList = mc.getUpVote();
-				}
-			}
-		}
-
-		for (Marker marker : markerList) {
-			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
 
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
 				marker.setControllable(true);
@@ -140,13 +132,22 @@ public class MarkerService {
 				marker.setMarkerCache(mc);
 
 				// set opacity
-				if (maxUpVoteInList == 0.0) {
-					marker.setOpacity(1);
-				} else {
-					double weight = 0.2 / maxUpVoteInList;
-					marker.setOpacity((mc.getUpVote() * weight) + 0.8);
-
+				int minute = 60 * 1000;
+				Date currentDate = Calendar.getInstance().getTime();
+				double weight = 1.0;
+				
+				if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
+					weight = 0.6;
+				} else if (marker.getLastupdatedate().getTime() + (9 * minute) <= currentDate.getTime()) {
+					weight = 0.7;
+				} else if (marker.getLastupdatedate().getTime() + (6 * minute) <= currentDate.getTime()) {
+					weight = 0.8;
+				} else if (marker.getLastupdatedate().getTime() + (3 * minute) <= currentDate.getTime()) {
+					weight = 0.9;
 				}
+
+				marker.setOpacity(1 * weight);
+
 			}
 		}
 	}
@@ -154,7 +155,7 @@ public class MarkerService {
 	public void pulseMarker(Marker marker) {
 		
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
-		mc.setPulse(10);
+		mc.setPulse(ConstantsUtil.PULSE_RATE);
 		
 		redisService.saveMarkerCache(mc);
 		

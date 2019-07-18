@@ -221,9 +221,11 @@ public class MarkerRestController {
 				mc.setExpire(mc.getExpire() - expireRate);
 				markerResponseService.downVote(marker, uuid);
 			}
-
 			redisService.saveMarkerCache(mc);
-
+			
+			marker.setLastupdatedate(Calendar.getInstance().getTime());
+			markerService.update(marker);
+			
 			return null;
 		} else {
 			Calendar currentTime = Calendar.getInstance();

@@ -50,6 +50,28 @@
 html * {
 	font-family: Trebuchet MS;
 }
+
+.pulse {
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+      -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 0;
+    }
+    70% {
+        -moz-box-shadow: 0 0 0 35px rgba(0, 0, 0, 0);
+        box-shadow: 0 0 0 35px rgba(0, 0, 0, 0);
+    }
+    100% {
+        -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}
+
+
 </style>
 </head>
 <body>
@@ -266,7 +288,6 @@ html * {
 			}
 
 			
-			
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -405,6 +426,8 @@ html * {
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
+					var pulseClass;
+					var pulseStyle;
 					
 					if (item.controllable){						
 						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
@@ -421,7 +444,12 @@ html * {
 							stopWatchClass = 'text-danger';
 						}
 						
-						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px">'+ item.markerCache.pulse +'<i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						
+						if(item.markerCache.pulse > 0){
+							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';
+							pulseClass = 'pulse';
+						}
 						
 					}
 
@@ -430,12 +458,13 @@ html * {
 					var popup = L.popup().setContent(content);
 					
 					var htmlContent;
-					
+
 					if(item.type == 'livestream'){
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div><mark class="rounded message" style="white-space: nowrap;">' + item.layer.layerKey + '</mark>' + counter + upDownButton + '</div></div>'
 					}else{
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div>' + textMessage + counter + upDownButton + '</div></div>'
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' + textMessage + counter + upDownButton + '</div></div>'
 					}
+					
 					
 					divIcon = L.divIcon({
 						className:'location-icon',
@@ -642,10 +671,9 @@ html * {
 						marker.markerId = item.markerId;
 						marker.setOpacity(item.opacity);
 						
-
-						
 						allMarkerList.push(marker);
-					}else{						
+					}else{
+						
 						marker[0].setIcon(divIcon);
 						marker[0]._popup.setContent(content);
 						
