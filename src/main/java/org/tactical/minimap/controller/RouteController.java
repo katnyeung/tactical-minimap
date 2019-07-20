@@ -1,7 +1,10 @@
 package org.tactical.minimap.controller;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,12 +52,29 @@ public class RouteController {
 
 	@GetMapping(path = "/{layerKeys}/{zoom}/{lat}/{lng}")
 	public String layerXY(@PathVariable("layerKeys") String layerKeys, @PathVariable("zoom") Integer zoom, @PathVariable("lat") Double lat, @PathVariable("lng") Double lng, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-
 		String uuid = CookieUtil.getUUID(request, response, session);
+		Map<String, String> layerMap = new HashMap<String, String>();
+
+		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
+
+		for (String layerKey : layerKeys.split(",")) {
+			Matcher matcher = pattern.matcher(layerKey);
+
+			if (matcher.find()) {
+				if (matcher.groupCount() > 1) {
+					layerMap.put(matcher.group(1), matcher.group(2));
+				}
+			}
+		}
 
 		model.addAttribute("key", uuid);
 		model.addAttribute("zoom", zoom);
-		model.addAttribute("layerKeys", layerKeys);
+
+		model.addAttribute("layerKeysString", layerKeys);
+		
+		model.addAttribute("layerKeys", layerMap.keySet());
+		model.addAttribute("layerMap", layerMap);
+		
 		model.addAttribute("lat", lat);
 		model.addAttribute("lng", lng);
 

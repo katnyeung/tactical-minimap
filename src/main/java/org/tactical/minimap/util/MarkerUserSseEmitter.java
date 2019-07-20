@@ -1,12 +1,14 @@
 package org.tactical.minimap.util;
 
+import java.util.List;
+
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public class MarkerUserSseEmitter extends SseEmitter {
 
 	String uuid;
 
-	String layerKeys;
+	List<String> layerKeys;
 
 	Double lat;
 
@@ -20,11 +22,11 @@ public class MarkerUserSseEmitter extends SseEmitter {
 		this.uuid = uuid;
 	}
 
-	public String getLayerKeys() {
+	public List<String> getLayerKeys() {
 		return layerKeys;
 	}
 
-	public void setLayerKeys(String layerKeys) {
+	public void setLayerKeys(List<String> layerKeys) {
 		this.layerKeys = layerKeys;
 	}
 

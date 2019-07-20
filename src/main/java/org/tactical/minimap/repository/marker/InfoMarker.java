@@ -52,7 +52,7 @@ public class InfoMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 1800;
+		return 180;
 	}
 
 	@Override

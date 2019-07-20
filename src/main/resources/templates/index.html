@@ -80,6 +80,9 @@ html * {
 	<script th:inline="javascript">
 		var loggedLayers = [[${loggedLayers}]];
 		var layerKeys = [[${layerKeys}]];
+		var layerKeysString = [[${layerKeysString}]];
+		var layerMap = [[${layerMap}]];
+		var colorMap = {'red':'#F5B7B1','blue':'#7FB3D5','green':'#D0ECE7','orange':'#F9E79F','purple':'#E8DAEF'};
 		var validLayers = [[${validLayers}]];
 		
 		var key = [[${key}]];
@@ -186,7 +189,7 @@ html * {
 			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="form-control btn-warning rounded">';
 			    	
 			    	loggedLayers.forEach(function(loggedItem){
-						if(layerKeys.split(",").includes(loggedItem)){
+						if(layerKeys.includes(loggedItem)){
 			    			htmlContent += '<option value="' + loggedItem + '">' + loggedItem + "</option>";
 						}
 			    	});
@@ -194,7 +197,7 @@ html * {
 			    	htmlContent += '</select></div>'; 
 				}
 			    
-				layerKeys.split(",").forEach(function (item) {
+				layerKeys.forEach(function (item) {
 					htmlContent += '<div class="row ml-1">';
 					
 					if(!loggedLayers.includes(item)){
@@ -318,7 +321,7 @@ html * {
 			map.on('contextmenu', onMapClick);
 
 			map.on('dragend zoomend', function(e) {
-				history.replaceState(null, null, '/' + layerKeys + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				history.replaceState(null, null, '/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
 
 			
@@ -377,7 +380,7 @@ html * {
 			}
 			
 			if(typeof(EventSource) !== "undefined") {
-			    var eventSource = new EventSource("/markerEvents?key="+ key +"&layerKeys=" + layerKeys + "&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
+			    var eventSource = new EventSource("/markerEvents?key="+ key +"&layerKeys=" + layerKeysString + "&lat=" + map.getCenter().lat  + "&lng=" + map.getCenter().lng);
 			    
 				eventSource.onmessage = e => {
 					if(!pause){
@@ -422,18 +425,32 @@ html * {
 					
 					var upDownButton = 'loading';
 					var counter = '**';
-					var textMessage = '<mark class="rounded message" style="white-space: nowrap;">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
+					var textMessage = '<mark class="rounded message" style="white-space: nowrap; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
 					var pulseClass;
 					var pulseStyle;
+					var copyButton = '';
 					
 					if (item.controllable){						
 						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
 						message = '<span style="font-size:20px;width:100%" class="font-weight-normal">' + item.message + '</span>';
+					}
+					
+					if(loggedLayers.length > 0){
+				    	loggedLayers.forEach(function(loggedItem){
+				    		if(loggedItem != 'public'){
+								if(layerKeys.includes(loggedItem)){
+									if(item.layer != loggedItem){
+										copyButton += '<a href="#" data-id="' + item.markerId + '" data-layer="'+loggedItem+'" class="btnCopy mark">&gt;'+loggedItem+'</a>';
+									}
+								}	
+				    		}
+				    	});
+				    	
 					}
 					
 					if (item.markerCache != null) {
@@ -444,13 +461,12 @@ html * {
 							stopWatchClass = 'text-danger';
 						}
 						
-						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
 						
 						if(item.markerCache.pulse > 0){
 							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';
 							pulseClass = 'pulse';
 						}
-						
 					}
 
 					content = message;
@@ -462,7 +478,7 @@ html * {
 					if(item.type == 'livestream'){
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div><mark class="rounded message" style="white-space: nowrap;">' + item.layer.layerKey + '</mark>' + counter + upDownButton + '</div></div>'
 					}else{
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' + textMessage + counter + upDownButton + '</div></div>'
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' + textMessage + counter + upDownButton + copyButton + '</div></div>'
 					}
 					
 					
@@ -677,7 +693,13 @@ html * {
 						marker[0].setIcon(divIcon);
 						marker[0]._popup.setContent(content);
 						
-						marker[0].setOpacity((item.opacity));
+						marker[0].setOpacity(item.opacity);
+						
+						if(item.controllable){
+							marker[0].dragging.enable();
+						}else{
+							marker[0].dragging.disable();
+						}
 						
 						if(item.lat != marker.lat || item.lng != marker.lng){
 							var newLatLng = new L.LatLng(item.lat, item.lng);
@@ -721,7 +743,7 @@ html * {
 							type : "POST",
 							url : '/marker/delete',
 							data : {
-								'markerId' : $(this).data("id")
+								'markerId' : button.data("id")
 							},
 							success : function(data) {
 								if(data.status == 'success'){
@@ -738,6 +760,25 @@ html * {
 					}
 				});
 				
+				$(".btnCopy").on("click", function(e) {
+					var button = $(this);
+					e.preventDefault();
+					if(confirm("Copy to " + button.data("layer") + "?")){
+						$.ajax({
+							type : "POST",
+							url : '/marker/copy',
+							data : {
+								'layer' : button.data("layer"),
+								'markerId' : button.data("id")
+							},
+							success : function(data) {
+							    pause = false;
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							}
+						});
+					}
+				});
+				
 				$(".btnUp").on("click", function(e) {
 					var button = $(this);
 					e.preventDefault();
@@ -746,7 +787,7 @@ html * {
 						type : "POST",
 						url : '/marker/up',
 						data : {
-							'markerId' : $(this).data("id")
+							'markerId' : button.data("id")
 						},
 						success : function(data) {
 							if(data.status == 'success'){
@@ -770,7 +811,7 @@ html * {
 						type : "POST",
 						url : '/marker/down',
 						data : {
-							'markerId' : $(this).data("id")
+							'markerId' : button.data("id")
 						},
 						success : function(data) {
 							if(data.status == 'success'){

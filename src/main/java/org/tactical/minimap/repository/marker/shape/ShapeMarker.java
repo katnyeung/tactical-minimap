@@ -53,7 +53,6 @@ public class ShapeMarker extends Marker {
 			marker.setShapeType(markerDTO.getShapeType());
 
 			List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
-			logger.info("shape list : " + markerDTO.getShapeList());
 			ObjectMapper om = new ObjectMapper();
 
 			List<LinkedHashMap<String, Double>> shapeList;
@@ -130,7 +129,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 1800;
+		return 180;
 	}
 
 	@Override

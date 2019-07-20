@@ -14,7 +14,7 @@ public class ConstantsUtil {
 
 	public static final String MARKER_STATUS_ACTIVE = "A";
 	public static final String MARKER_STATUS_DEACTIVED = "D";
-	public static final Object DEFAULT_LAYER = "public,video";
+	public static final Object DEFAULT_LAYER = "public$green";
 
 	public static final String LAYER_STATUS_ACTIVE = "A";
 	public static final String LAYER_STATUS_DEACTIVED = "D";
@@ -23,5 +23,6 @@ public class ConstantsUtil {
 	public static final Object DEFAULT_LNG = "114.1648";
 	public static final String USER_LOGGED_LAYER_PREFIX = "user_logged_layer";
 	public static final int PULSE_RATE = 3;
+	public static final int LOGGED_MARKER_EXPIRE_RATE = 10;
 
 }

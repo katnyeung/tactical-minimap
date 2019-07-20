@@ -64,7 +64,7 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 1600;
+		return 160;
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public class MedicalMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 480;
+		return 280;
 	}
 
 	@Override

@@ -31,6 +31,8 @@ import org.tactical.minimap.web.DTO.MarkerResponseDTO;
 import org.tactical.minimap.web.result.DefaultResult;
 import org.tactical.minimap.web.result.MarkerListResult;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 @RestController
 @RequestMapping("/marker")
 public class MarkerRestController {
@@ -89,7 +91,9 @@ public class MarkerRestController {
 			Double remainSecond = (lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0;
 
 			if (remainSecond < 0) {
+				
 				markerService.addMarker(layer, markerDTO, marker);
+				
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
 				return DefaultResult.success();
@@ -124,7 +128,7 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
-		
+
 		return DefaultResult.success();
 
 	}
@@ -136,7 +140,25 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		markerService.pulseMarker(marker);
-		
+
+		return DefaultResult.success();
+
+	}
+
+	@Auth
+	@PostMapping("/copy")
+	public DefaultResult copy(MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		String uuid = CookieUtil.getUUID(request, response, session);
+
+		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
+
+		try {
+			markerService.copyMarkerToLayer(marker, markerDTO.getLayer(), uuid);
+		} catch (InstantiationException | IllegalAccessException | JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return DefaultResult.success();
 
 	}
@@ -149,7 +171,7 @@ public class MarkerRestController {
 
 		markerService.deleteMarker(marker);
 		redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerDTO.getMarkerId());
-		
+
 		return DefaultResult.success();
 
 	}
@@ -224,7 +246,7 @@ public class MarkerRestController {
 				markerResponseService.downVote(marker, uuid);
 			}
 			redisService.saveMarkerCache(mc);
-						
+
 			return null;
 		} else {
 			Calendar currentTime = Calendar.getInstance();

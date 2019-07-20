@@ -1,10 +1,16 @@
 package org.tactical.minimap.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +26,9 @@ import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class MarkerService {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,6 +42,9 @@ public class MarkerService {
 	@Autowired
 	LayerService layerService;
 
+	@PersistenceContext
+	EntityManager em;
+
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 	}
@@ -43,9 +55,14 @@ public class MarkerService {
 
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
+
 		marker = marker.fill(markerDTO);
 		marker.setLayer(layer);
-
+		
+		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
+			marker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_RATE);
+		}
+		
 		markerDAO.save(marker);
 
 		return marker;
@@ -98,7 +115,7 @@ public class MarkerService {
 		marker.setMessage(message);
 		markerDAO.save(marker);
 	}
-	
+
 	public void update(Marker marker) {
 		markerDAO.save(marker);
 	}
@@ -135,7 +152,7 @@ public class MarkerService {
 				int minute = 60 * 1000;
 				Date currentDate = Calendar.getInstance().getTime();
 				double weight = 1.0;
-				
+
 				if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
 					weight = 0.6;
 				} else if (marker.getLastupdatedate().getTime() + (9 * minute) <= currentDate.getTime()) {
@@ -153,12 +170,54 @@ public class MarkerService {
 	}
 
 	public void pulseMarker(Marker marker) {
-		
+
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
 		mc.setPulse(ConstantsUtil.PULSE_RATE);
-		
+
 		redisService.saveMarkerCache(mc);
+
+	}
+
+	public void copyMarkerToLayer(Marker marker, String layerKey, String uuid) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+		logger.info("copying marker : " + marker.getMarkerId() + " to " + layerKey);
+
+		ObjectMapper om = new ObjectMapper();
+
+		Layer layer = layerService.getLayerByKey(layerKey);
+
+		MarkerDTO markerDTO = new MarkerDTO();
+		markerDTO.setLat(marker.getLat());
+		markerDTO.setLng(marker.getLng());
+		markerDTO.setMessage(marker.getMessage());
+		markerDTO.setType(marker.getType());
+		markerDTO.setUuid(uuid);
+
+		if (marker instanceof ShapeMarker) {
+			ShapeMarker shapeMarker = (ShapeMarker) marker;
+
+			markerDTO.setShapeType(shapeMarker.getShapeType());
+			List<Map<String, Double>> shapeList = new ArrayList<Map<String, Double>>();
+			for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
+				LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
+				map.put("lat", smd.getLat());
+				map.put("lng", smd.getLng());
+				shapeList.add(map);
+			}
+			markerDTO.setShapeList(om.writeValueAsString(shapeList));
+
+		}
+
+		Marker cloneMarker = marker.getClass().newInstance();
+
+		cloneMarker = cloneMarker.fill(markerDTO);
+
+		cloneMarker.setLayer(layer);
 		
+		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
+			cloneMarker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_RATE);
+		}
+		
+		markerDAO.save(cloneMarker);
 	}
 
 }
