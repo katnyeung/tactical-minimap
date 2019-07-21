@@ -50,7 +50,7 @@ public class WarningMarker extends Marker {
 	@Override
 	public int getIconSize() {
 		// TODO Auto-generated method stub
-		return 40;
+		return 34;
 	}
 
 	@Override

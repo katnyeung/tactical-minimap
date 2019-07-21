@@ -49,7 +49,7 @@ public class ConflictMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 50;
+		return 32;
 	}
 
 	@Override

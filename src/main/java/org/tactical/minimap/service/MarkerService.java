@@ -153,13 +153,13 @@ public class MarkerService {
 				Date currentDate = Calendar.getInstance().getTime();
 				double weight = 1.0;
 
-				if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
+				if (marker.getLastupdatedate().getTime() + (18 * minute) <= currentDate.getTime()) {
 					weight = 0.6;
-				} else if (marker.getLastupdatedate().getTime() + (9 * minute) <= currentDate.getTime()) {
+				} else if (marker.getLastupdatedate().getTime() + (15 * minute) <= currentDate.getTime()) {
 					weight = 0.7;
-				} else if (marker.getLastupdatedate().getTime() + (6 * minute) <= currentDate.getTime()) {
+				} else if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
 					weight = 0.8;
-				} else if (marker.getLastupdatedate().getTime() + (3 * minute) <= currentDate.getTime()) {
+				} else if (marker.getLastupdatedate().getTime() + (6 * minute) <= currentDate.getTime()) {
 					weight = 0.9;
 				}
 

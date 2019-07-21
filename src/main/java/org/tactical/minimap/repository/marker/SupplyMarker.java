@@ -37,7 +37,7 @@ public class SupplyMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 48;
+		return 36;
 	}
 
 	@Override

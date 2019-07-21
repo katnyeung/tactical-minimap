@@ -359,14 +359,11 @@ html * {
 							},
 							success : function(data) {
 								if(data.status == 'success'){
+									$('#markerMessage').val('');
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}else{
-									if(data.status == 'success'){
-										updateMarkers(map.getCenter().lat, map.getCenter().lng);
-									}else{
-										var alertPopup = L.popup();
-										alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
-									}
+									var alertPopup = L.popup();
+									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
 								}
 							}
 						});
@@ -423,7 +420,7 @@ html * {
 					
 					var upDownButton = 'loading';
 					var counter = '**';
-					var textMessage = '<mark class="rounded message" style="white-space: nowrap; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
+					var textMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
@@ -490,9 +487,12 @@ html * {
 						
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : item.controllable,
-							autoPan: false,
 							icon : divIcon
-						}).addTo(map).bindPopup(popup);
+						}).addTo(map).bindPopup(popup, {
+							autoPan: false,
+							keepInView: false,
+							autoClose: true,
+						});
 						
 						if(item.type == 'shape'){
 							

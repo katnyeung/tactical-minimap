@@ -37,7 +37,7 @@ public class RedInfoMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 42;
+		return 32;
 	}
 
 	@Override

@@ -49,7 +49,7 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 48;
+		return 32;
 	}
 
 	@Override
