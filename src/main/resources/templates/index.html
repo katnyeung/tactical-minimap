@@ -88,6 +88,8 @@ html * {
 		var allMarkerList = [];
 		var pause = false;
 		
+		var dragLock = true;
+		
 		String.prototype.toMMSS = function () {
 		    var sec_num = parseInt(this, 10); 
 		    var hours   = Math.floor(sec_num / 3600);
@@ -286,9 +288,39 @@ html * {
 					}
 			    });
 			    
+
+				var dragLockControl =  L.Control.extend({
+				
+					options: {
+						position: 'topleft'
+					},
+					
+					onAdd: function (map) {
+						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+						
+						container.innerHTML = '<input type="checkbox" id="dragLockCheckbox" class="btn btn-primary" checked="checked" style="width:27px;height:27px" />';
+						container.style.width="30px";
+						container.style.height="30px";
+						
+						container.onclick = function(){
+							if(dragLock){
+								dragLock = false;
+								dragLockCheckbox.checked = false;
+							}else{
+								dragLock = true;
+								dragLockCheckbox.checked = true;
+							}
+							
+							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+						}
+						
+						return container;
+					}
+				});
+			    
+			    map.addControl(new dragLockControl())
 			}
 
-			
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -368,7 +400,7 @@ html * {
 							}
 						});
 					}else{
-						alert('no logged layer');
+						alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);
 					}
 				
 				});
@@ -486,7 +518,7 @@ html * {
 					if(marker.length == 0){
 						
 						marker = L.marker([ item.lat, item.lng ], {
-							draggable : item.controllable,
+							draggable : !dragLock && item.controllable,
 							icon : divIcon
 						}).addTo(map).bindPopup(popup, {
 							autoPan: false,
@@ -693,7 +725,7 @@ html * {
 						
 						marker[0].setOpacity(item.opacity);
 						
-						if(item.controllable){
+						if(!dragLock && item.controllable){
 							marker[0].dragging.enable();
 						}else{
 							marker[0].dragging.disable();

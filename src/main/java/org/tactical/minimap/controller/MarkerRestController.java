@@ -232,6 +232,11 @@ public class MarkerRestController {
 		if (lockedTimeInMillis == null) {
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
+			
+			if(marker.getLayer().getPassword() == null || (marker.getLayer().getPassword() != null && marker.getLayer().getPassword().equals(""))) {
+				expireRate = expireRate * ConstantsUtil.LOGGED_MARKER_VOTE_MULTIPLER;
+			}
+			
 			if (type.equals("up")) {
 				mc.setUpVote(mc.getUpVote() + 1);
 				// make it curve

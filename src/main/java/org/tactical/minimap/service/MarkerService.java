@@ -60,7 +60,7 @@ public class MarkerService {
 		marker.setLayer(layer);
 		
 		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
-			marker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_RATE);
+			marker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_MULTIPLER);
 		}
 		
 		markerDAO.save(marker);
@@ -214,7 +214,7 @@ public class MarkerService {
 		cloneMarker.setLayer(layer);
 		
 		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
-			cloneMarker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_RATE);
+			cloneMarker.setExpire(marker.getExpire() * ConstantsUtil.LOGGED_MARKER_EXPIRE_MULTIPLER);
 		}
 		
 		markerDAO.save(cloneMarker);
