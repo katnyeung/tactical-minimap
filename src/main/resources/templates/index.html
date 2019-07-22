@@ -16,11 +16,9 @@
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
 <script src="/js/leaflet.draw.js"></script>
+
 <script async defer src="/js/facebook-sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
-
-<script src="https://unpkg.com/sql.js@0.3.2/js/sql.js"></script>
-<script src="/js/Leaflet.TileLayer.MBTiles.js"></script>
 
 <style>
 .iconMarkup {
@@ -94,6 +92,15 @@ html * {
 		var pause = false;
 		
 		var dragLock = true;
+		var maxZIndex = 1;
+		
+		L.Marker.prototype.__setPos = L.Marker.prototype._setPos;
+		L.Marker.prototype._setPos = function ()
+		{
+		    L.Marker.prototype.__setPos.apply(this, arguments);
+		    this._zIndex = this.options.zIndexOffset;
+		    this._resetZIndex();
+		};
 		
 		String.prototype.toMMSS = function () {
 		    var sec_num = parseInt(this, 10); 
@@ -166,7 +173,7 @@ html * {
 				});
 			});
 			
-			var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+			var osmUrl = '/images/map/{z}/{x}/{y}.png', 
 				osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
 				osm = L.tileLayer(osmUrl, {	maxZoom : 19,attribution : osmAttrib});
 
@@ -191,7 +198,7 @@ html * {
 			    var htmlContent = "<div class='container mb-5 ml-n3 mr-4'>";
 			    
 			    if(loggedLayers.length > 0){
-			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="form-control btn-warning rounded">';
+			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="btn-warning rounded" style="padding:5px">';
 			    	
 			    	loggedLayers.forEach(function(loggedItem){
 						if(layerKeys.includes(loggedItem)){
@@ -475,7 +482,7 @@ html * {
 				    	loggedLayers.forEach(function(loggedItem){
 				    		if(loggedItem != 'public'){
 								if(layerKeys.includes(loggedItem)){
-									if(item.layer != loggedItem){
+									if(item.layer.layerKey != loggedItem){
 										copyButton += '<a href="#" data-id="' + item.markerId + '" data-layer="'+loggedItem+'" class="btnCopy mark">&gt;'+loggedItem+'</a>';
 									}
 								}	
@@ -528,6 +535,8 @@ html * {
 							keepInView: false,
 							autoClose: true,
 						});
+						
+						marker.setZIndexOffset(0);						
 						
 						if(item.type == 'shape'){
 							
@@ -672,7 +681,11 @@ html * {
 							$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
 							$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
 						}
-
+						
+						marker.on('click', function(e){
+							marker.setZIndexOffset(maxZIndex++);		
+						});
+						
 					    marker.on('dragstart', function(e) {
 					    	  pause = true;
 					    });
