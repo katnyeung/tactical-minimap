@@ -67,6 +67,10 @@ public class RouteController {
 			}
 		}
 
+		if(layerMap.size() == 0) {
+			return "redirect:/";
+		}
+		
 		model.addAttribute("key", uuid);
 		model.addAttribute("zoom", zoom);
 

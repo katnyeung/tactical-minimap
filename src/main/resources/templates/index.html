@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
 <title>limap.co</title>
-<meta name="viewport" content="initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 <meta charset="utf-8">
+
 <script src="/js/jquery-3.4.1.min.js"></script>
+
 <link rel="stylesheet" href="/css/leaflet.css" />
 <link rel="stylesheet" href="/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/css/leaflet-search.css" />
@@ -16,6 +18,9 @@
 <script src="/js/leaflet.draw.js"></script>
 <script async defer src="/js/facebook-sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
+
+<script src="https://unpkg.com/sql.js@0.3.2/js/sql.js"></script>
+<script src="/js/Leaflet.TileLayer.MBTiles.js"></script>
 
 <style>
 .iconMarkup {
@@ -166,7 +171,7 @@ html * {
 				osm = L.tileLayer(osmUrl, {	maxZoom : 19,attribution : osmAttrib});
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
-			
+
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 				jsonpParam: 'json_callback',
@@ -297,18 +302,17 @@ html * {
 					
 					onAdd: function (map) {
 						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-						
-						container.innerHTML = '<input type="checkbox" id="dragLockCheckbox" class="btn btn-primary" checked="checked" style="width:27px;height:27px" />';
-						container.style.width="30px";
-						container.style.height="30px";
+						container.id = 'dragLockButton';
+						container.innerHTML = '<i class="fas fa-lock fa-2x"></i>';
+						container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
 						
 						container.onclick = function(){
 							if(dragLock){
 								dragLock = false;
-								dragLockCheckbox.checked = false;
+								$('#dragLockButton')[0].innerHTML = '<i class="fas fa-unlock fa-2x"></i>';
 							}else{
 								dragLock = true;
-								dragLockCheckbox.checked = true;
+								$('#dragLockButton')[0].innerHTML = '<i class="fas fa-lock fa-2x"></i>';
 							}
 							
 							updateMarkers(map.getCenter().lat, map.getCenter().lng);
@@ -508,7 +512,6 @@ html * {
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' + textMessage + counter + upDownButton + copyButton + '</div></div>'
 					}
 					
-					
 					divIcon = L.divIcon({
 						className:'location-icon',
 						html: htmlContent,
@@ -572,7 +575,6 @@ html * {
 								channel: item.message
 							});
 							
-							
 							$('#twitch_live_button_' + item.markerId).click(function(){
 								$('#twitch_live_' + item.markerId).hide();
 								$('#twitch_live_button_' + item.markerId).hide();
@@ -607,7 +609,6 @@ html * {
 								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '-10px' });
 								$('#twitch_live_button_' + item.markerId).show();
 							});
-							
 							
 							$('#twitch_live_' + item.markerId).hide();
 							$('#twitch_live_button_' + item.markerId).hide();
@@ -665,7 +666,6 @@ html * {
 								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '0px' });
 								$('#fb_live_button_' + item.markerId).show();
 							});
-							
 							
 							$('#fb_live_' + item.markerId).hide();
 							$('#fb_live_button_' + item.markerId).hide();
