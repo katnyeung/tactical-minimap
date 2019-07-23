@@ -27,5 +27,4 @@ public class ConstantsUtil {
 	public static final int LOGGED_MARKER_EXPIRE_MULTIPLER = 10;
 	public static final int LOGGED_MARKER_VOTE_MULTIPLER = 3;
 	
-
 }

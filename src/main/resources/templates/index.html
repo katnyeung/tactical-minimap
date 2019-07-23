@@ -173,9 +173,9 @@ html * {
 				});
 			});
 			
-			var osmUrl = '/images/map/{z}/{x}/{y}.png', 
-				osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors. Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
-				osm = L.tileLayer(osmUrl, {	maxZoom : 19,attribution : osmAttrib});
+			var osmUrl = '/m/{z}/{x}/{y}.png', 
+				osmAttrib = '&copy; 地圖版權屬香港特區政府  Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
+				osm = L.tileLayer(osmUrl, {	maxZoom : 20,attribution : osmAttrib});
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 
@@ -362,7 +362,7 @@ html * {
 			map.on('contextmenu', onMapClick);
 
 			map.on('dragend zoomend', function(e) {
-				history.replaceState(null, null, '/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
 
 			
