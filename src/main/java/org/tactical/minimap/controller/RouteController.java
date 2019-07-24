@@ -53,12 +53,12 @@ public class RouteController {
 	
 	@GetMapping(path = "/")
 	public String index(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-		return "redirect:/l/" + ConstantsUtil.DEFAULT_LAYER + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
+		return "redirect:/l/" + ConstantsUtil.DEFAULT_LAYER + "/13/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
 	@GetMapping(path = "/l/{layerKeys}")
 	public String layer(@PathVariable("layerKeys") String layerKeys, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-		return "redirect:/" + layerKeys + "/10/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
+		return "redirect:/" + layerKeys + "/13/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
 	@GetMapping(path = "/l/{layerKeys}/{zoom}/{lat}/{lng}")

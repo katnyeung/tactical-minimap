@@ -19,8 +19,9 @@ public class ConstantsUtil {
 	public static final String LAYER_STATUS_ACTIVE = "A";
 	public static final String LAYER_STATUS_DEACTIVED = "D";
 	
-	public static final Object DEFAULT_LAT = "22.2757";
-	public static final Object DEFAULT_LNG = "114.1648";
+	public static final Object DEFAULT_LAT = "22.3619";
+	public static final Object DEFAULT_LNG = "114.1537";
+	
 	public static final String USER_LOGGED_LAYER_PREFIX = "user_logged_layer";
 	public static final int PULSE_RATE = 6;
 	
