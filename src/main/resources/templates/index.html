@@ -4,7 +4,7 @@
 <title>蓮圖 limap.co</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 <meta name="description" content="感謝大大無私分享 樓主好人一生平安">  
-<meta name="keywords" content="Distributed Marker Notification for Hong Kong Area">
+<meta name="keywords" content="Distributed Marker Application for Hong Kong Area">
 <meta name="robots" content="noindex, nofollow" />
 <meta charset="utf-8">
 
@@ -303,11 +303,33 @@ html * {
 						alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
 					}
 			    });
+
+				var fullScreenControl =  L.Control.extend({
+				
+					options: {
+						position: 'topright'
+					},
+					
+					onAdd: function (map) {
+						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+						container.id = 'fullScreenControl';
+						container.innerHTML = '<i class="fas fa-expand fa-2x"></i>';
+						container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
+						
+						container.onclick = function(){
+							toggleFullScreen();
+						}
+						
+						return container;
+					}
+				});
+			    
+			    map.addControl(new fullScreenControl());
 			    
 				var dragLockControl =  L.Control.extend({
 				
 					options: {
-						position: 'topleft'
+						position: 'topright'
 					},
 					
 					onAdd: function (map) {
@@ -332,7 +354,7 @@ html * {
 					}
 				});
 			    
-			    map.addControl(new dragLockControl())
+			    map.addControl(new dragLockControl());
 			}
 
 		    $('.layerLoginForm').submit(function(e){
@@ -898,6 +920,30 @@ html * {
 			}
 			
 		});
+		
+		function toggleFullScreen() {
+			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+				if (document.documentElement.requestFullscreen) {
+				  document.documentElement.requestFullscreen();
+				} else if (document.documentElement.msRequestFullscreen) {
+				  document.documentElement.msRequestFullscreen();
+				} else if (document.documentElement.mozRequestFullScreen) {
+				  document.documentElement.mozRequestFullScreen();
+				} else if (document.documentElement.webkitRequestFullscreen) {
+				  document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+				}
+			} else {
+				if (document.exitFullscreen) {
+				  document.exitFullscreen();
+				} else if (document.msExitFullscreen) {
+				  document.msExitFullscreen();
+				} else if (document.mozCancelFullScreen) {
+				  document.mozCancelFullScreen();
+				} else if (document.webkitExitFullscreen) {
+				  document.webkitExitFullscreen();
+				}
+			}
+		}
 	</script>
 	<div id="coord" style="width: 185px; display: none">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
