@@ -21,6 +21,7 @@
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
 <script src="/js/leaflet.draw.js"></script>
+<script src="/js/leaflet.draw.polyline.js"></script>
 
 <script async defer src="/js/facebook-sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
@@ -547,7 +548,8 @@ html * {
 					divIcon = L.divIcon({
 						className:'location-icon',
 						html: htmlContent,
-						popupAnchor:  [-3, -14] // point from which the popup should open relative to the iconAnchor
+						popupAnchor:  [-3, -14],
+						iconAnchor: [-5, 10], 
 					});
 					
 					if(marker.length == 0){

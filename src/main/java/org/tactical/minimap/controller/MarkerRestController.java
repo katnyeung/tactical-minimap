@@ -233,7 +233,7 @@ public class MarkerRestController {
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
 			
-			if(marker.getLayer().getPassword() == null || (marker.getLayer().getPassword() != null && marker.getLayer().getPassword().equals(""))) {
+			if(marker.getLayer().getPassword() != null && !marker.getLayer().getPassword().equals("")) {
 				expireRate = expireRate * ConstantsUtil.LOGGED_MARKER_VOTE_MULTIPLER;
 			}
 			

@@ -43,7 +43,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 			ipAddress = request.getRemoteAddr();
 		}
 
-		if (!request.getRequestURI().contains("/js/") && !request.getRequestURI().contains("/css/")) {
+		if (!request.getRequestURI().contains("/js/") && !request.getRequestURI().contains("/css/") && !request.getRequestURI().contains("/m/")) {
 			logger.info("IP [" + ipAddress + "] : " + request.getRequestURI());
 		}
 
