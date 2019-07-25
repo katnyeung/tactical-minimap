@@ -7,6 +7,8 @@ public class LayerDTO {
 
 	String password;
 
+	Integer expireMultiplier;
+
 	public Long getLayerId() {
 		return layerId;
 	}
@@ -29,6 +31,14 @@ public class LayerDTO {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Integer getExpireMultiplier() {
+		return expireMultiplier;
+	}
+
+	public void setExpireMultiplier(Integer expireMultiplier) {
+		this.expireMultiplier = expireMultiplier;
 	}
 
 }

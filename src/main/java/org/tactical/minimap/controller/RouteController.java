@@ -53,12 +53,12 @@ public class RouteController {
 	
 	@GetMapping(path = "/")
 	public String index(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-		return "redirect:/l/" + ConstantsUtil.DEFAULT_LAYER + "/13/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
+		return "redirect:/l/" + ConstantsUtil.DEFAULT_LAYER + "/12/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
 	@GetMapping(path = "/l/{layerKeys}")
 	public String layer(@PathVariable("layerKeys") String layerKeys, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
-		return "redirect:/" + layerKeys + "/13/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
+		return "redirect:/" + layerKeys + "/12/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
 	@GetMapping(path = "/l/{layerKeys}/{zoom}/{lat}/{lng}")
@@ -140,6 +140,13 @@ public class RouteController {
 				layer.setLayerKey(layerDTO.getLayerKey());
 				layer.setPassword(layerDTO.getPassword());
 				layer.setDuration(24);
+				
+				if(layerDTO.getExpireMultiplier() != null) {
+					layer.setExpireMultiplier(layerDTO.getExpireMultiplier());
+				}else {
+					layer.setExpireMultiplier(10);
+				}
+				
 				layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
 
 				layerService.save(layer);
@@ -152,6 +159,13 @@ public class RouteController {
 		} else {
 			layer.setPassword(layerDTO.getPassword());
 			layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
+			
+			if(layerDTO.getExpireMultiplier() != null) {
+				layer.setExpireMultiplier(layerDTO.getExpireMultiplier());
+			}else {
+				layer.setExpireMultiplier(10);
+			}
+			
 			layerService.save(layer);
 			return DefaultResult.success();
 		}

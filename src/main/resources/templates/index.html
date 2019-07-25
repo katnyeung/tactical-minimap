@@ -77,7 +77,7 @@ html * {
         box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     }
 }
-
+ 
 </style>
 </head>
 <body>
@@ -238,6 +238,28 @@ html * {
 
 			command.addTo(map);
 
+			var helpControl =  L.Control.extend({
+			
+				options: {
+					position: 'bottomright'
+				},
+				
+				onAdd: function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'helpControl';
+					container.innerHTML = '<i class="far fa-flag fa-2x"></i>';
+					container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
+					
+					container.onclick = function(){
+						window.open('https://docs.google.com/document/d/1_fB1PXTwfpnjwhP0xS0grxl6KoYcQHAC1cTOvFN0DGM/edit?usp=sharing','info_document');
+					}
+					
+					return container;
+				}
+			});
+		    
+		    map.addControl(new helpControl());
+		    
 			if(loggedLayers.length > 0){
 				
 				drawnItems = L.featureGroup().addTo(map);
@@ -458,7 +480,7 @@ html * {
 				if(!pause){
 					$.ajax({
 						type : "GET",
-						url : '/marker/' + layerKeys + '/list',
+						url : '/marker/' + layerKeysString + '/list',
 						data : {
 							'lat' : lat,
 							'lng' : lng
@@ -1008,12 +1030,19 @@ html * {
 			</div>
 
 			<div class="row form-group">
-				<div class="col-4 btn">Password :</div>
+				<div class="col-4 btn">Password * :</div>
 				<div class="col-8">
 					<input class="form-control" type="password" placeholder="(password)" name="password" />
 				</div>
 			</div>
 
+			<div class="row form-group">
+				<div class="col-4 btn">Expire Multiplier :</div>
+				<div class="col-8">
+					<input class="form-control" type="text" placeholder="(default 10)" name="expireMultiplier" value="10"  style="color:#ACACAC"/>
+				</div>
+			</div>
+			
 			<div class="row m-1">
 				<button class="col-8 btn btn-primary" type="submit">Create</button>
 				<button class="col-4 btn btn-light" type="button" onclick="$('#registerFormDiv').hide()">Cancel</button>

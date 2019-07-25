@@ -49,7 +49,11 @@ public class Layer extends Auditable<String> {
 
 	@JsonIgnore
 	@Column(nullable = true)
-	int duration;
+	Integer duration;
+
+	@JsonIgnore
+	@Column(nullable = true)
+	Integer expireMultiplier = 10;
 
 	public Long getLayerId() {
 		return layerId;
@@ -83,12 +87,20 @@ public class Layer extends Auditable<String> {
 		this.status = status;
 	}
 
-	public int getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(int duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
+	}
+
+	public Integer getExpireMultiplier() {
+		return expireMultiplier;
+	}
+
+	public void setExpireMultiplier(Integer expireMultiplier) {
+		this.expireMultiplier = expireMultiplier;
 	}
 
 	public String getLayerKey() {

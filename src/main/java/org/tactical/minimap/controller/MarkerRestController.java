@@ -2,7 +2,12 @@ package org.tactical.minimap.controller;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,9 +96,9 @@ public class MarkerRestController {
 			Double remainSecond = (lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0;
 
 			if (remainSecond < 0) {
-				
+
 				markerService.addMarker(layer, markerDTO, marker);
-				
+
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
 				return DefaultResult.success();
@@ -107,13 +112,25 @@ public class MarkerRestController {
 	@GetMapping("/{layerKeys}/list")
 	public DefaultResult getMarker(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
+		
+		Map<String, String> layerMap = new HashMap<String, String>();
 
 		Double lat = markerDTO.getLat();
 		Double lng = markerDTO.getLng();
 
-		List<String> layerKeyList = Arrays.asList(layerKeys.split(","));
+		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
 
-		List<Marker> markerList = markerService.findMultiLayerMarkers(layerKeyList, lat, lng, ConstantsUtil.RANGE);
+		for (String layerKey : layerKeys.split(",")) {
+			Matcher matcher = pattern.matcher(layerKey);
+
+			if (matcher.find()) {
+				if (matcher.groupCount() > 1) {
+					layerMap.put(matcher.group(1), matcher.group(2));
+				}
+			}
+		}
+		
+		List<Marker> markerList = markerService.findMultiLayerMarkers(layerMap.keySet().stream().collect(Collectors.toList()), lat, lng, ConstantsUtil.RANGE);
 
 		markerService.addMarkerCache(markerList, uuid);
 
@@ -232,11 +249,11 @@ public class MarkerRestController {
 		if (lockedTimeInMillis == null) {
 
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(markerId);
-			
-			if(marker.getLayer().getPassword() != null && !marker.getLayer().getPassword().equals("")) {
+
+			if (marker.getLayer().getPassword() != null && !marker.getLayer().getPassword().equals("")) {
 				expireRate = expireRate * ConstantsUtil.LOGGED_MARKER_VOTE_MULTIPLER;
 			}
-			
+
 			if (type.equals("up")) {
 				mc.setUpVote(mc.getUpVote() + 1);
 				// make it curve
