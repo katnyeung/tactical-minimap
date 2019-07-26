@@ -53,7 +53,7 @@ public class FBLiveStreamMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 4800;
+		return 480;
 	}
 
 	@Override

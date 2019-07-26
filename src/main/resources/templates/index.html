@@ -23,7 +23,7 @@
 <script src="/js/leaflet.draw.js"></script>
 <script src="/js/leaflet.draw.polyline.js"></script>
 
-<script async defer src="/js/facebook-sdk.js#xfbml=1&version=v3.2"></script>
+<script async defer src="https://connect.facebook.net/en_US/sdk.js"></script>
 <script src="/js/twitch.tv.v1.js"></script>
 
 <style>
@@ -676,7 +676,15 @@ html * {
 						}
 
 						if(item.type == 'fb_livestream'){
-							
+						  window.fbAsyncInit = function() {
+							    FB.init({
+							      appId            : 'your-app-id',
+							      autoLogAppEvents : true,
+							      xfbml            : true,
+							      version          : 'v3.3'
+							    });
+							  };
+							  
 							var fbStream = '<div class="row" id="fb_live_frame_' + item.markerId + '"><div id="fb_live_' + item.markerId + '" class="fb-video col-12" data-href="' + item.message + '" data-width="500"  data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>' + 
 							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="fb_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="fb_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="fb_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="fb_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
 							
