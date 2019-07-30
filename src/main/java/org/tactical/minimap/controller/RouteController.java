@@ -3,18 +3,23 @@ package org.tactical.minimap.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.activation.FileTypeMap;
+import javax.naming.SizeLimitExceededException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +32,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
+import org.tactical.minimap.auth.Auth;
+import org.tactical.minimap.repository.Image;
 import org.tactical.minimap.repository.Layer;
+import org.tactical.minimap.service.ImageService;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.CookieUtil;
 import org.tactical.minimap.web.DTO.LayerDTO;
 import org.tactical.minimap.web.result.DefaultResult;
+import org.tactical.minimap.web.result.UploadImageResult;
 
 @Controller
 @RequestMapping("/")
@@ -48,8 +59,55 @@ public class RouteController {
 	@Autowired
 	LayerService layerService;
 
+	@Autowired
+	ImageService imageService;
+	
 	@Value("${MAP_FOLDER}")
 	String mapFolder;
+	
+	@Value("${UPLOAD_FOLDER}")
+	String uploadFolder;
+
+	@ResponseBody
+	@GetMapping(path = "/m/**", produces = MediaType.IMAGE_JPEG_VALUE)
+	public ResponseEntity<byte[]> getMapImage(HttpServletRequest request, HttpSession session, Model model) {
+		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		path = path.replaceAll("^/m", "");
+
+		File img = null;
+		byte[] bytes = null;
+
+		try {
+			logger.info("reading : " + mapFolder + path);
+			img = new File(mapFolder + path);
+			bytes = Files.readAllBytes(img.toPath());
+		} catch (IOException ioex) {
+			return  ResponseEntity.noContent().build();
+		}
+
+		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
+
+	}
+
+	@ResponseBody
+	@GetMapping(path = "/i/**", produces = MediaType.IMAGE_JPEG_VALUE)
+	public ResponseEntity<byte[]> getImage(HttpServletRequest request, HttpSession session, Model model) {
+		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		path = path.replaceAll("^/i", "");
+
+		File img = null;
+		byte[] bytes = null;
+
+		try {
+			img = new File(uploadFolder + path);
+			bytes = Files.readAllBytes(img.toPath());
+		} catch (IOException ioex) {
+			return null;
+		}
+
+		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
+
+	}
 	
 	@GetMapping(path = "/")
 	public String index(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
@@ -140,13 +198,13 @@ public class RouteController {
 				layer.setLayerKey(layerDTO.getLayerKey());
 				layer.setPassword(layerDTO.getPassword());
 				layer.setDuration(24);
-				
-				if(layerDTO.getExpireMultiplier() != null) {
+
+				if (layerDTO.getExpireMultiplier() != null) {
 					layer.setExpireMultiplier(layerDTO.getExpireMultiplier());
-				}else {
+				} else {
 					layer.setExpireMultiplier(10);
 				}
-				
+
 				layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
 
 				layerService.save(layer);
@@ -159,34 +217,62 @@ public class RouteController {
 		} else {
 			layer.setPassword(layerDTO.getPassword());
 			layer.setStatus(ConstantsUtil.LAYER_STATUS_ACTIVE);
-			
-			if(layerDTO.getExpireMultiplier() != null) {
+
+			if (layerDTO.getExpireMultiplier() != null) {
 				layer.setExpireMultiplier(layerDTO.getExpireMultiplier());
-			}else {
+			} else {
 				layer.setExpireMultiplier(10);
 			}
-			
+
 			layerService.save(layer);
 			return DefaultResult.success();
 		}
 	}
 
-	@GetMapping(path = "/m/**", produces = MediaType.IMAGE_JPEG_VALUE)
-	public ResponseEntity<byte[]> getDirectImage(HttpServletRequest request, HttpSession session, Model model) {
-		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		path = path.replaceAll("^/m", "");
-		
-		File img = null;
-		byte[] bytes = null;
+	@Auth
+	@ResponseBody
+	@PostMapping(value = "/imageUpload")
+	public DefaultResult uploadImageContent(@RequestParam("file") MultipartFile file) throws IOException, NullPointerException, SizeLimitExceededException {
+		UploadImageResult result = new UploadImageResult();
 
 		try {
-			img = new File(mapFolder + path);
-			bytes = Files.readAllBytes(img.toPath());
-		} catch (IOException ioex) {
-			return null;
+
+			String uuidPrefix = UUID.randomUUID().toString().replaceAll("-", "");
+
+			String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+
+			String filename = uuidPrefix + "." + ext;
+			
+            // Get the file and save it somewhere
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(uploadFolder + filename);
+            
+            Files.write(path, bytes);
+
+			imageService.resizeImage(path.toFile(), path.toFile(), ext, 300);
+			
+			Image image = new Image();
+			image.setFilename(filename);
+			image.setStoredPath(path.toFile().getAbsolutePath());
+			image.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+			image.setSize(path.toFile().getTotalSpace());
+
+			imageService.saveImage(image);
+
+			result.setFilePath(filename);
+			result.setStatus(ConstantsUtil.STATUS_SUCCESS);
+
+			return result;
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+
+			result.setStatus(ConstantsUtil.STATUS_ERROR);
+			result.setRemarks(ex.getLocalizedMessage());
+
 		}
 
-		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
-
+		return result;
 	}
+
 }

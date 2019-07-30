@@ -1,6 +1,5 @@
 package org.tactical.minimap.controller;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -279,4 +278,5 @@ public class MarkerRestController {
 			return ((lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0);
 		}
 	}
+
 }

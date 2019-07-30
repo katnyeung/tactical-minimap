@@ -15,5 +15,8 @@ public interface LayerDAO extends JpaRepository<Layer, Long> {
 
 	@Query("SELECT l FROM Layer l WHERE l.status = '" + ConstantsUtil.LAYER_STATUS_ACTIVE + "' ")
 	List<Layer> findActiveLayers();
+
+	@Query("SELECT l FROM Layer l WHERE l.status = '" + ConstantsUtil.LAYER_STATUS_ACTIVE + "' AND l.layerKey IN :layerKeyList")
+	List<Layer> findActiveLayersByLayerkeys(@Param("layerKeyList") List<String> layerKeyList);
 	
 }

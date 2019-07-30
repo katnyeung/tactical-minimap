@@ -43,7 +43,7 @@ public class LayerService {
 		List<Layer> validLayers = getActiveLayers();
 		
 		for (Layer layer : validLayers) {
-			if (layer.getPassword() == null || (layer.getPassword() != null && (layer.getPassword().equals("-1") || layer.getPassword().contentEquals("")))) {
+			if (layer.getPassword() == null || (layer.getPassword() != null && (layer.getPassword().equals("-1") || layer.getPassword().equals("")))) {
 				loggedLayers.add(layer.getLayerKey());
 			}
 		}

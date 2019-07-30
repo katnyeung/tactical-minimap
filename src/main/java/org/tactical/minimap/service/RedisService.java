@@ -156,4 +156,12 @@ public class RedisService {
 		stringRedisTemplate.expire(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":" + uuid, 1, TimeUnit.DAYS);
 	}
 
+	public void logoutLayer(String layerKey) {
+		List<String> keys = scanKeys(ConstantsUtil.USER_LOGGED_LAYER_PREFIX + ":*");
+		
+		for (String key : keys) {
+			stringRedisTemplate.opsForSet().remove(key, layerKey);
+		}
+	}
+
 }

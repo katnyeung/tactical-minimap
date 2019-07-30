@@ -17,6 +17,8 @@ public class MarkerDTO {
 
 	String shapeList;
 
+	String imagePath;
+	
 	public Double getLat() {
 		return lat;
 	}
@@ -87,6 +89,14 @@ public class MarkerDTO {
 
 	public void setShapeList(String shapeList) {
 		this.shapeList = shapeList;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
 	}
 
 }

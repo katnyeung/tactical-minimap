@@ -451,6 +451,7 @@ html * {
 							success : function(data) {
 								if(data.status == 'success'){
 									$('#markerMessage').val('');
+									map.closePopup();
 									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}else{
 									var alertPopup = L.popup();
@@ -579,13 +580,36 @@ html * {
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : !dragLock && item.controllable,
 							icon : divIcon
-						}).addTo(map).bindPopup(popup, {
-							autoPan: false,
-							keepInView: false,
-							autoClose: true,
-						});
+						}).addTo(map)
 						
-						marker.setZIndexOffset(0);						
+						marker.setZIndexOffset(0);		
+						
+						if(item.type == 'image'){
+							var imageContent;
+							
+							if(item.controllable){
+								imageContent = '<img src="/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+							}else{
+								imageContent = '<img src="/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+							}
+							
+							var imagePopup = L.popup().setContent(imageContent);
+							
+							marker.bindPopup(imagePopup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+								maxWidth: "auto"
+							});
+							
+						}else{
+							marker.bindPopup(popup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+							});
+						}
+						
 						
 						if(item.type == 'shape'){
 							
@@ -783,8 +807,12 @@ html * {
 					}else{
 						
 						marker[0].setIcon(divIcon);
-						marker[0]._popup.setContent(content);
-						
+						if(item.type == 'image'){
+							marker[0]._popup.setContent('<img src="/i/'+item.imagePath+'"/>' + content);
+						}else{
+							marker[0]._popup.setContent(content);
+						}
+
 						marker[0].setOpacity(item.opacity);
 						
 						if(!dragLock && item.controllable){
@@ -920,6 +948,7 @@ html * {
 				});
 				
 				$(".editableMessage").on("dblclick",function(e){
+					alert('here');
 					pause = true;
 					$(this).replaceWith('<input type="text" value="' + $(this).data("message") + '" class="messageEditor form-control" data-id="' + $(this).data("id") + '"/>');
 					$('.messageEditor').on('keypress blur',function(e){
@@ -942,6 +971,77 @@ html * {
 				});
 				
 			}
+			$('#btnImageMarker').on('click',function(){
+				$('#imageUploadFile').trigger('click');
+				
+			});
+			 $('#imageUploadFile').change(function (e) {
+                 
+                 var file_data = $('#imageUploadFile').prop('files')[0];
+                 var form_data = new FormData();
+                 form_data.append('file', file_data);
+                 
+                 $.ajax({
+                     url: '/imageUpload', 
+                     dataType: 'text', 
+                     cache: false,
+                     contentType: false,
+                     processData: false,
+                     data: form_data,
+                     type: 'post',
+                     success: function (response) {
+						res = JSON.parse(response);
+                        
+    					var message = $('#markerMessage').val();
+    					var layer = $('#markerLayer').val();
+    					
+    					if(layer){
+    						$.ajax({
+    							type : "POST",
+    							url : '/marker/add',
+    							data : {
+    								'lat' : menu.getLatLng().lat,
+    								'lng' : menu.getLatLng().lng,
+    								'type' : 'image',
+    								'layer' : layer,
+    								'message' : message,
+    								'imagePath': res.filePath
+    							},
+    							success : function(data) {
+    								if(data.status == 'success'){
+    									$('#markerMessage').val('');
+    									map.closePopup();
+    									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+    								}else{
+    									var alertPopup = L.popup();
+    									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
+    								}
+    							}
+    						});
+    					}else{
+							var alertPopup = L.popup();
+    						alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);
+    					}
+                     },
+                     error: function (response) {
+						var alertPopup = L.popup();
+   						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);
+                     }
+                 });
+			});
+			var loaded = false;
+			document.querySelector(".leaflet-popup-pane").addEventListener("load", function (event) {
+				if(!loaded){
+					var tagName = event.target.tagName,
+					popup = map._popup; // Currently open popup, if any.
+					
+					if (tagName === "IMG" && popup) {
+						popup.update();
+					}
+					loaded = true;
+				}
+			
+			}, true); // Capture the load event, because it does not bubble.
 		});
 		
 		function toggleFullScreen() {
@@ -1017,6 +1117,14 @@ html * {
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
 			<div>Twitch</div>
 		</button>
+				
+		<button id="btnImageMarker" class="btn btn-secondary mt-1">
+			<img src="/icon/image.png" style="width: 32px; height: 32px" />
+			<div>Image</div>
+		</button>
+		<div style="display:none">
+		 <input type="file" id="imageUploadFile" name="file" accept="image/*" capture>
+		<input type="hidden" name="imagePath" id="imagePath"/></div>
 		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
 	</div>
 

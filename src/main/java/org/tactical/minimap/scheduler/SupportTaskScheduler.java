@@ -88,6 +88,8 @@ public class SupportTaskScheduler {
 					logger.info("Setting : " + layer.getLayerKey() + " to deactive");
 					layer.setStatus(ConstantsUtil.LAYER_STATUS_DEACTIVED);
 					layerService.save(layer);
+					
+					redisService.logoutLayer(layer.getLayerKey());
 				}
 			}
 		}
