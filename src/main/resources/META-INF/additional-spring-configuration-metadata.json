@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "MAP_FOLDER",
+    "type": "java.lang.String",
+    "description": "A description for 'MAP_FOLDER'"
+  },
+  {
+    "name": "UPLOAD_FOLDER",
+    "type": "java.lang.String",
+    "description": "A description for 'UPLOAD_FOLDER'"
+  }
+]}
