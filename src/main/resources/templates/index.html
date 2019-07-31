@@ -25,6 +25,7 @@
 
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
+<script src="/js/paste.js"></script>
 
 <style>
 .iconMarkup {
@@ -1023,6 +1024,7 @@ html * {
     									$('#markerMessage').val('');
     									map.closePopup();
     									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+    									loaded = false;
     								}else{
     									var alertPopup = L.popup();
     									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
@@ -1040,6 +1042,7 @@ html * {
                      }
                  });
 			});
+			 
 			var loaded = false;
 			document.querySelector(".leaflet-popup-pane").addEventListener("load", function (event) {
 				if(!loaded){
@@ -1053,6 +1056,70 @@ html * {
 				}
 			
 			}, true); // Capture the load event, because it does not bubble.
+			
+			$('#markerMessage').pastableTextarea();
+			
+			$('#markerMessage').on('pasteImage', function(ev, data){
+				var file_data = data.blob;
+				var form_data = new FormData();
+				form_data.append('file', file_data);
+
+				$.ajax({
+					url: '/images/imageUpload', 
+					dataType: 'text', 
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: form_data,
+					type: 'post',
+					success: function (response) {
+						res = JSON.parse(response);
+                  
+						var message = $('#markerMessage').val();
+						var layer = $('#markerLayer').val();
+			
+						if(layer){
+							$.ajax({
+								type : "POST",
+								url : '/marker/add',
+								data : {
+									'lat' : menu.getLatLng().lat,
+									'lng' : menu.getLatLng().lng,
+									'type' : 'image',
+									'layer' : layer,
+									'message' : message,
+									'imagePath': res.filePath
+								},
+								success : function(data) {
+									if(data.status == 'success'){
+										$('#markerMessage').val('');
+										map.closePopup();
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+										loaded = false;
+									}else{
+										var alertPopup = L.popup();
+										alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
+									}
+								}
+							});
+						}else{
+							var alertPopup = L.popup();
+							alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);
+						}
+					},
+					error: function (response) {
+						var alertPopup = L.popup();
+						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);
+					}
+           		});
+			}).on('pasteImageError', function(ev, data){
+				alert('Oops: ' + data.message);
+				if(data.url){
+				  alert('But we got its url anyway:' + data.url)
+				}
+			}).on('pasteText', function(ev, data){
+				$('#markerMessage').insertAfter(this);
+			});
 		});
 		
 		function toggleFullScreen() {
@@ -1136,7 +1203,7 @@ html * {
 		<div style="display:none">
 		 <input type="file" id="imageUploadFile" name="file" accept="image/*" capture>
 		<input type="hidden" name="imagePath" id="imagePath"/></div>
-		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message)" style="width: 100%"></textarea>
+		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message ...or paste the image)" style="width: 100%"></textarea>
 	</div>
 
 	<div id="registerFormDiv" class="card shadow-sm m-2 p-4 rounded border border-info" style="display: none">

@@ -87,8 +87,10 @@ public class ImageController {
 
 			String ext = FilenameUtils.getExtension(file.getOriginalFilename());
 
+			ext = (ext != null && !ext.equals("")) ? ext : "png";
+
 			String filename = uuidPrefix + "." + ext;
-			
+
 			File targetFile = imageService.uploadImage(file, filename);
 
 			imageService.resizeImage(targetFile, targetFile, ext, 300);
