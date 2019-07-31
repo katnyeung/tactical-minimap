@@ -603,13 +603,14 @@ html * {
 								autoClose: true,
 								maxWidth: "auto"
 							});
-							
+							imagePopup.update();
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
 								keepInView: false,
 								autoClose: true,
 							});
+							popup.update();
 						}
 						
 						
