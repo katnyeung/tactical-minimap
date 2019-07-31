@@ -2,12 +2,8 @@ package org.tactical.minimap.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
-import javax.activation.FileTypeMap;
 import javax.naming.SizeLimitExceededException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -16,7 +12,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -56,36 +51,27 @@ public class ImageController {
 	@Autowired
 	RedisService redisService;
 
-	@Value("${UPLOAD_FOLDER}")
-	String uploadFolder;
-
 	@Autowired
 	ImageService imageService;
-	
+
 	@ResponseBody
 	@GetMapping(path = "/**")
 	public String getImageDefault(HttpServletRequest request, HttpSession session, Model model) {
 		return "404 not found";
 	}
-	
+
 	@ResponseBody
 	@GetMapping(path = "/i/**", produces = MediaType.IMAGE_JPEG_VALUE)
 	public ResponseEntity<byte[]> getImage(HttpServletRequest request, HttpSession session, Model model) {
 		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
 		path = path.replaceAll("^/images/i", "");
 
-		File img = null;
-		byte[] bytes = null;
-
 		try {
-			logger.info("reading : " + uploadFolder + path);
-			img = new File(uploadFolder + path);
-			bytes = Files.readAllBytes(img.toPath());
+			return imageService.readImage(path);
 		} catch (IOException ioex) {
 			return null;
 		}
-
-		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
 
 	}
 
@@ -102,20 +88,16 @@ public class ImageController {
 			String ext = FilenameUtils.getExtension(file.getOriginalFilename());
 
 			String filename = uuidPrefix + "." + ext;
+			
+			File targetFile = imageService.uploadImage(file, filename);
 
-			// Get the file and save it somewhere
-			byte[] bytes = file.getBytes();
-			Path path = Paths.get(uploadFolder + filename);
-
-			Files.write(path, bytes);
-
-			imageService.resizeImage(path.toFile(), path.toFile(), ext, 300);
+			imageService.resizeImage(targetFile, targetFile, ext, 300);
 
 			Image image = new Image();
 			image.setFilename(filename);
-			image.setStoredPath(path.toFile().getAbsolutePath());
+			image.setStoredPath(targetFile.getAbsolutePath());
 			image.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-			image.setSize(path.toFile().getTotalSpace());
+			image.setSize(targetFile.getTotalSpace());
 
 			imageService.saveImage(image);
 
