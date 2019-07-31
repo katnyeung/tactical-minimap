@@ -1041,8 +1041,8 @@ html * {
 					
 					if (tagName === "IMG" && popup) {
 						popup.update();
+						loaded = true;
 					}
-					loaded = true;
 				}
 			
 			}, true); // Capture the load event, because it does not bubble.
