@@ -811,19 +811,9 @@ html * {
 						marker[0].setIcon(divIcon);
 						
 						if(item.type == 'image'){
-							marker[0].bindPopup(imagePopup, {
-								autoPan: false,
-								keepInView: false,
-								autoClose: true,
-								maxWidth: "auto"
-							});
-							
+							marker[0].setPopupContent(imageContent);
 						}else{
-							marker[0].bindPopup(popup, {
-								autoPan: false,
-								keepInView: false,
-								autoClose: true,
-							});
+							marker[0].setPopupContent(content);
 						}
 						
 						marker[0].setOpacity(item.opacity);
