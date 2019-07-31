@@ -133,7 +133,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 180;
+		return 240;
 	}
 
 	@Override

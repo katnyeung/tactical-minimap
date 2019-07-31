@@ -43,7 +43,7 @@ public class ImageMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 38;
+		return 42;
 	}
 
 	@Override

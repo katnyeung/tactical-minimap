@@ -131,7 +131,7 @@ public class ImageController {
 
 			File targetFile = imageService.uploadImage(file, filename);
 
-			imageService.resizeImage(targetFile, targetFile, ext, 300);
+			imageService.resizeImage(targetFile, targetFile, ext, 512);
 
 			Image image = new Image();
 			image.setFilename(filename);

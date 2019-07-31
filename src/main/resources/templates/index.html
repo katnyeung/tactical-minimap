@@ -597,7 +597,14 @@ html * {
 					if(item.type == 'livestream'){
 						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div><mark class="rounded message" style="white-space: nowrap;">' + item.layer.layerKey + '</mark>' + counter + upDownButton + '</div></div>'
 					}else{
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' + textMessage + counter + upDownButton + copyButton + '</div></div>'
+						var icon;
+						if(item.type == 'image'){
+							icon = '<div><img src="/images/i/'+item.imagePath+'" class="m-n4 rounded '+ pulseClass +'" style="width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
+						}else{
+							icon = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
+						}
+						
+						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>'
 					}
 					
 					divIcon = L.divIcon({
