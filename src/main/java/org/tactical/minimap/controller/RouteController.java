@@ -58,16 +58,10 @@ public class RouteController {
 
 	@Autowired
 	LayerService layerService;
-
-	@Autowired
-	ImageService imageService;
 	
 	@Value("${MAP_FOLDER}")
 	String mapFolder;
 	
-	@Value("${UPLOAD_FOLDER}")
-	String uploadFolder;
-
 	@ResponseBody
 	@GetMapping(path = "/m/**", produces = MediaType.IMAGE_JPEG_VALUE)
 	public ResponseEntity<byte[]> getMapImage(HttpServletRequest request, HttpSession session, Model model) {
@@ -78,7 +72,6 @@ public class RouteController {
 		byte[] bytes = null;
 
 		try {
-			logger.info("reading : " + mapFolder + path);
 			img = new File(mapFolder + path);
 			bytes = Files.readAllBytes(img.toPath());
 		} catch (IOException ioex) {
@@ -89,26 +82,6 @@ public class RouteController {
 
 	}
 
-	@ResponseBody
-	@GetMapping(path = "/i/**", produces = MediaType.IMAGE_JPEG_VALUE)
-	public ResponseEntity<byte[]> getImage(HttpServletRequest request, HttpSession session, Model model) {
-		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		path = path.replaceAll("^/i", "");
-
-		File img = null;
-		byte[] bytes = null;
-
-		try {
-			img = new File(uploadFolder + path);
-			bytes = Files.readAllBytes(img.toPath());
-		} catch (IOException ioex) {
-			return null;
-		}
-
-		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
-
-	}
-	
 	@GetMapping(path = "/")
 	public String index(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 		return "redirect:/l/" + ConstantsUtil.DEFAULT_LAYER + "/12/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
@@ -227,52 +200,6 @@ public class RouteController {
 			layerService.save(layer);
 			return DefaultResult.success();
 		}
-	}
-
-	@Auth
-	@ResponseBody
-	@PostMapping(value = "/imageUpload")
-	public DefaultResult uploadImageContent(@RequestParam("file") MultipartFile file) throws IOException, NullPointerException, SizeLimitExceededException {
-		UploadImageResult result = new UploadImageResult();
-
-		try {
-
-			String uuidPrefix = UUID.randomUUID().toString().replaceAll("-", "");
-
-			String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-
-			String filename = uuidPrefix + "." + ext;
-			
-            // Get the file and save it somewhere
-            byte[] bytes = file.getBytes();
-            Path path = Paths.get(uploadFolder + filename);
-            
-            Files.write(path, bytes);
-
-			imageService.resizeImage(path.toFile(), path.toFile(), ext, 300);
-			
-			Image image = new Image();
-			image.setFilename(filename);
-			image.setStoredPath(path.toFile().getAbsolutePath());
-			image.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-			image.setSize(path.toFile().getTotalSpace());
-
-			imageService.saveImage(image);
-
-			result.setFilePath(filename);
-			result.setStatus(ConstantsUtil.STATUS_SUCCESS);
-
-			return result;
-
-		} catch (IOException ex) {
-			ex.printStackTrace();
-
-			result.setStatus(ConstantsUtil.STATUS_ERROR);
-			result.setRemarks(ex.getLocalizedMessage());
-
-		}
-
-		return result;
 	}
 
 }

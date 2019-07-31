@@ -575,6 +575,16 @@ html * {
 						iconAnchor: [-5, 10], 
 					});
 					
+					var imageContent;
+					
+					if(item.controllable){
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+					}else{
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+					}
+					
+					var imagePopup = L.popup().setContent(imageContent);
+					
 					if(marker.length == 0){
 						
 						marker = L.marker([ item.lat, item.lng ], {
@@ -585,16 +595,7 @@ html * {
 						marker.setZIndexOffset(0);		
 						
 						if(item.type == 'image'){
-							var imageContent;
-							
-							if(item.controllable){
-								imageContent = '<img src="/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
-							}else{
-								imageContent = '<img src="/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
-							}
-							
-							var imagePopup = L.popup().setContent(imageContent);
-							
+
 							marker.bindPopup(imagePopup, {
 								autoPan: false,
 								keepInView: false,
@@ -807,12 +808,23 @@ html * {
 					}else{
 						
 						marker[0].setIcon(divIcon);
+						
 						if(item.type == 'image'){
-							marker[0]._popup.setContent('<img src="/i/'+item.imagePath+'"/>' + content);
+							marker[0].bindPopup(imagePopup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+								maxWidth: "auto"
+							});
+							
 						}else{
-							marker[0]._popup.setContent(content);
+							marker[0].bindPopup(popup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+							});
 						}
-
+						
 						marker[0].setOpacity(item.opacity);
 						
 						if(!dragLock && item.controllable){
@@ -948,7 +960,6 @@ html * {
 				});
 				
 				$(".editableMessage").on("dblclick",function(e){
-					alert('here');
 					pause = true;
 					$(this).replaceWith('<input type="text" value="' + $(this).data("message") + '" class="messageEditor form-control" data-id="' + $(this).data("id") + '"/>');
 					$('.messageEditor').on('keypress blur',function(e){
@@ -982,7 +993,7 @@ html * {
                  form_data.append('file', file_data);
                  
                  $.ajax({
-                     url: '/imageUpload', 
+                     url: '/images/imageUpload', 
                      dataType: 'text', 
                      cache: false,
                      contentType: false,
