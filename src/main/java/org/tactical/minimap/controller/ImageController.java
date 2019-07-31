@@ -2,10 +2,12 @@ package org.tactical.minimap.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.UUID;
 
 import javax.naming.SizeLimitExceededException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FilenameUtils;
@@ -25,12 +27,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 import org.tactical.minimap.auth.Auth;
 import org.tactical.minimap.repository.Image;
+import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.service.ImageService;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerResponseService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
+import org.tactical.minimap.util.CookieUtil;
 import org.tactical.minimap.web.result.DefaultResult;
 import org.tactical.minimap.web.result.UploadImageResult;
 
@@ -78,7 +82,41 @@ public class ImageController {
 	@Auth
 	@ResponseBody
 	@PostMapping(value = "/imageUpload")
-	public DefaultResult uploadImageContent(@RequestParam("file") MultipartFile file) throws IOException, NullPointerException, SizeLimitExceededException {
+	public DefaultResult uploadImageContent(@RequestParam("file") MultipartFile file, String layer, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, NullPointerException, SizeLimitExceededException {
+		DefaultResult result = new DefaultResult();
+
+		String uuid = CookieUtil.getUUID(request, response, session);
+		logger.info("layer : " + layer);
+
+		String lockedTimeInMillis = redisService.getMarkerLock(layer, uuid);
+		logger.info("lock : " + lockedTimeInMillis);
+
+		if (lockedTimeInMillis != null) {
+
+			Calendar lockedTime = Calendar.getInstance();
+			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
+			ImageMarker im = new ImageMarker();
+			lockedTime.add(Calendar.SECOND, im.getAddDelay());
+
+			Calendar currentTime = Calendar.getInstance();
+
+			Double remainSecond = (lockedTime.getTimeInMillis() - currentTime.getTimeInMillis()) / 1000.0;
+
+			if (remainSecond < 0) {
+				return uploadImage(file);
+			} else {
+				result.setStatus(ConstantsUtil.STATUS_ERROR);
+				result.setRemarks("please wait " + remainSecond + " seconds");
+				return result;
+			}
+
+		} else {
+			return uploadImage(file);
+		}
+
+	}
+
+	public UploadImageResult uploadImage(MultipartFile file) {
 		UploadImageResult result = new UploadImageResult();
 
 		try {
@@ -113,10 +151,7 @@ public class ImageController {
 
 			result.setStatus(ConstantsUtil.STATUS_ERROR);
 			result.setRemarks(ex.getLocalizedMessage());
-
+			return result;
 		}
-
-		return result;
 	}
-
 }

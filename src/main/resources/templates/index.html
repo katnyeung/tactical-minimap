@@ -17,7 +17,8 @@
 <link rel="stylesheet" href="/css/leaflet-search.css" />
 <link rel="stylesheet" href="/css/leaflet.draw.css" />
 <link rel="stylesheet" href="/css/fontawesome-5.8.1.all.css" />
-
+  <link rel="stylesheet" href="/css/colorPicker.css" />
+  
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
 <script src="/js/leaflet.draw.js"></script>
@@ -26,6 +27,8 @@
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
 <script src="/js/paste.js"></script>
+
+<script src="/js/jquery.colorPicker.min.js"/></script>
 
 <style>
 .iconMarkup {
@@ -66,12 +69,13 @@ html * {
 
 @keyframes pulse {
     0% {
+		padding:10px;
       -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
       box-shadow: 0 0 0 0;
     }
     70% {
-        -moz-box-shadow: 0 0 0 35px rgba(0, 0, 0, 0);
-        box-shadow: 0 0 0 35px rgba(0, 0, 0, 0);
+        -moz-box-shadow: 0 0 0 45px rgba(0, 0, 0, 0);
+        box-shadow: 0 0 0 45px rgba(0, 0, 0, 0);
     }
     100% {
         -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
@@ -238,7 +242,7 @@ html * {
 			}
 
 			command.addTo(map);
-
+			
 			var helpControl =  L.Control.extend({
 			
 				options: {
@@ -295,6 +299,7 @@ html * {
 					}
 					
 					var layer = $('#markerLayer').val();
+					var color = $('#shapeColor').val();
 					
 					if(layer){
 						$.ajax({
@@ -306,6 +311,7 @@ html * {
 								'shapeType' : type,
 								'type' : 'shape',
 								'layer' : layer,
+								'color' : color,
 								'message' : '',
 								'shapeList' : JSON.stringify(latlngArr)
 							},
@@ -379,6 +385,25 @@ html * {
 				});
 			    
 			    map.addControl(new dragLockControl());
+			    
+				
+				var command = L.control({position: 'topleft'});
+				
+				command.onAdd = function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'shapeColorDiv';
+					container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="#333399" />';
+					container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
+					
+					return container;
+
+				}
+
+				command.addTo(map);
+
+				$('#shapeColor').colorPicker({colors: ["000000", "003399", "009966", "00cc00", "cc0000","cc6600","ff0000","ff9900","ff66cc","990099","ccff00","ffffff"]});
+			    
+			    
 			}
 
 		    $('.layerLoginForm').submit(function(e){
@@ -429,6 +454,12 @@ html * {
 			clickRegister($("#btnWarningMarker"), 'warning');
 			clickRegister($("#btnPoliceMarker"), 'police');
 
+			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
+
+			clickRegister($("#btnDangerMarker"), 'danger');
+			clickRegister($("#btnTearGasMarker"), 'teargas');
+			
+			
 			clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
 			clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
 			
@@ -579,9 +610,9 @@ html * {
 					var imageContent;
 					
 					if(item.controllable){
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:20px;width:100%;white-space: pre; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><span style="font-size:20px;width:100%" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:20px;width:100%;white-space: pre; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);
@@ -617,13 +648,13 @@ html * {
 							var shape;
 							
 							if(item.shapeType =='polyline'){
-								shape = L.polyline([],{color: '#FF6000', weight: 4});
+								shape = L.polyline([],{color: item.color, weight: 4});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
 								});
 							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
-								shape = L.polygon([],{weight: 3});
+								shape = L.polygon([],{color: item.color, weight: 3});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
@@ -961,9 +992,10 @@ html * {
 				
 				$(".editableMessage").on("dblclick",function(e){
 					pause = true;
-					$(this).replaceWith('<input type="text" value="' + $(this).data("message") + '" class="messageEditor form-control" data-id="' + $(this).data("id") + '"/>');
+					$(this).replaceWith('<textarea class="messageEditor form-control" data-id="' + $(this).data("id") + '">' + $(this).data("message") + '</textarea>');
 					$('.messageEditor').on('keypress blur',function(e){
-					    if(e.which == 13 || e.type == 'blur') {
+					    if((e.which == 13 && !e.shiftKey) || e.type == 'blur') {
+					    	e.preventDefault();
 							$.ajax({
 								type : "POST",
 								url : '/marker/updateMessage',
@@ -987,58 +1019,64 @@ html * {
 				
 			});
 			 $('#imageUploadFile').change(function (e) {
+
+                
+				var message = $('#markerMessage').val();
+				var layer = $('#markerLayer').val();
+				
+				var file_data = $('#imageUploadFile').prop('files')[0];
+				var form_data = new FormData();
+				form_data.append('file', file_data);
                  
-                 var file_data = $('#imageUploadFile').prop('files')[0];
-                 var form_data = new FormData();
-                 form_data.append('file', file_data);
-                 
-                 $.ajax({
-                     url: '/images/imageUpload', 
-                     dataType: 'text', 
-                     cache: false,
-                     contentType: false,
-                     processData: false,
-                     data: form_data,
-                     type: 'post',
-                     success: function (response) {
+				$.ajax({
+					url: '/images/imageUpload?layer=' + layer, 
+					dataType: 'text', 
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: form_data,
+					type: 'post',
+					success: function (response) {
 						res = JSON.parse(response);
-                        
-    					var message = $('#markerMessage').val();
-    					var layer = $('#markerLayer').val();
-    					
-    					if(layer){
-    						$.ajax({
-    							type : "POST",
-    							url : '/marker/add',
-    							data : {
-    								'lat' : menu.getLatLng().lat,
-    								'lng' : menu.getLatLng().lng,
-    								'type' : 'image',
-    								'layer' : layer,
-    								'message' : message,
-    								'imagePath': res.filePath
-    							},
-    							success : function(data) {
-    								if(data.status == 'success'){
-    									$('#markerMessage').val('');
-    									map.closePopup();
-    									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-    								}else{
-    									var alertPopup = L.popup();
-    									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
-    								}
-    							}
-    						});
-    					}else{
+						
+						if(res.status == 'success'){
+							if(layer){
+								$.ajax({
+									type : "POST",
+									url : '/marker/add',
+									data : {
+										'lat' : menu.getLatLng().lat,
+										'lng' : menu.getLatLng().lng,
+										'type' : 'image',
+										'layer' : layer,
+										'message' : message,
+										'imagePath': res.filePath
+									},
+									success : function(data) {
+										if(data.status == 'success'){
+											$('#markerMessage').val('');
+											map.closePopup();
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);
+										}else{
+											var alertPopup = L.popup();
+											alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
+										}
+									}
+								});
+							}else{
+								var alertPopup = L.popup();
+								alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);
+							}
+						}else{
 							var alertPopup = L.popup();
-    						alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);
-    					}
-                     },
-                     error: function (response) {
+							alertPopup.setLatLng(map.getCenter()).setContent(res.remarks).openOn(map);
+						}
+	               },
+	               error: function (response) {
 						var alertPopup = L.popup();
-   						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);
-                     }
-                 });
+						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);
+	               }
+				});
 			});
 			
 			$('#markerMessage').pastableTextarea();
@@ -1163,12 +1201,25 @@ html * {
 		<button id="btnBlockadeMarker" class="btn btn-danger mt-1">
 			<img src="/icon/ironbarrier.png" style="width: 32px; height: 32px" />
 			<div>封鎖</div>
+		</button>		
+		<button id="btnDangerMarker" class="btn btn-danger mt-1">
+			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
+			<div>危險</div>
 		</button>
+		
 		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/police.png" style="width: 32px; height: 32px" />
 			<div>警察</div>
 		</button>
-
+		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">
+			<img src="/icon/riotpolice.png" style="width: 32px; height: 32px" />
+			<div>防暴</div>
+		</button>
+		<button id="btnTearGasMarker" class="btn btn-danger mt-1">
+			<img src="/icon/009-gas-mask.png" style="width: 32px; height: 32px" />
+			<div>催淚</div>
+		</button>
+		
 		<button id="btnFBLiveStreamMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
 			<div>FB</div>

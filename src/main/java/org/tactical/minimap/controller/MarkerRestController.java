@@ -65,7 +65,6 @@ public class MarkerRestController {
 				Marker marker = MarkerClass.newInstance();
 
 				if (marker.getType().equals(markerDTO.getType())) {
-					logger.info("handing add marker request : " + markerDTO);
 					Layer layer = layerService.getLayerByKey(markerDTO.getLayer());
 
 					return createMarker(marker, markerDTO, layer, uuid);
@@ -83,8 +82,12 @@ public class MarkerRestController {
 		String lockedTimeInMillis = redisService.addMarkerLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
 		if (lockedTimeInMillis == null) {
-			markerService.addMarker(layer, markerDTO, marker);
-			return DefaultResult.success();
+			Marker result = markerService.addMarker(layer, markerDTO, marker);
+			if (result != null) {
+				return DefaultResult.success();
+			} else {
+				return DefaultResult.error("please fill in required content");
+			}
 		} else {
 			Calendar lockedTime = Calendar.getInstance();
 			lockedTime.setTimeInMillis(Long.parseLong(lockedTimeInMillis));
@@ -96,8 +99,12 @@ public class MarkerRestController {
 
 			if (remainSecond < 0) {
 
-				markerService.addMarker(layer, markerDTO, marker);
-
+				Marker result = markerService.addMarker(layer, markerDTO, marker);
+				
+				if (result == null) {
+					return DefaultResult.error("please fill in required content");
+				}
+				
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
 				return DefaultResult.success();
@@ -111,7 +118,7 @@ public class MarkerRestController {
 	@GetMapping("/{layerKeys}/list")
 	public DefaultResult getMarker(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
-		
+
 		Map<String, String> layerMap = new HashMap<String, String>();
 
 		Double lat = markerDTO.getLat();
@@ -128,7 +135,7 @@ public class MarkerRestController {
 				}
 			}
 		}
-		
+
 		List<Marker> markerList = markerService.findMultiLayerMarkers(layerMap.keySet().stream().collect(Collectors.toList()), lat, lng, ConstantsUtil.RANGE);
 
 		markerService.addMarkerCache(markerList, uuid);
@@ -155,9 +162,11 @@ public class MarkerRestController {
 
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
-		markerService.pulseMarker(marker);
-
-		return DefaultResult.success();
+		if (markerService.pulseMarker(marker)) {
+			return DefaultResult.success();
+		} else {
+			return DefaultResult.error("marker not ready");
+		}
 
 	}
 

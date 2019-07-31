@@ -21,14 +21,18 @@ public class FBLiveStreamMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		FBLiveStreamMarker marker = new FBLiveStreamMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setUuid(markerDTO.getUuid());
-		return marker;
+		if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
+			FBLiveStreamMarker marker = new FBLiveStreamMarker();
+			marker.setLat(markerDTO.getLat());
+			marker.setLng(markerDTO.getLng());
+			marker.setMessage(markerDTO.getMessage());
+			marker.setExpire(getMarkerExpire());
+			marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+			marker.setUuid(markerDTO.getUuid());
+			return marker;
+		} else {
+			return null;
+		}
 	}
 
 	@Override

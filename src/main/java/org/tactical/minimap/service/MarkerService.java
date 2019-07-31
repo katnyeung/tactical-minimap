@@ -57,13 +57,18 @@ public class MarkerService {
 		logger.info("Adding Marker : " + marker.getClass().getName());
 
 		marker = marker.fill(markerDTO);
-		marker.setLayer(layer);
-		
-		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
-			marker.setExpire(marker.getExpire() * layer.getExpireMultiplier());
+		if(marker != null) {
+			marker.setLayer(layer);
+
+			if (layer.getPassword() != null && !layer.getPassword().equals("")) {
+				marker.setExpire(marker.getExpire() * layer.getExpireMultiplier());
+			}
+
+			markerDAO.save(marker);
+
+		}else {
+			return null;
 		}
-		
-		markerDAO.save(marker);
 
 		return marker;
 	}
@@ -169,12 +174,20 @@ public class MarkerService {
 		}
 	}
 
-	public void pulseMarker(Marker marker) {
+	public boolean pulseMarker(Marker marker) {
 
 		MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
-		mc.setPulse(ConstantsUtil.PULSE_RATE);
 
-		redisService.saveMarkerCache(mc);
+		if (mc != null) {
+
+			mc.setPulse(ConstantsUtil.PULSE_RATE);
+
+			redisService.saveMarkerCache(mc);
+
+			return true;
+		} else {
+			return false;
+		}
 
 	}
 
@@ -212,11 +225,11 @@ public class MarkerService {
 		cloneMarker = cloneMarker.fill(markerDTO);
 
 		cloneMarker.setLayer(layer);
-		
-		if(layer.getPassword() != null && !layer.getPassword().equals("")) {
+
+		if (layer.getPassword() != null && !layer.getPassword().equals("")) {
 			cloneMarker.setExpire(marker.getExpire() * layer.getExpireMultiplier());
 		}
-		
+
 		markerDAO.save(cloneMarker);
 	}
 

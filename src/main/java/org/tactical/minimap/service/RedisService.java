@@ -82,6 +82,11 @@ public class RedisService {
 		}
 	}
 
+	public String getMarkerLock(String layerKey, String uuid) {
+		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layerKey + ":" + uuid;
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
 	public boolean updateLock(String layerKey, String uuid, int time) {
 		String key = ConstantsUtil.REDIS_MARKER_LOCK_PREFIX + ":" + layerKey + ":" + uuid;
 		String value = stringRedisTemplate.opsForValue().get(key);

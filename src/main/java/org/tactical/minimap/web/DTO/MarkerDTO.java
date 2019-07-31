@@ -18,7 +18,9 @@ public class MarkerDTO {
 	String shapeList;
 
 	String imagePath;
-	
+
+	String color;
+
 	public Double getLat() {
 		return lat;
 	}
@@ -97,6 +99,14 @@ public class MarkerDTO {
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 }

@@ -39,6 +39,9 @@ public class ShapeMarker extends Marker {
 	@NotNull
 	int level;
 
+	@NotNull
+	String color;
+	
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
 		try {
@@ -51,7 +54,8 @@ public class ShapeMarker extends Marker {
 			marker.setUuid(markerDTO.getUuid());
 
 			marker.setShapeType(markerDTO.getShapeType());
-
+			marker.setColor(markerDTO.getColor());
+			
 			List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
 			ObjectMapper om = new ObjectMapper();
 
@@ -141,4 +145,13 @@ public class ShapeMarker extends Marker {
 	public int getVoteDelay() {
 		return 15;
 	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
 }
