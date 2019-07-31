@@ -603,14 +603,12 @@ html * {
 								autoClose: true,
 								maxWidth: "auto"
 							});
-							imagePopup.update();
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
 								keepInView: false,
 								autoClose: true,
 							});
-							popup.update();
 						}
 						
 						
@@ -856,7 +854,17 @@ html * {
 							}
 						}
 					}
-
+					document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+						  var tagName = event.target.tagName,
+						  popup = map._popup;
+						  
+						  // Also check if flag is already set.
+						  if (tagName === "IMG" && popup && !popup._updated) {
+						    popup._updated = true; // Set flag to prevent looping.
+						    popup.update();
+						  }
+						  
+						}, true);
 				});
 				
 				$(".btnDelete").on("click", function(e) {
@@ -1015,7 +1023,6 @@ html * {
     									$('#markerMessage').val('');
     									map.closePopup();
     									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-    									loaded = false;
     								}else{
     									var alertPopup = L.popup();
     									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
@@ -1033,20 +1040,6 @@ html * {
                      }
                  });
 			});
-			 
-			var loaded = false;
-			document.querySelector(".leaflet-popup-pane").addEventListener("load", function (event) {
-				if(!loaded){
-					var tagName = event.target.tagName,
-					popup = map._popup; // Currently open popup, if any.
-					
-					if (tagName === "IMG" && popup) {
-						popup.update();
-						loaded = true;
-					}
-				}
-			
-			}, true); // Capture the load event, because it does not bubble.
 			
 			$('#markerMessage').pastableTextarea();
 			
@@ -1086,7 +1079,6 @@ html * {
 										$('#markerMessage').val('');
 										map.closePopup();
 										updateMarkers(map.getCenter().lat, map.getCenter().lng);
-										loaded = false;
 									}else{
 										var alertPopup = L.popup();
 										alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);
@@ -1112,7 +1104,7 @@ html * {
 				$('#markerMessage').insertAfter(this);
 			});
 		});
-		
+
 		function toggleFullScreen() {
 			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
 				if (document.documentElement.requestFullscreen) {
