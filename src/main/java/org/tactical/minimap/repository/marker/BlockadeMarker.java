@@ -44,12 +44,12 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "ironbarrier.png";
+		return "fence.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 38;
 	}
 
 	@Override

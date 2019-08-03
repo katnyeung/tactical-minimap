@@ -3,23 +3,18 @@ package org.tactical.minimap.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.activation.FileTypeMap;
-import javax.naming.SizeLimitExceededException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,21 +27,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
-import org.tactical.minimap.auth.Auth;
-import org.tactical.minimap.repository.Image;
 import org.tactical.minimap.repository.Layer;
-import org.tactical.minimap.service.ImageService;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.CookieUtil;
 import org.tactical.minimap.web.DTO.LayerDTO;
 import org.tactical.minimap.web.result.DefaultResult;
-import org.tactical.minimap.web.result.UploadImageResult;
 
 @Controller
 @RequestMapping("/")
@@ -79,7 +68,6 @@ public class RouteController {
 		}
 
 		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
-
 	}
 
 	@GetMapping(path = "/")

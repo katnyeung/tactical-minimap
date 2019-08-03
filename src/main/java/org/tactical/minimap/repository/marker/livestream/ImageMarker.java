@@ -58,12 +58,12 @@ public class ImageMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 480;
+		return 320;
 	}
 
 	@Override
 	public int getAddDelay() {
-		return 15;
+		return 10;
 	}
 
 	@Override

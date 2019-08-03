@@ -187,8 +187,18 @@ html * {
 				osmAttrib = '&copy; 地圖版權屬香港特區政府 <a href="http://www.map.gov.hk">www.map.gov.hk</a> Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
 				osm = L.tileLayer(osmUrl, {	maxZoom : 20,attribution : osmAttrib});
 
-			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
+			var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
+				attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+				subdomains: 'abcd',
+				minZoom: 0,
+				maxZoom: 20,
+				ext: 'png'
+			});
 
+			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
+					
+			map.addLayer(Stamen_TonerLabels);
+			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 				jsonpParam: 'json_callback',
@@ -1206,7 +1216,7 @@ html * {
 			<div>警示</div>
 		</button>
 		<button id="btnBlockadeMarker" class="btn btn-danger mt-1">
-			<img src="/icon/ironbarrier.png" style="width: 32px; height: 32px" />
+			<img src="/icon/fence.png" style="width: 32px; height: 32px" />
 			<div>封鎖</div>
 		</button>		
 		<button id="btnDangerMarker" class="btn btn-danger mt-1">
@@ -1215,7 +1225,7 @@ html * {
 		</button>
 		
 		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
-			<img src="/icon/police.png" style="width: 32px; height: 32px" />
+			<img src="/icon/police-car.png" style="width: 32px; height: 32px" />
 			<div>警察</div>
 		</button>
 		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">

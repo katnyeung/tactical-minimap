@@ -44,12 +44,12 @@ public class PoliceMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "police.png";
+		return "police-car.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 50;
 	}
 
 	@Override

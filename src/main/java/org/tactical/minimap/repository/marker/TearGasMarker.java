@@ -49,7 +49,7 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 70;
 	}
 
 	@Override
