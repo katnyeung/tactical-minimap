@@ -64,7 +64,7 @@ public class RiotPoliceMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 60;
+		return 160;
 	}
 
 	@Override

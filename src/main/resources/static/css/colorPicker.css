@@ -3,7 +3,6 @@ div.colorPicker-picker {
   width: 16px;
   padding: 12px !important;
   border: 1px solid #ccc;
-  background: url(../arrow.gif) no-repeat top right;
   cursor: pointer;
   line-height: 16px;
   font-size:0.75em;

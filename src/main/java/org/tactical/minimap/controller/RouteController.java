@@ -1,5 +1,7 @@
 package org.tactical.minimap.controller;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.activation.FileTypeMap;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -62,6 +65,35 @@ public class RouteController {
 
 		try {
 			img = new File(mapFolder + path);
+			Pattern pattern = Pattern.compile("/(\\d+)/(\\d+)/(\\d+).png");
+			Matcher matcher = pattern.matcher(path);
+			if(matcher.matches()) {
+				Color black = new Color(255, 0, 0); 
+				int zoom = Integer.parseInt(matcher.group(1));
+				int xTiles = Integer.parseInt(matcher.group(2));
+				int yTiles = Integer.parseInt(matcher.group(3));
+				double n = Math.pow(2, zoom);
+				
+				BufferedImage bi = ImageIO.read(img);
+				int width = bi.getWidth();
+				int height = bi.getHeight();
+				
+
+				double lng = (xTiles / n * 360.0) - 180.0;
+				double lat = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * yTiles / n))));
+				
+				logger.info(" x y  : {} {} ", xTiles, yTiles);
+				logger.info("lng : " + lng);
+				logger.info("lat : " + lat);
+				
+				for (int y = 1; y < height + 1; y++) {
+					logger.info(" > " + (lat + (1 / y / 256.0)));
+					for (int x = 0; x < width; x++) {
+					}
+				}
+
+			}
+
 			bytes = Files.readAllBytes(img.toPath());
 		} catch (IOException ioex) {
 			return  ResponseEntity.noContent().build();

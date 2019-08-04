@@ -58,7 +58,7 @@ public class ImageMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 320;
+		return 200;
 	}
 
 	@Override

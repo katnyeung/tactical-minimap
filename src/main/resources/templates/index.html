@@ -186,7 +186,7 @@ html * {
 			var osmUrl = '/m/{z}/{x}/{y}.png', 
 				osmAttrib = '&copy; 地圖版權屬香港特區政府 <a href="http://www.map.gov.hk">www.map.gov.hk</a> Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
 				osm = L.tileLayer(osmUrl, {	maxZoom : 20,attribution : osmAttrib});
-
+			
 			var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
 				attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 				subdomains: 'abcd',
@@ -196,7 +196,8 @@ html * {
 			});
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
-					
+			
+			//map.addLayer(Stamen_TonerLines);			
 			map.addLayer(Stamen_TonerLabels);
 			
 			map.addControl( new L.Control.Search({
@@ -438,7 +439,9 @@ html * {
 			var menuLatLng;
 			
 			function onMapClick(e) {
-				 menuLatLng = e.latlng;
+				console.log(e.latlng);
+				
+				menuLatLng = e.latlng;
 				$('#coord').show();
 				menu.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);
 			}
