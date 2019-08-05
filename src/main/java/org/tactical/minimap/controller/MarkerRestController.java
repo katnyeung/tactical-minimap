@@ -79,7 +79,15 @@ public class MarkerRestController {
 	}
 
 	private DefaultResult createMarker(Marker marker, MarkerDTO markerDTO, Layer layer, String uuid) throws InstantiationException, IllegalAccessException {
-		String lockedTimeInMillis = redisService.addMarkerLock(layer.getLayerKey(), uuid, marker.getAddDelay());
+		int addMarkerDelay;
+
+		if (layer.getPassword() != null && !layer.getPassword().equals("")) {
+			addMarkerDelay = marker.getAddDelay() / ConstantsUtil.LOGGED_MARKER_VOTE_MULTIPLER;
+		} else {
+			addMarkerDelay = marker.getAddDelay();
+		}
+
+		String lockedTimeInMillis = redisService.addMarkerLock(layer.getLayerKey(), uuid, addMarkerDelay);
 
 		if (lockedTimeInMillis == null) {
 			Marker result = markerService.addMarker(layer, markerDTO, marker);
