@@ -68,6 +68,10 @@ html * {
     animation: pulse 2s infinite;
 }
 
+.baseIcon{
+	opacity:0.6;
+}
+
 @keyframes pulse {
     0% {
 		padding:10px;
@@ -214,10 +218,6 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 			var osmUrl = '/m/{z}/{x}/{y}.png', 
 				osmAttrib = '&copy; 地圖版權屬香港特區政府 <a href="http://www.map.gov.hk">www.map.gov.hk</a> Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
 				osm = L.tileLayer(osmUrl, {	maxZoom : 20,attribution : osmAttrib});
-			
-			var generateRandInt = function() {
-			    return Math.floor( Math.random() * 200000 ) + 1;
-			};
 				
 			var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
 				attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -228,6 +228,77 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 			});
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
+			
+			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
+			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
+			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
+			L.marker([22.2836613,114.2205155],{icon:station_icon}).bindTooltip("港島區警察交通部").addTo(map)
+			L.marker([22.323592,114.183294],{icon:station_icon}).bindTooltip("西九龍總區警察總部").addTo(map)
+			L.marker([22.451744,114.173207],{icon:station_icon}).bindTooltip("新界北總區警察總部").addTo(map)
+			L.marker([22.3710322,114.1228477],{icon:station_icon}).bindTooltip("新界南總區警察總部").addTo(map)
+			L.marker([22.288774,114.149409],{icon:station_icon}).bindTooltip("中區警署").addTo(map)
+			L.marker([22.292068,114.209087],{icon:station_icon}).bindTooltip("東區警察總部暨北角警署").addTo(map)
+			L.marker([22.2876629,114.1405353],{icon:station_icon}).bindTooltip("西區警署").addTo(map)
+			L.marker([22.339141,114.19643],{icon:station_icon}).bindTooltip("黃大仙區警察總部暨黃大仙警署").addTo(map)
+			L.marker([22.3096515,114.2313135],{icon:station_icon}).bindTooltip("觀塘警署").addTo(map)
+			L.marker([22.321574,114.22459],{icon:station_icon}).bindTooltip("秀茂坪警署").addTo(map)
+			L.marker([22.323124,114.259555],{icon:station_icon}).bindTooltip("東九龍總區警察總部暨將軍澳區警署").addTo(map)
+			L.marker([22.30267,114.171363],{icon:station_icon}).bindTooltip("油尖區警察總部暨尖沙咀警署").addTo(map)
+			L.marker([22.3243407,114.1690247],{icon:station_icon}).bindTooltip("旺角警署").addTo(map)
+			L.marker([22.335529,114.146546],{icon:station_icon}).bindTooltip("長沙灣警署").addTo(map)
+			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
+			L.marker([22.452228,114.173171],{icon:station_icon}).bindTooltip("大埔區警察總部及大埔警署").addTo(map)
+			L.marker([22.394854,113.971891],{icon:station_icon}).bindTooltip("屯門警署").addTo(map)
+			L.marker([22.4438952,114.0229838],{icon:station_icon}).bindTooltip("元朗警署").addTo(map)
+			L.marker([22.5109711,114.0737915],{icon:station_icon}).bindTooltip("邊界區警察總部").addTo(map)
+			L.marker([22.3869542,114.1925168],{icon:station_icon}).bindTooltip("沙田警署").addTo(map)
+			L.marker([22.2683892,114.2355596],{icon:station_icon}).bindTooltip("柴灣警署").addTo(map)
+			L.marker([22.288774,114.149409],{icon:station_icon}).bindTooltip("中區警署").addTo(map)
+			L.marker([22.2787249,114.1684913],{icon:station_icon}).bindTooltip("灣仔警署").addTo(map)
+			L.marker([22.267077,114.186999],{icon:station_icon}).bindTooltip("跑馬地警署").addTo(map)
+			L.marker([22.264302,114.155205],{icon:station_icon}).bindTooltip("山頂警署").addTo(map)
+			L.marker([22.2876629,114.1405353],{icon:station_icon}).bindTooltip("西區警署").addTo(map)
+			L.marker([22.248244,114.161405],{icon:station_icon}).bindTooltip("香港仔警署").addTo(map)
+			L.marker([22.2187284,114.2132994],{icon:station_icon}).bindTooltip("赤柱警署").addTo(map)
+			L.marker([22.3096515,114.2313135],{icon:station_icon}).bindTooltip("觀塘警署").addTo(map)
+			L.marker([22.383705,114.272213],{icon:station_icon}).bindTooltip("西貢警署").addTo(map)
+			L.marker([22.321574,114.22459],{icon:station_icon}).bindTooltip("秀茂坪警署").addTo(map)
+			L.marker([22.320596,114.212027],{icon:station_icon}).bindTooltip("牛頭角分區警署").addTo(map)
+			L.marker([22.3097832,114.1688265],{icon:station_icon}).bindTooltip("油麻地警署").addTo(map)
+			L.marker([22.3243407,114.1690247],{icon:station_icon}).bindTooltip("旺角警署").addTo(map)
+			L.marker([22.3302026,114.1589355],{icon:station_icon}).bindTooltip("深水埗警署").addTo(map)
+			L.marker([22.335529,114.146546],{icon:station_icon}).bindTooltip("長沙灣警署").addTo(map)
+			L.marker([22.324378,114.185315],{icon:station_icon}).bindTooltip("九龍城警署").addTo(map)
+			L.marker([22.315333,114.177682],{icon:station_icon}).bindTooltip("紅磡警署").addTo(map)
+			L.marker([22.495107,114.141381],{icon:station_icon}).bindTooltip("上水警署").addTo(map)
+			L.marker([22.394854,113.971891],{icon:station_icon}).bindTooltip("屯門警署").addTo(map)
+			L.marker([22.3757973,113.9669359],{icon:station_icon}).bindTooltip("青山警署").addTo(map)
+			L.marker([22.4438952,114.0229838],{icon:station_icon}).bindTooltip("元朗警署").addTo(map)
+			L.marker([22.449897,114.00231],{icon:station_icon}).bindTooltip("天水圍警署").addTo(map)
+			L.marker([22.441263,114.089375],{icon:station_icon}).bindTooltip("八鄉警署").addTo(map)
+			L.marker([22.537528,114.211163],{icon:station_icon}).bindTooltip("沙頭角警署").addTo(map)
+			L.marker([22.540873,114.148738],{icon:station_icon}).bindTooltip("打鼓嶺警署").addTo(map)
+			L.marker([22.511498,114.080296],{icon:station_icon}).bindTooltip("落馬洲警署").addTo(map)
+			L.marker([22.376899,114.11024],{icon:station_icon}).bindTooltip("荃灣警署").addTo(map)
+			L.marker([22.3569684,114.1296637],{icon:station_icon}).bindTooltip("葵涌警署").addTo(map)
+			L.marker([22.351258,114.10756],{icon:station_icon}).bindTooltip("葵青警區總部暨青衣分區警署").addTo(map)
+			L.marker([22.3869542,114.1925168],{icon:station_icon}).bindTooltip("沙田警署").addTo(map)
+			L.marker([22.366071,114.175522],{icon:station_icon}).bindTooltip("田心警署").addTo(map)
+			L.marker([22.4222711,114.2330609],{icon:station_icon}).bindTooltip("馬鞍山警署").addTo(map)
+			L.marker([22.302571,113.932248],{icon:station_icon}).bindTooltip("機場警署").addTo(map)
+			L.marker([22.375444,114.274419],{icon:station_icon}).bindTooltip("水警東警署").addTo(map)
+			L.marker([22.362791,114.011807],{icon:station_icon}).bindTooltip("水警西警署").addTo(map)
+			L.marker([22.208161,114.030623],{icon:station_icon}).bindTooltip("長洲警署").addTo(map)
+			L.marker([22.528407,114.111586],{icon:station_icon}).bindTooltip("得月樓警崗").addTo(map)
+			L.marker([22.316961,114.040613],{icon:station_icon}).bindTooltip("竹篙灣警崗").addTo(map)
+			L.marker([22.3477566,114.060308],{icon:station_icon}).bindTooltip("馬灣警崗").addTo(map)
+			L.marker([22.549622,114.29209],{icon:station_icon}).bindTooltip("吉澳警崗").addTo(map)
+			L.marker([22.349615,114.1965],{icon:station_icon}).bindTooltip("慈雲山報案中心").addTo(map)
+			L.marker([22.333658,114.169519],{icon:station_icon}).bindTooltip("石硤尾報案中心及西九龍機動部隊行動基地").addTo(map)
+			L.marker([22.380923,114.207466],{icon:station_icon}).bindTooltip("小瀝源行動基地暨報案中心").addTo(map)
+			L.marker([22.515105,114.065989],{icon:station_icon}).bindTooltip("落馬洲支線口岸警察報案中心").addTo(map)
+			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
+			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)
 			
 			map.addLayer(Stamen_TonerLabels);
 			
