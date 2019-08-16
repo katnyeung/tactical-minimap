@@ -76,4 +76,9 @@ public class DangerMarker extends Marker {
 	public int getVoteDelay() {
 		return 25;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "危險";
+	}
 }

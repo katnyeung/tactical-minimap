@@ -17,12 +17,13 @@
 <link rel="stylesheet" href="/css/leaflet-search.css" />
 <link rel="stylesheet" href="/css/leaflet.draw.css" />
 <link rel="stylesheet" href="/css/fontawesome-5.8.1.all.css" />
-  <link rel="stylesheet" href="/css/colorPicker.css" />
-  
+<link rel="stylesheet" href="/css/colorPicker.css" />
+
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
 <script src="/js/leaflet.draw.js"></script>
 <script src="/js/leaflet.draw.polyline.js"></script>
+<script src="/js/leaflet.polylineDecorator.js"></script>
 
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
@@ -70,19 +71,43 @@ html * {
 @keyframes pulse {
     0% {
 		padding:10px;
-      -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
-      box-shadow: 0 0 0 0;
+      -moz-box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+      box-shadow: 0 0 0 0 rgba(255, 0, 0, 1);
     }
     70% {
-        -moz-box-shadow: 0 0 0 45px rgba(0, 0, 0, 0);
-        box-shadow: 0 0 0 45px rgba(0, 0, 0, 0);
+        -moz-box-shadow: 0 0 0 35px rgba(255, 0, 0, 0);
+        box-shadow: 0 0 0 35px rgba(255, 0, 0, 0);
     }
     100% {
-        -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        -moz-box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
     }
 }
- 
+
+.img-border{
+-webkit-filter: drop-shadow(2px 2px 0 var(--borderColor))
+                drop-shadow(-2px 2px 0 var(--borderColor))
+                drop-shadow(2px -2px 0 var(--borderColor))
+                drop-shadow(-2px -2px 0 var(--borderColor));
+
+filter: drop-shadow(2px 2px 0 var(--borderColor))
+        drop-shadow(-2px 2px 0 var(--borderColor))
+        drop-shadow(2px -2px 0 var(--borderColor))
+        drop-shadow(-2px -2px 0 var(--borderColor));
+}
+
+.logMessageRed {
+	color:red !important;
+	font-weight:bold;
+	font-size:13px;
+}
+
+#markerMessageLog{
+	background-color:white;
+	border:1px solid #CECECE;
+	padding:2px;
+}
+
 </style>
 </head>
 <body>
@@ -97,6 +122,9 @@ html * {
 		var validLayers = [[${validLayers}]];
 		
 		var key = [[${key}]];
+		
+		var timestamp = Date.now();
+		var allMessageLog = [];
 		
 		var allMarkerList = [];
 		var pause = false;
@@ -187,6 +215,10 @@ html * {
 				osmAttrib = '&copy; 地圖版權屬香港特區政府 <a href="http://www.map.gov.hk">www.map.gov.hk</a> Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>', 
 				osm = L.tileLayer(osmUrl, {	maxZoom : 20,attribution : osmAttrib});
 			
+			var generateRandInt = function() {
+			    return Math.floor( Math.random() * 200000 ) + 1;
+			};
+				
 			var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
 				attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 				subdomains: 'abcd',
@@ -197,7 +229,6 @@ html * {
 
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 			
-			//map.addLayer(Stamen_TonerLines);			
 			map.addLayer(Stamen_TonerLabels);
 			
 			map.addControl( new L.Control.Search({
@@ -275,7 +306,7 @@ html * {
 			});
 		    
 		    map.addControl(new helpControl());
-		    
+		    		    
 			if(loggedLayers.length > 0){
 				
 				drawnItems = L.featureGroup().addTo(map);
@@ -403,7 +434,7 @@ html * {
 				command.onAdd = function (map) {
 					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
 					container.id = 'shapeColorDiv';
-					container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="#333399" />';
+					container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="ff0000" />';
 					container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
 					
 					return container;
@@ -414,9 +445,25 @@ html * {
 
 				$('#shapeColor').colorPicker({colors: ["000000", "003399", "009966", "00cc00", "cc0000","cc6600","ff0000","ff9900","ff66cc","990099","ccff00","ffffff"]});
 			    
-			    
 			}
+		    
+			var logControl =  L.Control.extend({
+				
+				options: {
+					position: 'bottomright'
+				},
+				
+				onAdd: function (map) {
+					var container = L.DomUtil.create('div', '');
+					container.id = 'logControl';
+					container.innerHTML = '<div id="markerMessageLog" class="rounded"></div>';
 
+					return container;
+				}
+			});
+		    
+		    map.addControl(new logControl());
+		    
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -439,8 +486,6 @@ html * {
 			var menuLatLng;
 			
 			function onMapClick(e) {
-				console.log(e.latlng);
-				
 				menuLatLng = e.latlng;
 				$('#coord').show();
 				menu.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);
@@ -471,8 +516,7 @@ html * {
 
 			clickRegister($("#btnDangerMarker"), 'danger');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
-			
-			
+						
 			clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
 			clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
 			
@@ -545,7 +589,13 @@ html * {
 							map.removeLayer(item.relatedMarker);
 						}
 						if(item.relatedShape){
-							map.removeLayer(item.relatedShape);
+							if(Array.isArray(item.relatedShape)){
+								item.relatedShape.forEach(function(relatedShapeItem){
+									map.removeLayer(relatedShapeItem);
+								});
+							}else{
+								map.removeLayer(item.relatedShape);
+							}
 						}
 						map.removeLayer(item);
 						object.splice(index, 1);
@@ -557,7 +607,7 @@ html * {
 					
 					var upDownButton = 'loading';
 					var counter = '**';
-					var textMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + (item.message == '' ? item.layer.layerKey : '' + item.layer.layerKey + ':' + item.message) +  '</mark><br/>';
+					var textMessage = '';
 					var message = '';
 					var deleteBtn = '';
 					var content = 'loading';
@@ -565,11 +615,15 @@ html * {
 					var pulseStyle;
 					var copyButton = '';
 					
+					if(item.message){
+						textMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>';
+					}
+
 					if (item.controllable){						
-						message = '<span style="font-size:20px;width:100%" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
+						message = '<span style="font-size:20px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
-						message = '<span style="font-size:20px;width:100%" class="font-weight-normal">' + item.message + '</span>';
+						message = '<span style="font-size:20px;width:100%;white-space: pre;" class="font-weight-normal">' + item.message + '</span>';
 					}
 					
 					if(loggedLayers.length > 0){
@@ -586,19 +640,28 @@ html * {
 					}
 					
 					if (item.markerCache != null) {
-						upDownButton = '<div style="width:120px;font-size:16px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
+						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 						
-						var stopWatchClass = '';
-						if(item.markerCache.expire < 30){
-							stopWatchClass = 'text-danger';
-						}
-						
-						counter = '<div style="width:150px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark><mark style="font-size:12px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '" class="rounded m-0 ' + stopWatchClass +'"><i class="fas fa-stopwatch pr-1" style="width: 8%"></i>' + ("" + item.markerCache.expire).toMMSS() + '</mark></div>';
+						counter = '<div style="width:150px;padding-left:8px;margin-top:-4px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark></div>';
 						
 						if(item.markerCache.pulse > 0){
 							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';
 							pulseClass = 'pulse';
 						}
+						
+
+						//border color
+						var iconBorderColor = '#000000';
+						var expirePercent = item.markerCache.expire / item.expire;						
+						
+						if(item.markerCache.expire <= item.expire){
+							var colorValue = (Math.round((1 - (expirePercent)) * 255)).toString(16).toUpperCase();
+							if(colorValue.length <= 1){
+								colorValue = "0" + colorValue;
+							}
+							iconBorderColor = '#' + colorValue + colorValue + colorValue;
+						}
+						
 					}
 
 					content = message;
@@ -608,16 +671,16 @@ html * {
 					var htmlContent;
 
 					if(item.type == 'livestream'){
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div><mark class="rounded message" style="white-space: nowrap;">' + item.layer.layerKey + '</mark>' + counter + upDownButton + '</div></div>'
+						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div>' + counter + upDownButton + '</div></div>'
 					}else{
 						var icon;
 						if(item.type == 'image'){
-							icon = '<div><img src="/images/i/'+item.imagePath+'" class="m-n4 rounded '+ pulseClass +'" style="width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
+							icon = '<div><img src="/images/i/'+item.imagePath+'" class="img-border m-n4 rounded '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
 						}else{
-							icon = '<div><img src="/icon/'+item.icon+'" class="m-n4 '+ pulseClass +'" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
+							icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
 						}
 						
-						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>'
+						htmlContent = icon + counter + textMessage + upDownButton + copyButton + '</div></div>'
 					}
 					
 					divIcon = L.divIcon({
@@ -645,6 +708,8 @@ html * {
 						}).addTo(map)
 						
 						marker.setZIndexOffset(0);		
+
+						marker.setOpacity(item.opacity * (expirePercent * 3));
 						
 						if(item.type == 'image'){
 
@@ -673,16 +738,33 @@ html * {
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
 								});
+
+								var decorator = L.polylineDecorator(shape, {
+								    patterns: [
+								        {offset: '100%', repeat: 0, symbol: L.Symbol.arrowHead({pixelSize: 30, polygon: false, pathOptions: {weight:4, color : item.color, stroke: true}})}
+								    ]
+								}).addTo(map);
+
+								shape.addTo(map);
+								
+								shape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+								decorator.setStyle({opacity:item.opacity * (expirePercent * 3)});
+								
+								marker.relatedShape = [shape,decorator];
 							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
 								shape = L.polygon([],{color: item.color, weight: 3});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
 								});
+								
+								shape.addTo(map);
+
+								shape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+								
+								marker.relatedShape = shape;
 							} 
-							shape.addTo(map);
 							
-							marker.relatedShape = shape;
 						}
 						
 						if(item.type == 'twitch_livestream'){
@@ -853,10 +935,12 @@ html * {
 						});
 						
 						marker.markerId = item.markerId;
-						marker.setOpacity(item.opacity);
 						
 						allMarkerList.push(marker);
+						
 					}else{
+
+						marker[0].setOpacity(item.opacity * (expirePercent * 3));
 						
 						marker[0].setIcon(divIcon);
 						
@@ -866,7 +950,6 @@ html * {
 							marker[0].setPopupContent(content);
 						}
 						
-						marker[0].setOpacity(item.opacity);
 						
 						if(!dragLock && item.controllable){
 							marker[0].dragging.enable();
@@ -883,6 +966,7 @@ html * {
 							}							
 							
 							if(marker[0].relatedShape){
+								
 								if(item.shapeList){
 									var shape;
 									
@@ -892,6 +976,7 @@ html * {
 										item.shapeList.forEach(function(shapePoint) {
 											shape.addLatLng(shapePoint);
 										});
+
 									} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
 										shape = L.polygon([]);
 										
@@ -900,11 +985,27 @@ html * {
 										});
 									}
 									
-									marker[0].relatedShape.setLatLngs(shape.getLatLngs());
+									if(Array.isArray(marker[0].relatedShape)){
+										marker[0].relatedShape.forEach(function(relatedShapeItem){
+											if(typeof relatedShapeItem.setLatLngs == "function"){
+												relatedShapeItem.setLatLngs(shape.getLatLngs());
+											}else if(typeof relatedShapeItem.setPaths == "function"){
+												relatedShapeItem.setPaths(shape.getLatLngs());
+											}
+
+											relatedShapeItem.setStyle({opacity:item.opacity * (expirePercent * 3)});
+										});
+									}else{
+										marker[0].relatedShape.setLatLngs(shape.getLatLngs());
+										
+										marker[0].relatedShape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+									}
 								}
 							}
 						}
 					}
+					
+					
 					document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
 						  var tagName = event.target.tagName,
 						  popup = map._popup;
@@ -917,7 +1018,7 @@ html * {
 						  
 						}, true);
 				});
-				
+
 				$(".btnDelete").on("click", function(e) {
 					var button = $(this);
 					e.preventDefault();
@@ -1015,29 +1116,34 @@ html * {
 					$(this).replaceWith('<textarea class="messageEditor form-control" data-id="' + $(this).data("id") + '">' + $(this).data("message") + '</textarea>');
 					$('.messageEditor').on('keypress blur',function(e){
 					    if((e.which == 13 && !e.shiftKey) || e.type == 'blur') {
-					    	e.preventDefault();
-							$.ajax({
-								type : "POST",
-								url : '/marker/updateMessage',
-								data : {
-									'message' : $(this).val(),
-									'markerId' : $(this).data("id")
-								},
-								success : function(data) {
-								    pause = false;
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-								}
-							});
+					    	if (!$(this).data('done')) {
+					            $(this).data('done', true);
+						    	e.preventDefault();
+								$.ajax({
+									type : "POST",
+									url : '/marker/updateMessage',
+									data : {
+										'message' : $(this).val(),
+										'markerId' : $(this).data("id")
+									},
+									success : function(data) {
+									    pause = false;
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+									}
+								});
+					    	}
 					    }
 					});	
 					
 				});
 				
 			}
+			
 			$('#btnImageMarker').on('click',function(){
 				$('#imageUploadFile').trigger('click');
 				
 			});
+			
 			 $('#imageUploadFile').change(function (e) {
 
                 
@@ -1161,7 +1267,47 @@ html * {
 			}).on('pasteText', function(ev, data){
 				$('#markerMessage').insertAfter(this);
 			});
+			
+			fetchData(layerKeysString);
+			setInterval(function(){fetchData(layerKeysString);},5000);
 		});
+		
+		function fetchData(layer){
+			$.ajax({
+				type: 'GET',
+				url: '/marker/' + layer + "/message",
+				data: {
+					'timestamp' : timestamp
+				},
+				success: function(response){
+					
+					response.markerMessageList.forEach(function(message){
+						$('#markerMessageLog').append('<a href="#" data-id="'+message.markerId+'" data-count-down="3" class="logMessage logMessageRed">'+message.type+':'+message.message+'</a><br/>');
+					});
+
+					timestamp = response.remarks;
+					
+					$('.logMessage').on('click',function(event){
+						event.preventDefault();
+						var id = $(this).data('id');
+						
+						var marker = $.grep(allMarkerList, function(e){ return e.markerId == id });
+						
+						if(marker.length > 0){
+							map.setView(marker[0].getLatLng(),17);
+						}
+					})
+					
+					$('.logMessageRed').each(function(){
+						if($(this).data('count-down') <= 0){
+							$(this).removeClass('logMessageRed');
+						}else{
+							$(this).data('count-down', $(this).data('count-down') - 1);
+						}
+					});
+				}
+			});
+		}
 
 		function toggleFullScreen() {
 			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods

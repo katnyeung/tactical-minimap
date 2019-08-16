@@ -121,7 +121,6 @@ public abstract class Marker extends Auditable<String> {
 	@Lob
 	String message;
 
-	@JsonIgnore
 	Long expire = (long) 0;
 
 	@JsonIgnore
@@ -265,6 +264,14 @@ public abstract class Marker extends Auditable<String> {
 	@Override
 	public String toString() {
 		return "Marker [markerId=" + markerId + ", lat=" + lat + ", lng=" + lng + ", upVote=" + upVote + ", downVote=" + downVote + ", message=" + message + ", expire=" + expire + ", status=" + status + ", uuid=" + uuid + ", layer=" + layer + ", markerCache=" + markerCache + ", controllable=" + controllable + "]";
+	}
+
+	public String getDescription() {
+		return "Marker";
+	}
+	
+	public String getLogMessage() {
+		return this.getDescription() + ":" + this.getMessage();
 	}
 
 }

@@ -64,4 +64,9 @@ public class MedicalMarker extends Marker {
 	public int getVoteDelay() {
 		return 5;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "救護";
+	}
 }

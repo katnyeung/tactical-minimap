@@ -78,4 +78,9 @@ public class ImageMarker extends Marker {
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
 	}
+
+	@Override
+	public String getDescription() {
+		return "影像";
+	}
 }

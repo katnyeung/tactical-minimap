@@ -76,4 +76,9 @@ public class GroupMarker extends Marker {
 	public int getVoteDelay() {
 		return 15;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "人群";
+	}
 }

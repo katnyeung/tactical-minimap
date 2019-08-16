@@ -37,7 +37,7 @@ public class YellowInfoMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 36;
 	}
 
 	@Override
@@ -63,5 +63,10 @@ public class YellowInfoMarker extends Marker {
 	@Override
 	public int getVoteDelay() {
 		return 10;
+	}	
+	
+	@Override
+	public String getDescription() {
+		return "資訊";
 	}
 }

@@ -49,7 +49,7 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 60;
+		return 46;
 	}
 
 	@Override
@@ -75,5 +75,10 @@ public class TearGasMarker extends Marker {
 	@Override
 	public int getVoteDelay() {
 		return 15;
+	}
+
+	@Override
+	public String getDescription() {
+		return "催淚彈";
 	}
 }

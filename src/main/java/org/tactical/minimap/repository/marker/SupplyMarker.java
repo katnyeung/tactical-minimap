@@ -64,4 +64,9 @@ public class SupplyMarker extends Marker {
 	public int getVoteDelay() {
 		return 10;
 	}
+
+	@Override
+	public String getDescription() {
+		return "補給";
+	}
 }

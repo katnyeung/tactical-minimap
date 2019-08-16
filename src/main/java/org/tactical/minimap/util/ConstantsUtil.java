@@ -23,8 +23,11 @@ public class ConstantsUtil {
 	public static final Object DEFAULT_LNG = "114.1711";
 	
 	public static final String USER_LOGGED_LAYER_PREFIX = "user_logged_layer";
-	public static final int PULSE_RATE = 10;
+	public static final int PULSE_RATE = 8;
 	
 	public static final int LOGGED_MARKER_VOTE_MULTIPLER = 5;
+	
+	public static final String MARKER_MESSAGE_QUEUE_KEY = "marker_message_queue";
+	public static final long MARKER_MESSAGE_QUEUE_SIZE = 10;
 	
 }

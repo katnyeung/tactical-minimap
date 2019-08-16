@@ -138,7 +138,7 @@ public class ShapeMarker extends Marker {
 
 	@Override
 	public int getAddDelay() {
-		return 15;
+		return 3;
 	}
 
 	@Override
@@ -154,4 +154,8 @@ public class ShapeMarker extends Marker {
 		this.color = color;
 	}
 	
+	@Override
+	public String getDescription() {
+		return "圖標";
+	}
 }

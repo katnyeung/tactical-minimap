@@ -48,7 +48,7 @@ public class MarkerService {
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 	}
-
+	
 	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
 		return markerDAO.findByLatLngLayer(layer, lat - range, lng - range, lat + range, lng + range);
 	}
@@ -57,7 +57,8 @@ public class MarkerService {
 		logger.info("Adding Marker : " + marker.getClass().getName());
 
 		marker = marker.fill(markerDTO);
-		if(marker != null) {
+
+		if (marker != null) {
 			marker.setLayer(layer);
 
 			if (layer.getPassword() != null && !layer.getPassword().equals("")) {
@@ -66,7 +67,7 @@ public class MarkerService {
 
 			markerDAO.save(marker);
 
-		}else {
+		} else {
 			return null;
 		}
 

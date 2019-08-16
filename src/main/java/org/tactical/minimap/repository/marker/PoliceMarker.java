@@ -49,7 +49,7 @@ public class PoliceMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 50;
+		return 44;
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class PoliceMarker extends Marker {
 	public int getDownRate() {
 		return 50;
 	}
-	
+
 	@Override
 	public long getMarkerExpire() {
 		return 160;
@@ -71,9 +71,14 @@ public class PoliceMarker extends Marker {
 	public int getAddDelay() {
 		return 15;
 	}
-	
+
 	@Override
 	public int getVoteDelay() {
 		return 15;
+	}
+
+	@Override
+	public String getDescription() {
+		return "警察";
 	}
 }

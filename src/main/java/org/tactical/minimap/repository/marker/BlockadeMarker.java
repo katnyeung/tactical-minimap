@@ -76,4 +76,9 @@ public class BlockadeMarker extends Marker {
 	public int getVoteDelay() {
 		return 15;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "封路";
+	}
 }
