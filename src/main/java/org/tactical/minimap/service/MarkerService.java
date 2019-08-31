@@ -48,6 +48,10 @@ public class MarkerService {
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 	}
+
+	public List<Marker> findMultiLayerMarkersType(List<String> layerKeys, double fromLat, double fromLng, double toLat, double toLng) {
+		return markerDAO.findAllByLatLngType(layerKeys, fromLat, fromLng, toLat, toLng);
+	}
 	
 	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
 		return markerDAO.findByLatLngLayer(layer, lat - range, lng - range, lat + range, lng + range);
@@ -233,5 +237,6 @@ public class MarkerService {
 
 		markerDAO.save(cloneMarker);
 	}
+
 
 }

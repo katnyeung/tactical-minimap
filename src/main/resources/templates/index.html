@@ -24,6 +24,7 @@
 <script src="/js/leaflet.draw.js"></script>
 <script src="/js/leaflet.draw.polyline.js"></script>
 <script src="/js/leaflet.polylineDecorator.js"></script>
+<script src="/js/leaflet-heat.js"></script>
 
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
@@ -89,15 +90,11 @@ html * {
 }
 
 .img-border{
--webkit-filter: drop-shadow(2px 2px 0 var(--borderColor))
-                drop-shadow(-2px 2px 0 var(--borderColor))
-                drop-shadow(2px -2px 0 var(--borderColor))
-                drop-shadow(-2px -2px 0 var(--borderColor));
+-webkit-filter: drop-shadow(3px 3px 0 var(--borderColor))
+                drop-shadow(-3px 3px 0 var(--borderColor));
 
-filter: drop-shadow(2px 2px 0 var(--borderColor))
-        drop-shadow(-2px 2px 0 var(--borderColor))
-        drop-shadow(2px -2px 0 var(--borderColor))
-        drop-shadow(-2px -2px 0 var(--borderColor));
+filter: drop-shadow(3px 3px 0 var(--borderColor))
+        drop-shadow(-3px 3px 0 var(--borderColor));
 }
 
 .logMessageRed {
@@ -226,9 +223,9 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 				maxZoom: 20,
 				ext: 'png'
 			});
-
-			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 			
+			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
+
 			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
 			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
 			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
@@ -299,8 +296,6 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 			L.marker([22.515105,114.065989],{icon:station_icon}).bindTooltip("落馬洲支線口岸警察報案中心").addTo(map)
 			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
 			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)
-			
-			map.addLayer(Stamen_TonerLabels);
 			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
@@ -397,8 +392,73 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 						edit:false
 					}
 				}));
+				var addressPoints = [];
+				
+				var heat = L.heatLayer(addressPoints,{radius:15,gradient:{0.5: 'white', 1:'red'}}).addTo(map),
+				    draw = false;
 
+			     map.on('mousemove', function (e) {
+					if (draw) {
+					 	if(e.originalEvent.which == 1){
+							map.dragging.disable();
+							heat.setOptions({radius:15,gradient:{0.5: 'white', 1:$('#shapeColor').val()}})
+						    heat.addLatLng(e.latlng);
+						}
+					}
+			     });
+			
+				map.on('mouseup',function(e){
+					if(draw){
 
+						var layer = $('#markerLayer').val();
+						var color = $('#shapeColor').val();
+						
+						if(layer){
+							$.ajax({
+								type : "POST",
+								url : '/marker/add',
+								data : {
+									'lat' : addressPoints[addressPoints.length-1].lat,
+									'lng' : addressPoints[addressPoints.length-1].lng,
+									'shapeType' : 'heat',
+									'type' : 'shape',
+									'layer' : layer,
+									'color' : color,
+									'message' : '',
+									'shapeList' : JSON.stringify(addressPoints)
+								},
+								success : function(data) {
+									if(data.status == 'success'){
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);
+									}else{
+										if(data.status == 'success'){
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);
+										}else{
+											var alertPopup = L.popup();
+											alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+										}
+									}
+								}
+							});
+						}else{
+							var alertPopup = L.popup();
+							alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
+						}
+						
+						
+						
+						draw = false;
+						console.log(addressPoints);
+						addressPoints = [];
+						heat.setLatLngs(addressPoints);
+						heat.redraw();
+						
+						map.dragging.enable();
+
+					}
+
+				})
+				
 			    map.on(L.Draw.Event.CREATED, function (e) {
 					var type = e.layerType;
 					var layerObject = e.layer;
@@ -499,7 +559,29 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 			    
 			    map.addControl(new dragLockControl());
 			    
+				var heatMapControl = L.control({position: 'topleft'});
 				
+				heatMapControl.onAdd = function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'heatMapControlDiv';
+					container.innerHTML = '<button id="heatMapControl" title="after click this button,mouse drag to draw, drag end to finish">H</button>';
+					container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
+					
+					return container;
+
+				}
+
+				heatMapControl.addTo(map);
+   
+				$('#heatMapControl').click(function(){
+					if(draw){
+						draw = false;
+					}else{
+						draw = true;
+					}
+					
+				});
+			    
 				var command = L.control({position: 'topleft'});
 				
 				command.onAdd = function (map) {
@@ -568,7 +650,6 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 			});
 
-			
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
 			
 			clickRegister($("#btnInfoMarker"), 'info');
@@ -722,7 +803,7 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 						
 
 						//border color
-						var iconBorderColor = '#000000';
+						var iconBorderColor = '#FF00FF';
 						var expirePercent = item.markerCache.expire / item.expire;						
 						
 						if(item.markerCache.expire <= item.expire){
@@ -730,7 +811,7 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 							if(colorValue.length <= 1){
 								colorValue = "0" + colorValue;
 							}
-							iconBorderColor = '#' + colorValue + colorValue + colorValue;
+							iconBorderColor = '#FF' + colorValue + colorValue;
 						}
 						
 					}
@@ -830,11 +911,21 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 								});
 								
 								shape.addTo(map);
-
-								shape.setStyle({opacity:item.opacity * (expirePercent * 3)});
 								
 								marker.relatedShape = shape;
-							} 
+							} else if(item.shapeType == 'heat'){
+								shape = L.heatLayer([],{radius:15,gradient:{0.5: 'white', 1:item.color}});
+								
+								item.shapeList.forEach(function(shapePoint) {
+									shape.addLatLng(shapePoint);
+								});
+								
+								shape.addTo(map);
+
+								shape.setOptions({opacity:item.opacity * (expirePercent * 3)});
+								
+								marker.relatedShape = shape;
+							}
 							
 						}
 						
@@ -1054,6 +1145,13 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 										item.shapeList.forEach(function(shapePoint) {
 											shape.addLatLng(shapePoint);
 										});
+									} else if(item.shapeType == 'heat'){
+										shape = L.heatLayer([],{radius:15,gradient:{0.5: 'white', 1:item.color}});
+										
+										item.shapeList.forEach(function(shapePoint) {
+											shape.addLatLng(shapePoint);
+										});
+										
 									}
 									
 									if(Array.isArray(marker[0].relatedShape)){
@@ -1069,7 +1167,9 @@ filter: drop-shadow(2px 2px 0 var(--borderColor))
 									}else{
 										marker[0].relatedShape.setLatLngs(shape.getLatLngs());
 										
-										marker[0].relatedShape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+										if(marker[0].relatedShape.setStyle){
+											marker[0].relatedShape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+										}
 									}
 								}
 							}
