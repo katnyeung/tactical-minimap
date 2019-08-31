@@ -10,9 +10,9 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@DiscriminatorValue(value = "danger")
+@DiscriminatorValue(value = "watertruck")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class DangerMarker extends Marker {
+public class WaterTruckMarker extends Marker {
 
 	@NotNull
 	int level;
@@ -27,12 +27,12 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public String getType() {
-		return "danger";
+		return "watertruck";
 	}
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		DangerMarker marker = new DangerMarker();
+		WaterTruckMarker marker = new WaterTruckMarker();
 		marker.setLat(markerDTO.getLat());
 		marker.setLng(markerDTO.getLng());
 		marker.setMessage(markerDTO.getMessage());
@@ -44,27 +44,27 @@ public class DangerMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "danger.png";
+		return "water-truck.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 36;
+		return 48;
 	}
 
 	@Override
 	public int getUpRate() {
-		return 15;
+		return 30;
 	}
 
 	@Override
 	public int getDownRate() {
-		return 40;
+		return 60;
 	}
 	
 	@Override
 	public long getMarkerExpire() {
-		return 45;
+		return 160;
 	}
 
 	@Override
@@ -74,11 +74,11 @@ public class DangerMarker extends Marker {
 	
 	@Override
 	public int getVoteDelay() {
-		return 25;
+		return 15;
 	}
-	
+
 	@Override
 	public String getDescription() {
-		return "危險";
+		return "水車";
 	}
 }

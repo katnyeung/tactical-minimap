@@ -662,11 +662,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			clickRegister($("#btnSupplyMarker"), 'supply');
 
 			clickRegister($("#btnBlockadeMarker"), 'blockade');
+			clickRegister($("#btnPedestrianMarker"), 'pedestrian');
 			clickRegister($("#btnWarningMarker"), 'warning');
 			clickRegister($("#btnPoliceMarker"), 'police');
 
 			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');
 
+			clickRegister($("#btnWaterTruckMarker"), 'watertruck');
+			
 			clickRegister($("#btnDangerMarker"), 'danger');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
 						
@@ -1537,9 +1540,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<div>警示</div>
 		</button>
 		<button id="btnBlockadeMarker" class="btn btn-danger mt-1">
-			<img src="/icon/fence.png" style="width: 32px; height: 32px" />
+			<img src="/icon/no-stopping.png" style="width: 32px; height: 32px" />
 			<div>封鎖</div>
-		</button>		
+		</button>
+		<button id="btnPedestrianMarker" class="btn btn-success mt-1">
+			<img src="/icon/crosswalk.png" style="width: 32px; height: 32px" />
+			<div>行人</div>
+		</button>				
 		<button id="btnDangerMarker" class="btn btn-danger mt-1">
 			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
 			<div>危險</div>
@@ -1553,10 +1560,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/riotpolice.png" style="width: 32px; height: 32px" />
 			<div>防暴</div>
 		</button>
+		<button id="btnWaterTruckMarker" class="btn btn-warning mt-1">
+			<img src="/icon/water-truck.png" style="width: 32px; height: 32px" />
+			<div>水車</div>
+		</button>
 		<button id="btnTearGasMarker" class="btn btn-danger mt-1">
 			<img src="/icon/009-gas-mask.png" style="width: 32px; height: 32px" />
 			<div>催淚</div>
 		</button>
+		
+		
+		
 		
 		<button id="btnFBLiveStreamMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />

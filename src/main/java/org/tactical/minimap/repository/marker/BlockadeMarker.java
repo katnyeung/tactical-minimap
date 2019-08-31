@@ -44,7 +44,7 @@ public class BlockadeMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "fence.png";
+		return "no-stopping.png";
 	}
 
 	@Override

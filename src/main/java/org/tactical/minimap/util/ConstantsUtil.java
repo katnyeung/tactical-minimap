@@ -14,7 +14,7 @@ public class ConstantsUtil {
 
 	public static final String MARKER_STATUS_ACTIVE = "A";
 	public static final String MARKER_STATUS_DEACTIVED = "D";
-	public static final Object DEFAULT_LAYER = "public$green,scout$orange";
+	public static final Object DEFAULT_LAYER = "public$green,scout$orange,static$red";
 
 	public static final String LAYER_STATUS_ACTIVE = "A";
 	public static final String LAYER_STATUS_DEACTIVED = "D";
