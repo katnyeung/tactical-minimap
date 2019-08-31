@@ -226,6 +226,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(osm);
 
+ 			map.addLayer(Stamen_TonerLabels);
+ 			
 			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
 			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
 			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
@@ -307,7 +309,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				autoType: false,
 				minLength: 2
 			}));
-
 
 			var command = L.control({position: 'bottomleft'});
 			
