@@ -661,6 +661,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			clickRegister($("#btnGroupMarker"), 'group');
 			clickRegister($("#btnSupplyMarker"), 'supply');
 
+			clickRegister($("#btnFlagBlackMarker"), 'blackflag');
+			clickRegister($("#btnFlagBlueMarker"), 'blueflag');
+			clickRegister($("#btnFlagOrangeMarker"), 'orangeflag');
+			clickRegister($("#btnFlagRedMarker"), 'redflag');
+			clickRegister($("#btnFlagYellowMarker"), 'yellowflag');
+			
 			clickRegister($("#btnBlockadeMarker"), 'blockade');
 			clickRegister($("#btnPedestrianMarker"), 'pedestrian');
 			clickRegister($("#btnWarningMarker"), 'warning');
@@ -673,8 +679,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			clickRegister($("#btnDangerMarker"), 'danger');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
 						
-			clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
-			clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
+			//clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
+			//clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
 			
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -1534,12 +1540,38 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/supply.png" style="width: 32px; height: 32px" />
 			<div>補給</div>
 		</button>
+		
+		<button id="btnFlagBlackMarker" class="btn btn-light mt-1">
+			<img src="/icon/black.png" style="width: 32px; height: 32px" />
+			<div>黑旗</div>
+		</button>
+		<button id="btnFlagBlueMarker" class="btn btn-info mt-1">
+			<img src="/icon/blue.png" style="width: 32px; height: 32px" />
+			<div>藍旗</div>
+		</button>
+		<button id="btnFlagOrangeMarker" class="btn btn-success mt-1">
+			<img src="/icon/orange.png" style="width: 32px; height: 32px" />
+			<div>橙旗</div>
+		</button>
+		<button id="btnFlagRedMarker" class="btn btn-success mt-1">
+			<img src="/icon/red.png" style="width: 32px; height: 32px" />
+			<div>紅旗</div>
+		</button>
+		<button id="btnFlagYellowMarker" class="btn btn-success mt-1">
+			<img src="/icon/yellow.png" style="width: 32px; height: 32px" />
+			<div>黃旗</div>
+		</button>
 
 		<button id="btnWarningMarker" class="btn btn-warning mt-1">
 			<img src="/icon/warning.png" style="width: 32px; height: 32px" />
 			<div>警示</div>
 		</button>
-		<button id="btnBlockadeMarker" class="btn btn-danger mt-1">
+		<button id="btnDangerMarker" class="btn btn-danger mt-1">
+			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
+			<div>危險</div>
+		</button>
+		
+		<button id="btnBlockadeMarker" class="btn btn-info mt-1">
 			<img src="/icon/no-stopping.png" style="width: 32px; height: 32px" />
 			<div>封鎖</div>
 		</button>
@@ -1547,10 +1579,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/crosswalk.png" style="width: 32px; height: 32px" />
 			<div>行人</div>
 		</button>				
-		<button id="btnDangerMarker" class="btn btn-danger mt-1">
-			<img src="/icon/danger.png" style="width: 32px; height: 32px" />
-			<div>危險</div>
-		</button>
+
 		
 		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/police-car.png" style="width: 32px; height: 32px" />
@@ -1564,14 +1593,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/water-truck.png" style="width: 32px; height: 32px" />
 			<div>水車</div>
 		</button>
+		
 		<button id="btnTearGasMarker" class="btn btn-danger mt-1">
-			<img src="/icon/009-gas-mask.png" style="width: 32px; height: 32px" />
+			<img src="/icon/teargas.png" style="width: 32px; height: 32px" />
 			<div>催淚</div>
 		</button>
-		
-		
-		
-		
+<!-- 
 		<button id="btnFBLiveStreamMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
 			<div>FB</div>
@@ -1581,7 +1608,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/live.png" style="width: 32px; height: 32px" />
 			<div>Twitch</div>
 		</button>
-				
+ -->	
 		<button id="btnImageMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/image.png" style="width: 32px; height: 32px" />
 			<div>Image</div>

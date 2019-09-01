@@ -44,12 +44,12 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "009-gas-mask.png";
+		return "teargas.png";
 	}
 
 	@Override
 	public int getIconSize() {
-		return 46;
+		return 70;
 	}
 
 	@Override
@@ -64,12 +64,12 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 60;
+		return 160;
 	}
 
 	@Override
 	public int getAddDelay() {
-		return 30;
+		return 15;
 	}
 
 	@Override
