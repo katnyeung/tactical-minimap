@@ -121,6 +121,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		var layerMap = [[${layerMap}]];
 		var colorMap = {'red':'#F5B7B1','blue':'#7FB3D5','green':'#D0ECE7','orange':'#F9E79F','purple':'#E8DAEF'};
 		var validLayers = [[${validLayers}]];
+		var latestMarkerList;
 		
 		var key = [[${key}]];
 		
@@ -649,6 +650,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 			map.on('dragend zoomend', function(e) {
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				
+				if (latestMarkerList) {
+					processMarker(latestMarkerList);
+				}
 			});
 
 			updateMarkers(map.getCenter().lat, map.getCenter().lng);
@@ -723,6 +728,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				eventSource.onmessage = e => {
 					if(!pause){
 						var markerList = JSON.parse(e.data);
+						latestMarkerList = markerList;
 						processMarker(markerList);
 					}
 				};
@@ -738,7 +744,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							'lng' : lng
 						},
 						
-						success : function(data){ processMarker(data.markerList)}
+						success : function(data){ 
+							latestMarkerList = data.markerList;
+							processMarker(data.markerList);
+						}
 					});
 				}
 			}
@@ -842,7 +851,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
 						}
 						
-						htmlContent = icon + counter + textMessage + upDownButton + copyButton + '</div></div>'
+						if(map.getZoom() >= 18){
+							htmlContent = icon + counter + textMessage + upDownButton + copyButton + '</div></div>';
+						}else{
+							htmlContent = icon + '</div></div>';
+						}
+						
 					}
 					
 					divIcon = L.divIcon({
