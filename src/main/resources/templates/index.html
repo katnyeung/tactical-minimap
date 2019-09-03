@@ -855,6 +855,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							htmlContent = icon + counter + textMessage + upDownButton + copyButton + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
+							
 						}
 						
 					}
@@ -901,6 +902,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								keepInView: false,
 								autoClose: true,
 							});
+							
 						}
 						
 						
@@ -1134,6 +1136,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							marker[0].setPopupContent(imageContent);
 						}else{
 							marker[0].setPopupContent(content);
+							
+
+							if(map.getZoom() < 19){
+								marker[0].bindTooltip(content);
+							}else{
+								marker[0].unbindTooltip();
+							}
+							
 						}
 						
 						
