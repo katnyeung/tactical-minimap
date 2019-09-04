@@ -905,6 +905,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 						}
 						
+						if (!L.Browser.touch){
+							if(map.getZoom() < 19){
+								marker.bindTooltip(content);
+							}else{
+								marker.unbindTooltip();
+							}
+						}
 						
 						if(item.type == 'shape'){
 							
@@ -1135,15 +1142,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						if(item.type == 'image'){
 							marker[0].setPopupContent(imageContent);
 						}else{
-							marker[0].setPopupContent(content);
-							
-
+							marker[0].setPopupContent(content);						
+						}
+						console.log(L.Browser.touch);
+						if (!L.Browser.touch){
 							if(map.getZoom() < 19){
 								marker[0].bindTooltip(content);
 							}else{
 								marker[0].unbindTooltip();
 							}
-							
 						}
 						
 						
