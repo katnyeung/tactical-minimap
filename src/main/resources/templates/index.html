@@ -797,10 +797,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 
 					if (item.controllable){						
-						message = '<span style="font-size:20px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
+						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
-						message = '<span style="font-size:20px;width:100%;white-space: pre;" class="font-weight-normal">' + item.message + '</span>';
+						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="font-weight-normal">' + item.message + '</span>';
 					}
 					
 					if(loggedLayers.length > 0){
@@ -875,9 +875,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var imageContent;
 					
 					if(item.controllable){
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:20px;width:100%;white-space: pre; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:20px;width:100%;white-space: pre; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);
@@ -905,6 +905,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoPan: false,
 								keepInView: false,
 								autoClose: true,
+								maxWidth: "auto"
 							});
 							
 
