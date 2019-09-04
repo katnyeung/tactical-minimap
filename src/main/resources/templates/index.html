@@ -842,8 +842,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 					content = message;
 					
-					var popup = L.popup().setContent(content);
-					
 					var htmlContent;
 
 					if(item.type == 'livestream'){
@@ -856,14 +854,16 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
 						}
 						
-						if(map.getZoom() >= 19){
-							htmlContent = icon + counter + textMessage + upDownButton + copyButton + '</div></div>';
+						if(map.getZoom() >= 18){
+							htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
 							
 						}
 						
 					}
+
+					var popup = L.popup().setContent(content);
 					
 					divIcon = L.divIcon({
 						className:'location-icon',
