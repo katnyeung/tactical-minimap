@@ -111,8 +111,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 .leaflet-popup-content-wrapper,
     .leaflet-popup-tip {
-    color:#F2F3F4;
-    background-color: #3C6478;
+    color:#3C6478;
+    background-color: #F2F3F4;
     box-shadow: 0 3px 14px rgba(0,0,0,0.4);
 }
 </style>
@@ -826,7 +826,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							pulseClass = 'pulse';
 						}
 						
-
 						//border color
 						var iconBorderColor = '#FF00FF';
 						var expirePercent = item.markerCache.expire / item.expire;						
@@ -894,23 +893,24 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 						marker.setOpacity(item.opacity * (expirePercent * 3));
 						
-						if(item.message){
-							if(item.type == 'image'){
-								marker.bindPopup(imagePopup, {
-									autoPan: false,
-									keepInView: false,
-									autoClose: true,
-									maxWidth: "auto"
-								});
-							}else{
-								marker.bindPopup(popup, {
-									autoPan: false,
-									keepInView: false,
-									autoClose: true,
-								});
-								
+						if(item.type == 'image'){
+							marker.bindPopup(imagePopup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+								maxWidth: "auto"
+							});
+						}else{
+							marker.bindPopup(popup, {
+								autoPan: false,
+								keepInView: false,
+								autoClose: true,
+							});
+							
 
-							}
+						}
+						
+						if(item.message){
 					        marker.on('mouseover', function (e) {
 					            this.openPopup();
 					        });
