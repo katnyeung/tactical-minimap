@@ -903,6 +903,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoClose: true,
 							});
 							
+					        marker.on('mouseover', function (e) {
+					            this.openPopup();
+					        });
 						}
 						
 						if (!L.Browser.touch){
@@ -1144,16 +1147,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						}else{
 							marker[0].setPopupContent(content);						
 						}
-						console.log(L.Browser.touch);
-						if (!L.Browser.touch){
-							if(map.getZoom() < 19){
-								marker[0].bindTooltip(content);
-							}else{
-								marker[0].unbindTooltip();
-							}
-						}
-						
-						
+
 						if(!dragLock && item.controllable){
 							marker[0].dragging.enable();
 						}else{
