@@ -115,6 +115,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
     background-color: #2C3737;
     box-shadow: 0 1px 5px rgba(0,0,0,0.4);
 }
+.messageEditor{
+	width:200px;
+}
 </style>
 </head>
 <body>
@@ -453,10 +456,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
 						}
 						
-						
-						
 						draw = false;
-						console.log(addressPoints);
 						addressPoints = [];
 						heat.setLatLngs(addressPoints);
 						heat.redraw();
@@ -915,6 +915,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					        marker.on('mouseover', function (e) {
 					            this.openPopup();
 					        });
+					        marker.openPopup();
 						}
 						
 						if(item.type == 'shape'){
@@ -1142,13 +1143,25 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						marker[0].setOpacity(item.opacity * (expirePercent * 3));
 						
 						marker[0].setIcon(divIcon);
+
+						if(marker[0].getPopup().getContent() != content){
+					        marker[0].openPopup();
+						}
 						
 						if(item.type == 'image'){
 							marker[0].setPopupContent(imageContent);
 						}else{
 							marker[0].setPopupContent(content);						
 						}
-
+			
+						if(item.message){
+							if(!marker[0]._events.mouseover){
+						        marker[0].on('mouseover', function (e) {
+						            this.openPopup();
+						        });
+							}
+						}
+						
 						if(!dragLock && item.controllable){
 							marker[0].dragging.enable();
 						}else{
@@ -1321,6 +1334,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				$(".editableMessage").on("dblclick",function(e){
 					pause = true;
 					$(this).replaceWith('<textarea class="messageEditor form-control" data-id="' + $(this).data("id") + '">' + $(this).data("message") + '</textarea>');
+					
 					$('.messageEditor').on('keypress blur',function(e){
 					    if((e.which == 13 && !e.shiftKey) || e.type == 'blur') {
 					    	if (!$(this).data('done')) {
