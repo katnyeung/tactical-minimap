@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="/css/leaflet.draw.css" />
 <link rel="stylesheet" href="/css/fontawesome-5.8.1.all.css" />
 <link rel="stylesheet" href="/css/colorPicker.css" />
+<link rel="stylesheet" href="/css/toastr.min.css" />
 
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
@@ -25,12 +26,11 @@
 <script src="/js/leaflet.draw.polyline.js"></script>
 <script src="/js/leaflet.polylineDecorator.js"></script>
 <script src="/js/leaflet-heat.js"></script>
-
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
 <script src="/js/twitch.tv.v1.js"></script>
 <script src="/js/paste.js"></script>
-
 <script src="/js/jquery.colorPicker.min.js"/></script>
+<script src="/js/toastr.min.js"/></script>
 
 <style>
 .iconMarkup {
@@ -97,12 +97,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
         drop-shadow(-3px 3px 0 var(--borderColor));
 }
 
-.logMessageRed {
-	color:red !important;
-	font-weight:bold;
-	font-size:13px;
-}
-
 #markerMessageLog{
 	background-color:white;
 	border:1px solid #CECECE;
@@ -118,6 +112,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 .messageEditor{
 	width:200px;
 }
+#toast-container{
+	margin:0px;
+}
+#toast-container > .toast {
+    background-image: none !important;
+    margin:0px;
+    padding:10px;
+}
+
 </style>
 </head>
 <body>
@@ -907,15 +910,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoClose: true,
 								maxWidth: "auto"
 							});
-							
-
 						}
 						
 						if(item.message){
 					        marker.on('mouseover', function (e) {
 					            this.openPopup();
 					        });
-					        marker.openPopup();
 						}
 						
 						if(item.type == 'shape'){
@@ -1143,15 +1143,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						marker[0].setOpacity(item.opacity * (expirePercent * 3));
 						
 						marker[0].setIcon(divIcon);
-
-						if(marker[0].getPopup().getContent() != content){
-					        marker[0].openPopup();
-						}
 						
 						if(item.type == 'image'){
+							if(marker[0].getPopup().getContent() != imageContent){
+						        marker[0].openPopup();
+							}
 							marker[0].setPopupContent(imageContent);
 						}else{
-							marker[0].setPopupContent(content);						
+							if(marker[0].getPopup().getContent() != content){
+						        marker[0].openPopup();
+							}
+							marker[0].setPopupContent(content);	
 						}
 			
 						if(item.message){
@@ -1489,6 +1491,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				$('#markerMessage').insertAfter(this);
 			});
 			
+		    toastr.options.positionClass = 'toast-bottom-right';
+		    toastr.options.extendedTimeOut = 1000; //1000;
+		    toastr.options.timeOut = 15000;
+		    toastr.options.fadeOut = 250;
+		    toastr.options.fadeIn = 250;
+		    
 			fetchData(layerKeysString);
 			setInterval(function(){fetchData(layerKeysString);},5000);
 		});
@@ -1503,7 +1511,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				success: function(response){
 					
 					response.markerMessageList.forEach(function(message){
-						$('#markerMessageLog').append('<a href="#" data-id="'+message.markerId+'" data-count-down="3" class="logMessage logMessageRed">'+message.type+':'+message.message+'</a><br/>');
+				        toastr['warning']('<a href="#" data-id="'+message.markerId+'" class="logMessage">'+message.type+':'+message.message+'</a><br/>');
 					});
 
 					timestamp = response.remarks;
@@ -1518,14 +1526,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							map.setView(marker[0].getLatLng(),17);
 						}
 					})
-					
-					$('.logMessageRed').each(function(){
-						if($(this).data('count-down') <= 0){
-							$(this).removeClass('logMessageRed');
-						}else{
-							$(this).data('count-down', $(this).data('count-down') - 1);
-						}
-					});
+
 				}
 			});
 		}

@@ -118,7 +118,7 @@ public class MarkerRestController {
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
 				if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
-					redisService.addMarkerMessage(layer.getLayerKey(), result.getMarkerId(), ">" + marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
+					redisService.addMarkerMessage(layer.getLayerKey(), result.getMarkerId(), "新增:" + marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
 				}
 
 				return DefaultResult.success();
@@ -261,7 +261,7 @@ public class MarkerRestController {
 		markerService.updateMessage(marker, markerDTO.getMessage());
 
 		if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
-			redisService.addMarkerMessage(marker.getLayer().getLayerKey(), marker.getMarkerId(), "^" + marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
+			redisService.addMarkerMessage(marker.getLayer().getLayerKey(), marker.getMarkerId(), "更新:" + marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
 		}
 
 		return DefaultResult.success();
