@@ -15,6 +15,7 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
@@ -46,13 +47,22 @@ public class MarkerService {
 	EntityManager em;
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
-		return markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+
+		if (markerList.size() < ConstantsUtil.MARKER_LIST_SIZE) {
+			int remainRecord = ConstantsUtil.MARKER_LIST_SIZE - markerList.size();
+			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkerByLatLng(PageRequest.of(0, remainRecord), layerKeys, lat - range, lng - range, lat + range, lng + range);
+
+			markerList.addAll(deactiveMarkerList);
+		}
+
+		return markerList;
 	}
 
 	public List<Marker> findMultiLayerMarkersType(List<String> layerKeys, double fromLat, double fromLng, double toLat, double toLng) {
 		return markerDAO.findAllByLatLngType(layerKeys, fromLat, fromLng, toLat, toLng);
 	}
-	
+
 	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
 		return markerDAO.findByLatLngLayer(layer, lat - range, lng - range, lat + range, lng + range);
 	}
@@ -153,7 +163,23 @@ public class MarkerService {
 				marker.setControllable(true);
 			}
 
-			marker.setOpacity(1);
+			double markerOpacity = 0.0;
+
+			Calendar dateBackCalendar = Calendar.getInstance();
+			Long currentTimeInMillis = dateBackCalendar.getTimeInMillis();
+
+			dateBackCalendar.add(Calendar.HOUR_OF_DAY, -3);
+
+			Long dateBackTimeInMillis = dateBackCalendar.getTimeInMillis();
+			Long markerLastUpdateTimeInMillis = marker.getLastupdatedate().getTime();
+
+			if (markerLastUpdateTimeInMillis > dateBackTimeInMillis) {
+				double percentage = (markerLastUpdateTimeInMillis - dateBackTimeInMillis) / (currentTimeInMillis - dateBackTimeInMillis  * 1.0);
+
+				markerOpacity = percentage * 1;
+			}
+
+			marker.setOpacity(markerOpacity);
 
 			if (mc != null) {
 				marker.setMarkerCache(mc);
@@ -237,6 +263,5 @@ public class MarkerService {
 
 		markerDAO.save(cloneMarker);
 	}
-
 
 }

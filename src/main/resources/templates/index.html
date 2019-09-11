@@ -145,6 +145,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		
 		var dragLock = true;
 		var maxZIndex = 1;
+		var markerBaseOpacity = 0.05;
 		
 		L.Marker.prototype.__setPos = L.Marker.prototype._setPos;
 		L.Marker.prototype._setPos = function ()
@@ -782,18 +783,21 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 				});
 				
+				var markerIndex = 0;
+				
 				markerList.forEach(function(item) {
 					var marker = $.grep(allMarkerList, function(e){ return e.markerId == item.markerId; });
 					
-					var upDownButton = 'loading';
-					var counter = '**';
+					var upDownButton = '';
+					var counter = '';
 					var textMessage = '';
 					var message = '';
 					var deleteBtn = '';
-					var content = 'loading';
+					var content = '';
 					var pulseClass;
 					var pulseStyle;
 					var copyButton = '';
+					var expirePercent = 0;
 					
 					if(item.message){
 						textMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>';
@@ -819,6 +823,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				    	
 					}
 					
+					if(item.status == 'A'){
+						expirePercent = 1;
+					}
+					
 					if (item.markerCache != null) {
 						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 						
@@ -831,7 +839,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 						//border color
 						var iconBorderColor = '#FF00FF';
-						var expirePercent = item.markerCache.expire / item.expire;						
+						
+						expirePercent = item.markerCache.expire / item.expire;
 						
 						if(item.markerCache.expire <= item.expire){
 							var colorValue = (Math.round((1 - (expirePercent)) * 255)).toString(16).toUpperCase();
@@ -842,7 +851,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						}
 						
 					}
-
+					
 					content = message;
 					
 					var htmlContent;
@@ -860,8 +869,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						if(map.getZoom() >= 19){
 							htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
 						}else{
-							htmlContent = icon + '</div></div>';
-							
+							if(markerIndex < 3){
+								htmlContent = icon + textMessage + '</div></div>';
+							}else{
+								htmlContent = icon + '</div></div>';
+							}
 						}
 						
 					}
@@ -892,9 +904,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							icon : divIcon
 						}).addTo(map)
 						
-						marker.setZIndexOffset(0);		
-
-						marker.setOpacity(item.opacity * (expirePercent * 3));
+						marker.setZIndexOffset(0);	
+						
+						marker.setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
 						
 						if(item.type == 'image'){
 							marker.bindPopup(imagePopup, {
@@ -937,8 +949,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 								shape.addTo(map);
 								
-								shape.setStyle({opacity:item.opacity * (expirePercent * 3)});
-								decorator.setStyle({opacity:item.opacity * (expirePercent * 3)});
+								shape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
+								decorator.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
 								
 								marker.relatedShape = [shape,decorator];
 							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
@@ -960,7 +972,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								
 								shape.addTo(map);
 
-								shape.setOptions({opacity:item.opacity * (expirePercent * 3)});
+								shape.setOptions({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
 								
 								marker.relatedShape = shape;
 							}
@@ -1139,8 +1151,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						allMarkerList.push(marker);
 						
 					}else{
-
-						marker[0].setOpacity(item.opacity * (expirePercent * 3));
+						
+						marker[0].setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
 						
 						marker[0].setIcon(divIcon);
 						
@@ -1213,13 +1225,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 												relatedShapeItem.setPaths(shape.getLatLngs());
 											}
 
-											relatedShapeItem.setStyle({opacity:item.opacity * (expirePercent * 3)});
+											relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
 										});
 									}else{
 										marker[0].relatedShape.setLatLngs(shape.getLatLngs());
 										
 										if(marker[0].relatedShape.setStyle){
-											marker[0].relatedShape.setStyle({opacity:item.opacity * (expirePercent * 3)});
+											marker[0].relatedShape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
 										}
 									}
 								}
@@ -1239,6 +1251,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						  }
 						  
 						}, true);
+					
+					markerIndex++;
 				});
 
 				$(".btnDelete").on("click", function(e) {

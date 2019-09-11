@@ -2,6 +2,7 @@ package org.tactical.minimap.DAO;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,9 @@ public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng")
 	public List<T> findAllByLatLng(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
+
+	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_DEACTIVED + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng ORDER BY m.lastupdatedate DESC")
+	public List<T> findDeactiveMarkerByLatLng(Pageable pageable, @Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
 
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE Type(m) = PoliceMarker AND l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng")
 	public List<Marker> findAllByLatLngType(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
@@ -29,7 +33,6 @@ public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 	@Modifying
 	@Query("UPDATE Marker m SET m.status = :status, upVote = :upVote, downVote = :downVote WHERE m.markerId = :markerId")
 	public void updateStatusUpDown(@Param("markerId") Long markerId, @Param("status") String status, @Param("upVote") int upVote, @Param("downVote") int downVote);
-	
 
 	@Query(value = "SELECT COUNT(1) AS markerCount FROM marker m INNER JOIN layer l ON (m.layer_id = l.layer_id) WHERE l.layer_key = :layerKey AND m.status = 'A' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng", nativeQuery = true)
 	int getMarkerCountInRange(@Param("layerKey") String layerKey, @Param("fromLat") Double fromLat, @Param("toLat") Double toLat, @Param("fromLng") Double fromLng, @Param("toLng") Double toLng);
