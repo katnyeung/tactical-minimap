@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarkerDetail;
 import org.tactical.minimap.util.ConstantsUtil;
@@ -240,6 +241,7 @@ public class MarkerService {
 			ShapeMarker shapeMarker = (ShapeMarker) marker;
 
 			markerDTO.setShapeType(shapeMarker.getShapeType());
+			markerDTO.setColor(shapeMarker.getColor());
 			List<Map<String, Double>> shapeList = new ArrayList<Map<String, Double>>();
 			for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
 				LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
@@ -249,6 +251,8 @@ public class MarkerService {
 			}
 			markerDTO.setShapeList(om.writeValueAsString(shapeList));
 
+		} else if (marker instanceof ImageMarker) {
+			markerDTO.setImagePath(((ImageMarker) marker).getImagePath());
 		}
 
 		Marker cloneMarker = marker.getClass().newInstance();
