@@ -1149,7 +1149,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						marker.markerId = item.markerId;
 						
 						allMarkerList.push(marker);
-						
+
 					}else{
 						
 						marker[0].setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
@@ -1251,7 +1251,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						  }
 						  
 						}, true);
-					
+
 					markerIndex++;
 				});
 
@@ -1507,7 +1507,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    toastr.options.positionClass = 'toast-bottom-right';
 		    toastr.options.extendedTimeOut = 1000; //1000;
-		    toastr.options.timeOut = 15000;
+		    toastr.options.timeOut = 60000;
 		    toastr.options.fadeOut = 250;
 		    toastr.options.fadeIn = 250;
 		    
@@ -1525,7 +1525,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				success: function(response){
 					
 					response.markerMessageList.forEach(function(message){
-				        toastr['warning']('<a href="#" data-id="'+message.markerId+'" class="logMessage">'+message.type+':'+message.message+'</a><br/>');
+				        toastr['info']('<a href="#" data-id="'+message.markerId+'" class="logMessage"><b>'+message.type+':'+message.message+'</b></a><br/>');
 					});
 
 					timestamp = response.remarks;

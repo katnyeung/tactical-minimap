@@ -2,6 +2,7 @@ package org.tactical.minimap.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,10 +50,18 @@ public class MarkerService {
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
-
+		Optional<Marker> lastMarker = markerList.parallelStream().min(Comparator.comparing(Marker::getLastupdatedate));
+		
+		Date lastMarkerDate = null;
+		if(lastMarker.isPresent()) {
+			lastMarkerDate = lastMarker.get().getLastupdatedate();
+		}else {
+			lastMarkerDate = Calendar.getInstance().getTime();
+		}
+		
 		if (markerList.size() < ConstantsUtil.MARKER_LIST_SIZE) {
 			int remainRecord = ConstantsUtil.MARKER_LIST_SIZE - markerList.size();
-			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkerByLatLng(PageRequest.of(0, remainRecord), layerKeys, lat - range, lng - range, lat + range, lng + range);
+			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkerByLatLng(PageRequest.of(0, remainRecord), lastMarkerDate, layerKeys, lat - range, lng - range, lat + range, lng + range);
 
 			markerList.addAll(deactiveMarkerList);
 		}
@@ -262,7 +271,7 @@ public class MarkerService {
 		cloneMarker.setLayer(layer);
 
 		if (layer.getPassword() != null && !layer.getPassword().equals("")) {
-			cloneMarker.setExpire(marker.getExpire() * layer.getExpireMultiplier());
+			cloneMarker.setExpire(marker.getExpire());
 		}
 
 		markerDAO.save(cloneMarker);
