@@ -1,5 +1,7 @@
 package org.tactical.minimap.repository;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,6 +39,9 @@ public class TelegramMessage extends Auditable<String> {
 	@NotNull
 	@Size(max = 150)
 	String groupKey;
+
+	@NotNull
+	Date messagedate;
 
 	public Long getTelegramMessageId() {
 		return telegramMessageId;
@@ -76,6 +81,14 @@ public class TelegramMessage extends Auditable<String> {
 
 	public void setGroupKey(String groupKey) {
 		this.groupKey = groupKey;
+	}
+
+	public Date getMessagedate() {
+		return messagedate;
+	}
+
+	public void setMessagedate(Date messagedate) {
+		this.messagedate = messagedate;
 	}
 
 }
