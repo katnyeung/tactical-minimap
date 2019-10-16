@@ -19,6 +19,13 @@ public class ConstantsUtil {
 	public static final String LAYER_STATUS_ACTIVE = "A";
 	public static final String LAYER_STATUS_DEACTIVED = "D";
 
+	public static final String TELEGRAM_MESSAGE_PENDING = "A";
+	public static final String TELEGRAM_MESSAGE_PROCESSED_OK = "O";
+	public static final String TELEGRAM_MESSAGE_PROCESSED_NOT_OK = "X";
+
+	public static final String TELEGRAM_MESSAGE_RULE_ACTIVE = "A";
+	public static final String TELEGRAM_MESSAGE_RULE_DEACTIVE = "O";
+
 	public static final Object DEFAULT_LAT = "22.3202";
 	public static final Object DEFAULT_LNG = "114.1711";
 
