@@ -108,7 +108,7 @@ public class TelegramParserScheduler {
 			
 			//get geo location
 			HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
-				.queryString("key", "AIzaSyD291QMQdp512dSWTthRQ0-hCN2z32I96o")
+				.queryString("key", "")
 				.queryString("address", String.join(" ", keyMap.keySet()))
 				.asJson();
 
