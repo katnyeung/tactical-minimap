@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.TelegramMessageDAO;
 import org.tactical.minimap.DAO.TelegramMessageRuleDAO;
 import org.tactical.minimap.repository.TelegramMessage;
@@ -20,6 +21,16 @@ public class TelegramMessageService {
 
 	public List<TelegramMessage> getPendingTelegramMessage() {
 		return telegramMessageDAO.findPendingTelegramMessage();
+	}
+
+	@Transactional(readOnly = false)
+	public void updateTelegramMessageOK(List<Long> idList) {
+		telegramMessageDAO.updateProcessOK(idList);
+	}
+
+	@Transactional(readOnly = false)
+	public void updateTelegramMessageNotOK(List<Long> idList) {
+		telegramMessageDAO.updateProcessNotOK(idList);
 	}
 
 	public List<TelegramMessageRule> getActiveTelegramMessageRules() {

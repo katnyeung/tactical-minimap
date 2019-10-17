@@ -37,9 +37,6 @@ public class ShapeMarker extends Marker {
 	String shapeType;
 
 	@NotNull
-	int level;
-
-	@NotNull
 	String color;
 	
 	@Override
@@ -80,14 +77,6 @@ public class ShapeMarker extends Marker {
 			return null;
 		}
 
-	}
-
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
 	}
 
 	public List<ShapeMarkerDetail> getShapeMarkerDetailList() {

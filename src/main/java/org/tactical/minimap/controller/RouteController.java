@@ -1,12 +1,7 @@
 package org.tactical.minimap.controller;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.activation.FileTypeMap;
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;

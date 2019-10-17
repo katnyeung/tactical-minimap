@@ -19,7 +19,7 @@ public class ConstantsUtil {
 	public static final String LAYER_STATUS_ACTIVE = "A";
 	public static final String LAYER_STATUS_DEACTIVED = "D";
 
-	public static final String TELEGRAM_MESSAGE_PENDING = "A";
+	public static final String TELEGRAM_MESSAGE_PENDING = "P";
 	public static final String TELEGRAM_MESSAGE_PROCESSED_OK = "O";
 	public static final String TELEGRAM_MESSAGE_PROCESSED_NOT_OK = "X";
 

@@ -48,7 +48,7 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(InfoMarker.class);
 		ClassList.add(RedInfoMarker.class);
 		ClassList.add(YellowInfoMarker.class);
-		
+
 		ClassList.add(WarningMarker.class);
 		ClassList.add(DangerMarker.class);
 
@@ -57,7 +57,7 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(FlagOrangeMarker.class);
 		ClassList.add(FlagRedMarker.class);
 		ClassList.add(FlagYellowMarker.class);
-		
+
 		ClassList.add(MedicalMarker.class);
 		ClassList.add(GroupMarker.class);
 		ClassList.add(SupplyMarker.class);
@@ -65,7 +65,7 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(BlockadeMarker.class);
 		ClassList.add(ConflictMarker.class);
 		ClassList.add(PedestrianMarker.class);
-		
+
 		ClassList.add(PoliceMarker.class);
 		ClassList.add(RiotPoliceMarker.class);
 		ClassList.add(WaterTruckMarker.class);
@@ -73,7 +73,7 @@ public abstract class Marker extends Auditable<String> {
 
 		ClassList.add(FBLiveStreamMarker.class);
 		ClassList.add(TwtichLiveStreamMarker.class);
-		
+
 		ClassList.add(ShapeMarker.class);
 		ClassList.add(ImageMarker.class);
 	}
@@ -129,6 +129,9 @@ public abstract class Marker extends Auditable<String> {
 	@Column(nullable = true)
 	@Lob
 	String message;
+
+	@Column(nullable = true)
+	Integer level = 1;
 
 	Long expire = (long) 0;
 
@@ -269,6 +272,14 @@ public abstract class Marker extends Auditable<String> {
 		this.opacity = opacity;
 	}
 
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+
 	@Override
 	public String toString() {
 		return "Marker [markerId=" + markerId + "]";
@@ -277,7 +288,7 @@ public abstract class Marker extends Auditable<String> {
 	public String getDescription() {
 		return "Marker";
 	}
-	
+
 	public String getLogMessage() {
 		return this.getDescription() + ":" + this.getMessage();
 	}
