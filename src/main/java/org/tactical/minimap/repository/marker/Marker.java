@@ -30,6 +30,7 @@ import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.repository.marker.livestream.TwtichLiveStreamMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarker;
 import org.tactical.minimap.util.Auditable;
+import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
@@ -108,7 +109,15 @@ public abstract class Marker extends Auditable<String> {
 	public abstract long getMarkerExpire();
 
 	@Transient
-	public abstract Marker fill(MarkerDTO markerDTO);
+	public Marker fill(MarkerDTO markerDTO) {
+		this.setLat(markerDTO.getLat());
+		this.setLng(markerDTO.getLng());
+		this.setMessage(markerDTO.getMessage());
+		this.setExpire(getMarkerExpire());
+		this.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		this.setUuid(markerDTO.getUuid());
+		return this;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

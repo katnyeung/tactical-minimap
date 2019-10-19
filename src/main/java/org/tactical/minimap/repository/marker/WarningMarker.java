@@ -3,9 +3,6 @@ package org.tactical.minimap.repository.marker;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import org.tactical.minimap.util.ConstantsUtil;
-import org.tactical.minimap.web.DTO.MarkerDTO;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -16,18 +13,6 @@ public class WarningMarker extends Marker {
 	@Override
 	public String getType() {
 		return "warning";
-	}
-
-	@Override
-	public Marker fill(MarkerDTO markerDTO) {
-		WarningMarker marker = new WarningMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setMessage(markerDTO.getMessage());
-		marker.setUuid(markerDTO.getUuid());
-		return marker;
 	}
 
 	@Override

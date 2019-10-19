@@ -4,28 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.ByteBuffersDirectory;
-import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,28 +58,8 @@ public class TelegramParserScheduler {
 	String apiKey;
 
 	@Async
-	@Scheduled(fixedRate = 300000)
+	@Scheduled(fixedRate = 3000)
 	public void doParse() throws IOException, ParseException {
-		StandardAnalyzer analyzer = new StandardAnalyzer();
-		Directory index = new ByteBuffersDirectory();
-
-		IndexWriterConfig config = new IndexWriterConfig(analyzer);
-
-		IndexWriter w = new IndexWriter(index, config);
-
-		processData(w, "data/region.chi", 10);
-
-		processData(w, "data/subDistrict.chi", 10);
-
-		processData(w, "data/building.chi", 30);
-
-		processData(w, "data/estate.chi", 20);
-
-		processData(w, "data/street.chi", 15);
-
-		processData(w, "data/village.chi", 20);
-
-		w.close();
 
 		// time pattern
 		Pattern timePattern = Pattern.compile("([0-9][0-9]\\:?[0-9][0-9])");
@@ -100,7 +68,7 @@ public class TelegramParserScheduler {
 
 		// get message
 		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
-		logger.info("fetcing telegram Message List from DB {}", telegramMessageList);
+		logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
 
 		List<Long> okIdList = new ArrayList<Long>();
 		List<Long> notOkIdList = new ArrayList<Long>();
@@ -111,6 +79,7 @@ public class TelegramParserScheduler {
 			Matcher matcher = timePattern.matcher(message);
 
 			if (matcher.find()) {
+				HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
 				// String time = matcher.group(1).replaceAll(":", "");
 
 				// convert message
@@ -122,24 +91,25 @@ public class TelegramParserScheduler {
 
 				logger.info("processing message {}", message);
 
-				// process message
-				Query q = new QueryParser("name", analyzer).parse(message);
-				
-				IndexReader reader = DirectoryReader.open(index);
-				IndexSearcher searcher = new IndexSearcher(reader);
-				TopDocs docs = searcher.search(q, 50);
-				
-				ScoreDoc[] hits = docs.scoreDocs;
-				System.out.println("Found " + hits.length + " hits.");
-				for(int i=0;i<hits.length;++i) {
-				    int docId = hits[i].doc;
-				    
-				    Document d = searcher.doc(docId);
-				    System.out.println((i + 1) + ". " + d.get("name") + "," + hits[i].score);
-				}
-/*
+				processData(message, "data/region.chi", keyMap, 30);
+
+				processData(message, "data/subDistrict.chi", keyMap, 20);
+
+				processData(message, "data/building.chi", keyMap, 15);
+
+				processData(message, "data/estate.chi", keyMap, 10);
+
+				processData(message, "data/street.chi", keyMap, 10);
+
+				processData(message, "data/village.chi", keyMap, 10);
+
+
+				final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+				logger.info("keyMap {} ", sortedMap);
 				// get geo location
-				HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", keyMap.keySet())).asJson();
+				HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
+						.queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
 
 				JSONObject body = response.getBody().getObject();
 
@@ -167,7 +137,12 @@ public class TelegramParserScheduler {
 
 						if (isPoliceMatcher.find()) {
 							if (isPoliceMatcher.groupCount() > 1) {
-								level = Integer.parseInt(isPoliceMatcher.group(1));
+								try {
+									level = Integer.parseInt(isPoliceMatcher.group(1));
+									logger.info("message level : {} ", level);
+								} catch (NumberFormatException nfe) {
+									logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+								}
 							}
 							marker = PoliceMarker.class.newInstance();
 							marker.setLevel(level);
@@ -184,12 +159,9 @@ public class TelegramParserScheduler {
 						e.printStackTrace();
 						notOkIdList.add(telegramMessage.getTelegramMessageId());
 					}
-
 				} else {
 					notOkIdList.add(telegramMessage.getTelegramMessageId());
-
 				}
-				*/
 			}
 		}
 
@@ -213,18 +185,41 @@ public class TelegramParserScheduler {
 		return ruleMap;
 	}
 
-	private void processData(IndexWriter w, String filePath, int i) throws IOException {
+	private void processData(String message, String filePath, HashMap<String, Integer> keyMap, int i) throws IOException {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream(filePath);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
 		String line = reader.readLine();
 		while (line != null) {
-			line = reader.readLine();
-			if (line != null) {
-				Document doc = new Document();
-				doc.add(new TextField("name", line, Field.Store.YES));
-				w.addDocument(doc);
+			i = 0;
+			// matcherLine =
+			// line.replaceAll("(.{2,})(?:新邨|邨|新城|城|花園|園|豪園|樓|閣|工業大廈|大樓|苑|大廈|工業中心|中心|官邸|閣|居|灣|臺|山莊|小築|台|別墅)$",
+			// "$1");
+			String matcherLine = line.replaceAll("(\\(|\\)|\\[|\\]|\\.)", "\\$1");
+
+			if (!message.matches(".*" + matcherLine + ".*")) {
+
+				for (String key : keyMap.keySet()) {
+					if (matcherLine.matches(".*" + key + ".*")) {
+						matcherLine = matcherLine.replaceAll(key, "");
+						i -= 20;
+					}
+				}
+
+				if (!message.matches(".*" + matcherLine + ".*")) {
+					matcherLine = matcherLine.replaceAll("(邨|新城|花園)", "");
+					i -= 10;
+				}
+
 			}
+
+			if (message.matches(".*" + matcherLine + ".*")) {
+				keyMap.put(line, i);
+			}
+
+			line = reader.readLine();
 		}
+
 		reader.close();
 	}
 

@@ -3,9 +3,6 @@ package org.tactical.minimap.repository.marker;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import org.tactical.minimap.util.ConstantsUtil;
-import org.tactical.minimap.web.DTO.MarkerDTO;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -17,19 +14,7 @@ public class FlagYellowMarker extends Marker {
 	public String getType() {
 		return "yellowflag";
 	}
-
-	@Override
-	public Marker fill(MarkerDTO markerDTO) {
-		FlagYellowMarker marker = new FlagYellowMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setUuid(markerDTO.getUuid());
-		return marker;
-	}
-
+	
 	@Override
 	public String getIcon() {
 		return "yellow.png";

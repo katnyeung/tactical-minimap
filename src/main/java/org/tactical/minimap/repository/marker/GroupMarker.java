@@ -3,9 +3,6 @@ package org.tactical.minimap.repository.marker;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import org.tactical.minimap.util.ConstantsUtil;
-import org.tactical.minimap.web.DTO.MarkerDTO;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -16,18 +13,6 @@ public class GroupMarker extends Marker {
 	@Override
 	public String getType() {
 		return "group";
-	}
-
-	@Override
-	public Marker fill(MarkerDTO markerDTO) {
-		GroupMarker marker = new GroupMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setUuid(markerDTO.getUuid());
-		return marker;
 	}
 
 	@Override
