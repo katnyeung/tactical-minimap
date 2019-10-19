@@ -220,6 +220,8 @@ public class TelegramParserScheduler {
 						notOkIdList.add(telegramMessage.getTelegramMessageId());
 					}
 				}
+			}else {
+				notOkIdList.add(telegramMessage.getTelegramMessageId());
 			}
 		}
 
