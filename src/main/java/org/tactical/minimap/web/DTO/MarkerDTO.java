@@ -21,6 +21,10 @@ public class MarkerDTO {
 
 	String color;
 
+	Integer hour;
+
+	Integer minute;
+
 	public Double getLat() {
 		return lat;
 	}
@@ -107,6 +111,22 @@ public class MarkerDTO {
 
 	public void setColor(String color) {
 		this.color = color;
+	}
+
+	public Integer getHour() {
+		return hour;
+	}
+
+	public void setHour(Integer hour) {
+		this.hour = hour;
+	}
+
+	public Integer getMinute() {
+		return minute;
+	}
+
+	public void setMinute(Integer minute) {
+		this.minute = minute;
 	}
 
 }

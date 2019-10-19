@@ -25,9 +25,14 @@ import org.springframework.stereotype.Service;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
+import org.tactical.minimap.repository.marker.FlagBlackMarker;
+import org.tactical.minimap.repository.marker.FlagBlueMarker;
+import org.tactical.minimap.repository.marker.FlagOrangeMarker;
 import org.tactical.minimap.repository.marker.InfoMarker;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.repository.marker.PoliceMarker;
+import org.tactical.minimap.repository.marker.RiotPoliceMarker;
+import org.tactical.minimap.repository.marker.TearGasMarker;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -111,8 +116,13 @@ public class TelegramParserScheduler {
 		// time pattern
 		Pattern timePattern = Pattern.compile("([0-9][0-9]\\:?[0-9][0-9])");
 		// marker pattern
-		Pattern policeMarkerPattern = Pattern.compile("([0-9])*?名*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?(EU|eu|衝|警車|警|籠|豬籠|防暴|軍裝)");
-
+		Pattern policeMarkerPattern = Pattern.compile("([0-9])*?名*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?(EU|eu|衝|警車|警|籠|豬籠|軍裝)");
+		Pattern blackFlagPattern = Pattern.compile("(黑旗)");
+		Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
+		Pattern blueFlagPattern = Pattern.compile("(藍旗)");
+		Pattern tearGasPattern = Pattern.compile("(催淚)");
+		Pattern riotPolicePattern = Pattern.compile("(防暴)");
+		
 		// get message
 		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
 		logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
@@ -122,111 +132,135 @@ public class TelegramParserScheduler {
 
 		for (TelegramMessage telegramMessage : telegramMessageList) {
 			String message = telegramMessage.getMessage();
-
-			Matcher matcher = timePattern.matcher(message);
-
-			if (matcher.find()) {
-				HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
-				// String time = matcher.group(1).replaceAll(":", "");
-
-				// convert message
-				message = message.replaceAll("\n", "");
-				
-				HashMap<String, String> messageRules = getRules();
-
-				for (String mrKey : messageRules.keySet()) {
-					message = message.replaceAll(mrKey, messageRules.get(mrKey));
-				}
-
-				logger.info("processing message {}", message);
-
-				processData(message, "subDistrict", keyMap, 20);
-
-				processData(message, "building", keyMap, 25);
-
-				processData(message, "estate", keyMap, 10);
-
-				processData(message, "street", keyMap, 10);
-
-				processData(message, "village", keyMap, 10);
-
-				processData(message, "region", keyMap, 10);
-
-				if (keyMap.keySet().size() == 0) {
-					logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
-					notOkIdList.add(telegramMessage.getTelegramMessageId());
-					
-				} else {
-
-					final Map<String, Integer> sortedMap = keyMap.entrySet().stream()
-							.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-							.limit(3)
-							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-					logger.info("keyMap {} ", sortedMap);
-					// get geo location
-					HttpResponse<JsonNode> response = Unirest
-							.get("https://maps.googleapis.com/maps/api/geocode/json")
-							.queryString("key", apiKey)
-							.queryString("address", String.join(" ", sortedMap.keySet())).asJson();
-
-					JSONObject body = response.getBody().getObject();
-
-					logger.info("google return {} ", response.getBody().toPrettyString());
-
-					if (body.get("status").equals("OK")) {
-						JSONObject latlng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
-
-						// add marker
-						Layer layer = layerService.getLayerByKey("scout");
-
-						MarkerDTO markerDTO = new MarkerDTO();
-						markerDTO.setLat(latlng.getDouble("lat"));
-						markerDTO.setLng(latlng.getDouble("lng"));
-						markerDTO.setLayer("scout");
-						markerDTO.setMessage(telegramMessage.getMessage());
-						markerDTO.setUuid("TELEGRAM_BOT");
-
-						try {
-							// analyst target icon
-							int level = 1;
-							Marker marker = null;
-
-							Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
-
-							if (isPoliceMatcher.find()) {
-								if (isPoliceMatcher.groupCount() > 1) {
-									try {
-										level = Integer.parseInt(isPoliceMatcher.group(1));
-										logger.info("message level : {} ", level);
-									} catch (NumberFormatException nfe) {
-										logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
-									}
-								}
-								marker = PoliceMarker.class.newInstance();
-								marker.setLevel(level);
-							} else {
-								marker = InfoMarker.class.newInstance();
-							}
-
-							logger.info("adding marker " + marker.getType());
-
-							markerService.addMarker(layer, markerDTO, marker);
-
-							okIdList.add(telegramMessage.getTelegramMessageId());
-						} catch (InstantiationException | IllegalAccessException e) {
-							e.printStackTrace();
-							notOkIdList.add(telegramMessage.getTelegramMessageId());
-							logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
-						}
-					} else {
-						logger.info("google not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
-						notOkIdList.add(telegramMessage.getTelegramMessageId());
-					}
-				}
-			} else {
-				logger.info("time pattern not found. mark to fail " + telegramMessage.getTelegramMessageId());
+			if (message.length() > 150) {
+				logger.info("message characters length > 150. mark to fail " + telegramMessage.getTelegramMessageId());
 				notOkIdList.add(telegramMessage.getTelegramMessageId());
+			} else {
+				Matcher matcher = timePattern.matcher(message);
+
+				if (matcher.find()) {
+					HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
+					// String time = matcher.group(1).replaceAll(":", "");
+
+					// convert message
+					message = message.replaceAll("\n", "");
+
+					HashMap<String, String> messageRules = getRules();
+
+					for (String mrKey : messageRules.keySet()) {
+						message = message.replaceAll(mrKey, messageRules.get(mrKey));
+					}
+
+					logger.info("processing message {}", message);
+
+					processData(message, "subDistrict", keyMap, 20);
+
+					processData(message, "building", keyMap, 25);
+
+					processData(message, "estate", keyMap, 10);
+
+					processData(message, "street", keyMap, 10);
+
+					processData(message, "village", keyMap, 10);
+
+					processData(message, "region", keyMap, 10);
+
+					if (keyMap.keySet().size() == 0) {
+						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
+						notOkIdList.add(telegramMessage.getTelegramMessageId());
+
+					} else {
+
+						final Map<String, Integer> sortedMap = keyMap
+								.entrySet()
+								.stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+								.limit(3)
+								.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+						logger.info("keyMap {} ", sortedMap);
+						// get geo location
+						HttpResponse<JsonNode> response = Unirest
+								.get("https://maps.googleapis.com/maps/api/geocode/json")
+								.queryString("key", apiKey)
+								.queryString("address", String.join(" ", sortedMap.keySet()))
+								.asJson();
+
+						JSONObject body = response.getBody().getObject();
+
+						logger.info("google return {} ", response.getBody().toPrettyString());
+
+						if (body.get("status").equals("OK")) {
+							JSONObject latlng = body.getJSONArray("results")
+									.getJSONObject(0)
+									.getJSONObject("geometry")
+									.getJSONObject("location");
+
+							// add marker
+							Layer layer = layerService.getLayerByKey("scout");
+
+							MarkerDTO markerDTO = new MarkerDTO();
+							markerDTO.setLat(latlng.getDouble("lat"));
+							markerDTO.setLng(latlng.getDouble("lng"));
+							markerDTO.setLayer("scout");
+							markerDTO.setMessage(telegramMessage.getMessage());
+							markerDTO.setUuid("TELEGRAM_BOT");
+
+							try {
+								// analyst target icon
+								int level = 1;
+								Marker marker = null;
+
+								Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
+								Matcher blackFlagMatcher = blackFlagPattern.matcher(message);
+								Matcher blueFlagMatcher = blueFlagPattern.matcher(message);
+								Matcher orangeFlagMatcher = orangeFlagPattern.matcher(message);
+								Matcher tearGasMatcher = tearGasPattern.matcher(message);
+								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
+								
+								if (tearGasMatcher.find()) {
+									marker = TearGasMarker.class.newInstance();
+								} else if (riotPoliceMatcher.find()) {
+									marker = RiotPoliceMarker.class.newInstance();
+								} else if (isPoliceMatcher.find()) {
+									if (isPoliceMatcher.groupCount() > 1) {
+										try {
+											level = Integer.parseInt(isPoliceMatcher.group(1));
+											logger.info("message level : {} ", level);
+										} catch (NumberFormatException nfe) {
+											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+										}
+									}
+									marker = PoliceMarker.class.newInstance();
+									marker.setLevel(level);
+								} else if (blackFlagMatcher.find()) {
+									marker = FlagBlackMarker.class.newInstance();
+								} else if (blueFlagMatcher.find()) {
+									marker = FlagBlueMarker.class.newInstance();
+								} else if (orangeFlagMatcher.find()) {
+									marker = FlagOrangeMarker.class.newInstance();
+								} else  {
+									marker = InfoMarker.class.newInstance();
+								}
+
+								logger.info("adding marker " + marker.getType());
+
+								markerService.addMarker(layer, markerDTO, marker);
+
+								okIdList.add(telegramMessage.getTelegramMessageId());
+							} catch (InstantiationException | IllegalAccessException e) {
+								e.printStackTrace();
+								notOkIdList.add(telegramMessage.getTelegramMessageId());
+								logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
+							}
+						} else {
+							logger.info("google not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
+							notOkIdList.add(telegramMessage.getTelegramMessageId());
+						}
+					}
+				} else {
+					logger.info("time pattern not found. mark to fail " + telegramMessage.getTelegramMessageId());
+					notOkIdList.add(telegramMessage.getTelegramMessageId());
+				}
 			}
 		}
 

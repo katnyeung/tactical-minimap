@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -36,6 +38,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MarkerService {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	public static final Pattern timePattern = Pattern.compile("([0-9][0-9])\\:?([0-9][0-9])");
+
 	@Autowired
 	MarkerDAO<Marker> markerDAO;
 
@@ -51,14 +55,14 @@ public class MarkerService {
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		Optional<Marker> lastMarker = markerList.parallelStream().min(Comparator.comparing(Marker::getLastupdatedate));
-		
+
 		Date lastMarkerDate = null;
-		if(lastMarker.isPresent()) {
+		if (lastMarker.isPresent()) {
 			lastMarkerDate = lastMarker.get().getLastupdatedate();
-		}else {
+		} else {
 			lastMarkerDate = Calendar.getInstance().getTime();
 		}
-		
+
 		if (markerList.size() < ConstantsUtil.MARKER_LIST_SIZE) {
 			int remainRecord = ConstantsUtil.MARKER_LIST_SIZE - markerList.size();
 			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkerByLatLng(PageRequest.of(0, remainRecord), lastMarkerDate, layerKeys, lat - range, lng - range, lat + range, lng + range);
@@ -79,6 +83,22 @@ public class MarkerService {
 
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
+
+		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+		int minute = Calendar.getInstance().get(Calendar.MINUTE);
+
+		Matcher timeMatcher = timePattern.matcher(markerDTO.getMessage());
+		if (timeMatcher.find() && timeMatcher.groupCount() > 1) {
+			try {
+				hour = Integer.parseInt(timeMatcher.group(1));
+				minute = Integer.parseInt(timeMatcher.group(2));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+
+		markerDTO.setHour(hour);
+		markerDTO.setMinute(minute);
 
 		marker = marker.fill(markerDTO);
 
@@ -184,7 +204,7 @@ public class MarkerService {
 			Long markerLastUpdateTimeInMillis = marker.getLastupdatedate().getTime();
 
 			if (markerLastUpdateTimeInMillis > dateBackTimeInMillis) {
-				double percentage = (markerLastUpdateTimeInMillis - dateBackTimeInMillis) / (currentTimeInMillis - dateBackTimeInMillis  * 1.0);
+				double percentage = (markerLastUpdateTimeInMillis - dateBackTimeInMillis) / (currentTimeInMillis - dateBackTimeInMillis * 1.0);
 
 				markerOpacity = percentage * 1;
 			}
@@ -244,6 +264,8 @@ public class MarkerService {
 		markerDTO.setLng(marker.getLng());
 		markerDTO.setMessage(marker.getMessage());
 		markerDTO.setType(marker.getType());
+		markerDTO.setHour(marker.getHour());
+		markerDTO.setMinute(marker.getMinute());
 		markerDTO.setUuid(uuid);
 
 		if (marker instanceof ShapeMarker) {

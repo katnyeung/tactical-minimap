@@ -26,8 +26,6 @@
 <script src="/js/leaflet.draw.polyline.js"></script>
 <script src="/js/leaflet.polylineDecorator.js"></script>
 <script src="/js/leaflet-heat.js"></script>
-<script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
-<script src="/js/twitch.tv.v1.js"></script>
 <script src="/js/paste.js"></script>
 <script src="/js/jquery.colorPicker.min.js"/></script>
 <script src="/js/toastr.min.js"/></script>
@@ -36,12 +34,6 @@
 .iconMarkup {
 	margin-left: -50px!improtant;
 	margin-top: -10px !important;
-}
-
-.livestream-icon {
-	width: 600px !important;
-	margin-left: -150px !important;
-	margin-top: -300px !important;
 }
 
 .btn-sm {
@@ -694,8 +686,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			clickRegister($("#btnDangerMarker"), 'danger');
 			clickRegister($("#btnTearGasMarker"), 'teargas');
 						
-			//clickRegister($("#btnFBLiveStreamMarker"), 'fb_livestream');
-			//clickRegister($("#btnTwitchLiveStreamMarker"), 'twitch_livestream');
 			
 			function clickRegister(button,type){
 				button.click(function(e) {
@@ -838,16 +828,27 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						}
 						
 						//border color
-						var iconBorderColor = '#FF00FF';
+						var iconBorderColor = '#FFFFFF';
 						
 						expirePercent = item.markerCache.expire / item.expire;
 						
 						if(item.markerCache.expire <= item.expire){
-							var colorValue = (Math.round((1 - (expirePercent)) * 255)).toString(16).toUpperCase();
-							if(colorValue.length <= 1){
-								colorValue = "0" + colorValue;
+							var itemDate = new Date(item.lastupdatedate);
+							itemDate.setHours(item.hour);
+							itemDate.setMinutes(item.minute);
+							
+							var diffMinute = Math.floor((new Date() - itemDate)/1000/60);
+							
+							if(diffMinute < 30){
+								iconBorderColor = '#ff0000';
+							}else if(diffMinute < 60){
+								iconBorderColor = '#ff9500';
+							}else if(diffMinute < 90){
+								iconBorderColor = '#fffe99';
+							}else if(diffMinute < 120){
+								iconBorderColor = '#ffffb4';
 							}
-							iconBorderColor = '#FF' + colorValue + colorValue;
+							
 						}
 						
 					}
@@ -855,29 +856,24 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					content = message;
 					
 					var htmlContent;
-
-					if(item.type == 'livestream'){
-						htmlContent = '<div><img src="/icon/'+item.icon+'" class="m-n4" style="width:' + item.iconSize + 'px; height:' + item.iconSize + 'px"/><div>' + counter + upDownButton + '</div></div>'
+					var icon;
+					
+					if(item.type == 'image'){
+						icon = '<div><img src="/images/i/'+item.imagePath+'" class="img-border m-n4 rounded '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
 					}else{
-						var icon;
-						if(item.type == 'image'){
-							icon = '<div><img src="/images/i/'+item.imagePath+'" class="img-border m-n4 rounded '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
-						}else{
-							icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; height:' + item.iconSize + 'px; '+ pulseStyle +'" /><div>' ;
-						}
-						
-						if(map.getZoom() >= 19){
-							htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
-						}else{
-							if(markerIndex < 3){
-								htmlContent = icon + textMessage + '</div></div>';
-							}else{
-								htmlContent = icon + '</div></div>';
-							}
-						}
-						
+						icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; '+ pulseStyle +'" /><div>' ;
 					}
-
+					
+					if(map.getZoom() >= 19){
+						htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
+					}else{
+						if(markerIndex < 3){
+							htmlContent = icon + textMessage + '</div></div>';
+						}else{
+							htmlContent = icon + '</div></div>';
+						}
+					}
+					
 					var popup = L.popup().setContent(content);
 					
 					divIcon = L.divIcon({
@@ -979,157 +975,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 						}
 						
-						if(item.type == 'twitch_livestream'){
-							
-							var twitchStream = '<div class="row" id="twitch_live_frame_'+item.markerId+'"><div id="twitch_live_' + item.markerId + '" class="col-12"></div>'+
-							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="twitch_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="twitch_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="twitch_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="twitch_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
-							
-							var twitchStreamIcon = L.divIcon({
-							    className:'livestream-icon',
-							    html: twitchStream
-							});
-							
-							var twitchMarker = L.marker([ item.lat, item.lng ], {
-								icon : twitchStreamIcon,
-								autoPan: false,
-							}).addTo(map);
-							
-							marker.relatedMarker = twitchMarker;
-							
-							new Twitch.Embed('twitch_live_' + item.markerId + '', {
-								width:'100%',
-								height:'100%',
-								layout:'video',
-								channel: item.message
-							});
-							
-							$('#twitch_live_button_' + item.markerId).click(function(){
-								$('#twitch_live_' + item.markerId).hide();
-								$('#twitch_live_button_' + item.markerId).hide();
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
-							});
-							
-							$('#twitch_live_button_small_' + item.markerId).click(function(){
-								$('#twitch_live_' + item.markerId).show();
-								$('#twitch_live_frame_' + item.markerId).width(300);
-								$('#twitch_live_frame_' + item.markerId).height(70);
-								
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '125px' });
-								$('#twitch_live_button_' + item.markerId).show();
-							});
-							
-							$('#twitch_live_button_big_' + item.markerId).click(function(){
-								$('#twitch_live_' + item.markerId).show();
-								$('#twitch_live_frame_' + item.markerId).width(400);
-								$('#twitch_live_frame_' + item.markerId).height(300);
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '65px' });
-								$('#twitch_live_button_' + item.markerId).show();
-							});							
-							
-							$('#twitch_live_button_biggest_' + item.markerId).click(function(){
-								$('#twitch_live_' + item.markerId).show();
-								$('#twitch_live_frame_' + item.markerId).width(600);
-								$('#twitch_live_frame_' + item.markerId).height(450);
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '-10px' });
-								$('#twitch_live_button_' + item.markerId).show();
-							});
-							
-							$('#twitch_live_' + item.markerId).hide();
-							$('#twitch_live_button_' + item.markerId).hide();
-							$('#twitch_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
-							$('#twitch_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
-							
-						}
-
-						if(item.type == 'fb_livestream'){
-							  
-							var fbStream = '<div class="row" id="fb_live_frame_' + item.markerId + '"><div id="fb_live_' + item.markerId + '" class="fb-video col-12" data-href="' + item.message + '" data-width="500"  data-show-text="false"><div class="fb-xfbml-parse-ignore"><blockquote cite="' + item.message + '"></blockquote></div></div>' + 
-							'<div class="col-12" style="width:200px"><button class="btn btn-light btn-sm" id="fb_live_button_' + item.markerId + '">Hide</button><button class="btn btn-light btn-sm" id="fb_live_button_small_' + item.markerId + '">Small</button><button class="btn btn-primary btn-sm" id="fb_live_button_big_' + item.markerId + '">Large</button><button class="btn btn-primary btn-sm" id="fb_live_button_biggest_' + item.markerId + '">Biggest</button></div></div>';
-							
-							var fbStreamIcon = L.divIcon({
-							    className:'livestream-icon',
-							    html: fbStream
-							});
-							
-							var fbMarker = L.marker([ item.lat, item.lng ], {
-								icon : fbStreamIcon,
-								autoPan: false,
-							}).addTo(map);
-							
-							marker.relatedMarker = fbMarker;
-
-							FB.XFBML.parse(null);
-							
-							$('#fb_live_button_' + item.markerId).click(function(){
-								$('#fb_live_' + item.markerId).hide();
-								$('#fb_live_button_' + item.markerId).hide();
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
-							});
-							
-							$('#fb_live_button_small_' + item.markerId).click(function(){
-								$('#fb_live_' + item.markerId).show();
-								$('#fb_live_frame_' + item.markerId).width(200);
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '155px' });
-								$('#fb_live_button_' + item.markerId).show();
-							});
-							
-							$('#fb_live_button_big_' + item.markerId).click(function(){
-								$('#fb_live_' + item.markerId).show();
-								$('#fb_live_frame_' + item.markerId).width(400);
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '75px' });
-								$('#fb_live_button_' + item.markerId).show();
-							});							
-							
-							$('#fb_live_button_biggest_' + item.markerId).click(function(){
-								$('#fb_live_' + item.markerId).show();
-								$('#fb_live_frame_' + item.markerId).width(600);
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '0' });
-								$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '0px' });
-								$('#fb_live_button_' + item.markerId).show();
-							});
-							
-							$('#fb_live_' + item.markerId).hide();
-							$('#fb_live_button_' + item.markerId).hide();
-							$('#fb_live_frame_' + item.markerId).css({ 'margin-left': '25px' });
-							$('#fb_live_frame_' + item.markerId).css({ 'margin-top': '280px' });
-						}
-						
-						marker.on('click', function(e){
-							marker.setZIndexOffset(maxZIndex++);		
-						});
-						
-					    marker.on('dragstart', function(e) {
-					    	  pause = true;
-					    });
-					    
-						marker.on('dragend', function(e) {
-							$.ajax({
-								type : "POST",
-								url : '/marker/move',
-								data : {
-									'lat' : e.target.getLatLng().lat,
-									'lng' : e.target.getLatLng().lng,
-									'markerId' : item.markerId
-								},
-								success : function(data) {
-									pause = false;
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
-								}
-							});
-							
-							if(marker.relatedMarker){
-								marker.relatedMarker.setLatLng(e.target.getLatLng());
-							}
-							
-						})
-												
 						marker.on('dblclick', function(event){
 							if(item.controllable){
 								$.ajax({
@@ -1653,17 +1498,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<img src="/icon/teargas.png" style="width: 32px; height: 32px" />
 			<div>催淚</div>
 		</button>
-<!-- 
-		<button id="btnFBLiveStreamMarker" class="btn btn-secondary mt-1">
-			<img src="/icon/live.png" style="width: 32px; height: 32px" />
-			<div>FB</div>
-		</button>
-		
-		<button id="btnTwitchLiveStreamMarker" class="btn btn-secondary mt-1">
-			<img src="/icon/live.png" style="width: 32px; height: 32px" />
-			<div>Twitch</div>
-		</button>
- -->	
+
 		<button id="btnImageMarker" class="btn btn-secondary mt-1">
 			<img src="/icon/image.png" style="width: 32px; height: 32px" />
 			<div>Image</div>

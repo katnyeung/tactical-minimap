@@ -36,6 +36,8 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
 @Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer_Id, lat,lng,status") })
@@ -116,6 +118,8 @@ public abstract class Marker extends Auditable<String> {
 		this.setExpire(getMarkerExpire());
 		this.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 		this.setUuid(markerDTO.getUuid());
+		this.setHour(markerDTO.getHour());
+		this.setMinute(markerDTO.getMinute());
 		return this;
 	}
 
@@ -151,6 +155,14 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@NotNull
 	private String uuid;
+	
+	@JsonInclude(Include.NON_NULL)
+	@Column(nullable = true)
+	Integer hour;
+	
+	@JsonInclude(Include.NON_NULL)
+	@Column(nullable = true)
+	Integer minute;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "layer_id", referencedColumnName = "layerId")
@@ -300,6 +312,22 @@ public abstract class Marker extends Auditable<String> {
 
 	public String getLogMessage() {
 		return this.getDescription() + ":" + this.getMessage();
+	}
+
+	public Integer getHour() {
+		return hour;
+	}
+
+	public void setHour(Integer hour) {
+		this.hour = hour;
+	}
+
+	public Integer getMinute() {
+		return minute;
+	}
+
+	public void setMinute(Integer minute) {
+		this.minute = minute;
 	}
 
 }
