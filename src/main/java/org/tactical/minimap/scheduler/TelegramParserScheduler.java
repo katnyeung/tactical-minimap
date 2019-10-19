@@ -150,65 +150,75 @@ public class TelegramParserScheduler {
 
 				processData(message, "region", keyMap, 10);
 
-				final Map<String, Integer> sortedMap = keyMap.entrySet().stream()
-						.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-						.limit(3)
-						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+				if (keyMap.keySet().size() == 0) {
+					
+					notOkIdList.add(telegramMessage.getTelegramMessageId());
+					
+				} else {
 
-				logger.info("keyMap {} ", sortedMap);
-				// get geo location
-				HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
+					final Map<String, Integer> sortedMap = keyMap.entrySet().stream()
+							.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+							.limit(3)
+							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-				JSONObject body = response.getBody().getObject();
+					logger.info("keyMap {} ", sortedMap);
+					// get geo location
+					HttpResponse<JsonNode> response = Unirest
+							.get("https://maps.googleapis.com/maps/api/geocode/json")
+							.queryString("key", apiKey)
+							.queryString("address", String.join(" ", sortedMap.keySet())).asJson();
 
-				logger.info("google return {} ", response.getBody().toPrettyString());
+					JSONObject body = response.getBody().getObject();
 
-				if (body.get("status").equals("OK")) {
-					JSONObject latlng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
+					logger.info("google return {} ", response.getBody().toPrettyString());
 
-					// add marker
-					Layer layer = layerService.getLayerByKey("scout");
+					if (body.get("status").equals("OK")) {
+						JSONObject latlng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
 
-					MarkerDTO markerDTO = new MarkerDTO();
-					markerDTO.setLat(latlng.getDouble("lat"));
-					markerDTO.setLng(latlng.getDouble("lng"));
-					markerDTO.setLayer("scout");
-					markerDTO.setMessage(message);
-					markerDTO.setUuid("TELEGRAM_BOT");
+						// add marker
+						Layer layer = layerService.getLayerByKey("scout");
 
-					try {
-						// analyst target icon
-						int level = 1;
-						Marker marker = null;
+						MarkerDTO markerDTO = new MarkerDTO();
+						markerDTO.setLat(latlng.getDouble("lat"));
+						markerDTO.setLng(latlng.getDouble("lng"));
+						markerDTO.setLayer("scout");
+						markerDTO.setMessage(message);
+						markerDTO.setUuid("TELEGRAM_BOT");
 
-						Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
+						try {
+							// analyst target icon
+							int level = 1;
+							Marker marker = null;
 
-						if (isPoliceMatcher.find()) {
-							if (isPoliceMatcher.groupCount() > 1) {
-								try {
-									level = Integer.parseInt(isPoliceMatcher.group(1));
-									logger.info("message level : {} ", level);
-								} catch (NumberFormatException nfe) {
-									logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+							Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
+
+							if (isPoliceMatcher.find()) {
+								if (isPoliceMatcher.groupCount() > 1) {
+									try {
+										level = Integer.parseInt(isPoliceMatcher.group(1));
+										logger.info("message level : {} ", level);
+									} catch (NumberFormatException nfe) {
+										logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+									}
 								}
+								marker = PoliceMarker.class.newInstance();
+								marker.setLevel(level);
+							} else {
+								marker = InfoMarker.class.newInstance();
 							}
-							marker = PoliceMarker.class.newInstance();
-							marker.setLevel(level);
-						} else {
-							marker = InfoMarker.class.newInstance();
+
+							logger.info("adding marker " + marker.getType());
+
+							markerService.addMarker(layer, markerDTO, marker);
+
+							okIdList.add(telegramMessage.getTelegramMessageId());
+						} catch (InstantiationException | IllegalAccessException e) {
+							e.printStackTrace();
+							notOkIdList.add(telegramMessage.getTelegramMessageId());
 						}
-
-						logger.info("adding marker " + marker.getType());
-
-						markerService.addMarker(layer, markerDTO, marker);
-
-						okIdList.add(telegramMessage.getTelegramMessageId());
-					} catch (InstantiationException | IllegalAccessException e) {
-						e.printStackTrace();
+					} else {
 						notOkIdList.add(telegramMessage.getTelegramMessageId());
 					}
-				} else {
-					notOkIdList.add(telegramMessage.getTelegramMessageId());
 				}
 			}
 		}
