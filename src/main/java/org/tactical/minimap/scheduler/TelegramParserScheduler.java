@@ -130,6 +130,8 @@ public class TelegramParserScheduler {
 				// String time = matcher.group(1).replaceAll(":", "");
 
 				// convert message
+				message = message.replaceAll("\n", "");
+				
 				HashMap<String, String> messageRules = getRules();
 
 				for (String mrKey : messageRules.keySet()) {
@@ -140,7 +142,7 @@ public class TelegramParserScheduler {
 
 				processData(message, "subDistrict", keyMap, 20);
 
-				processData(message, "building", keyMap, 15);
+				processData(message, "building", keyMap, 25);
 
 				processData(message, "estate", keyMap, 10);
 
@@ -151,7 +153,7 @@ public class TelegramParserScheduler {
 				processData(message, "region", keyMap, 10);
 
 				if (keyMap.keySet().size() == 0) {
-					
+					logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
 					notOkIdList.add(telegramMessage.getTelegramMessageId());
 					
 				} else {
@@ -182,7 +184,7 @@ public class TelegramParserScheduler {
 						markerDTO.setLat(latlng.getDouble("lat"));
 						markerDTO.setLng(latlng.getDouble("lng"));
 						markerDTO.setLayer("scout");
-						markerDTO.setMessage(message);
+						markerDTO.setMessage(telegramMessage.getMessage());
 						markerDTO.setUuid("TELEGRAM_BOT");
 
 						try {
@@ -215,12 +217,15 @@ public class TelegramParserScheduler {
 						} catch (InstantiationException | IllegalAccessException e) {
 							e.printStackTrace();
 							notOkIdList.add(telegramMessage.getTelegramMessageId());
+							logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
 						}
 					} else {
+						logger.info("google not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
 						notOkIdList.add(telegramMessage.getTelegramMessageId());
 					}
 				}
-			}else {
+			} else {
+				logger.info("time pattern not found. mark to fail " + telegramMessage.getTelegramMessageId());
 				notOkIdList.add(telegramMessage.getTelegramMessageId());
 			}
 		}
@@ -260,7 +265,7 @@ public class TelegramParserScheduler {
 					}
 				}
 				if (!message.matches(".*" + processingPattern + ".*")) {
-					processingPattern = processingPattern.replaceAll("(邨|新城|花園)", "");
+					processingPattern = processingPattern.replaceAll("(邨)", "");
 					weight -= 10;
 				}
 			}
