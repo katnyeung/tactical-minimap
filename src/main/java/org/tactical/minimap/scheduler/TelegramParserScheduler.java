@@ -1,18 +1,19 @@
 package org.tactical.minimap.scheduler;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,54 @@ public class TelegramParserScheduler {
 	@Value("${API_KEY}")
 	String apiKey;
 
+	@Value("${PATTERN_FOLDER}")
+	String patternFolder;
+
+	@Value("${MAP_FOLDER}")
+	String mapFolder;
+
+	static Map<String, List<String>> patternMap;
+
+	@PostConstruct
+	public void initialConfig() {
+		try {
+			patternMap = new HashMap<String, List<String>>();
+
+			prepareData("region", mapFolder + patternFolder + "/region.chi");
+
+			prepareData("subDistrict", mapFolder + patternFolder + "/subDistrict.chi");
+
+			prepareData("building", mapFolder + patternFolder + "/building.chi");
+
+			prepareData("estate", mapFolder + patternFolder + "/estate.chi");
+
+			prepareData("street", mapFolder + patternFolder + "/street.chi");
+
+			prepareData("village", mapFolder + patternFolder + "/village.chi");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void prepareData(String category, String filePath) throws IOException {
+		List<String> patternList = new ArrayList<String>();
+
+		File file = new File(filePath);
+		Scanner sc = new Scanner(file);
+
+		while (sc.hasNextLine()) {
+			patternList.add(sc.nextLine());
+		}
+
+		sc.close();
+
+		patternMap.put(category, patternList);
+	}
+
 	@Async
-	@Scheduled(fixedRate = 3000)
+	@Scheduled(fixedRate = 10000)
 	public void doParse() throws IOException, ParseException {
 
 		// time pattern
@@ -91,25 +138,26 @@ public class TelegramParserScheduler {
 
 				logger.info("processing message {}", message);
 
-				processData(message, "data/region.chi", keyMap, 30);
+				processData(message, "subDistrict", keyMap, 20);
 
-				processData(message, "data/subDistrict.chi", keyMap, 20);
+				processData(message, "building", keyMap, 15);
 
-				processData(message, "data/building.chi", keyMap, 15);
+				processData(message, "estate", keyMap, 10);
 
-				processData(message, "data/estate.chi", keyMap, 10);
+				processData(message, "street", keyMap, 10);
 
-				processData(message, "data/street.chi", keyMap, 10);
+				processData(message, "village", keyMap, 10);
 
-				processData(message, "data/village.chi", keyMap, 10);
+				processData(message, "region", keyMap, 10);
 
-
-				final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+				final Map<String, Integer> sortedMap = keyMap.entrySet().stream()
+						.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+						.limit(3)
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 				logger.info("keyMap {} ", sortedMap);
 				// get geo location
-				HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
-						.queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
+				HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
 
 				JSONObject body = response.getBody().getObject();
 
@@ -185,42 +233,32 @@ public class TelegramParserScheduler {
 		return ruleMap;
 	}
 
-	private void processData(String message, String filePath, HashMap<String, Integer> keyMap, int i) throws IOException {
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream(filePath);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+	private void processData(String message, String category, HashMap<String, Integer> keyMap, final int categoryWeight) throws IOException {
+		List<String> patternList = patternMap.get(category);
+		for (String pattern : patternList) {
+			int weight = categoryWeight;
 
-		String line = reader.readLine();
-		while (line != null) {
-			i = 0;
-			// matcherLine =
-			// line.replaceAll("(.{2,})(?:新邨|邨|新城|城|花園|園|豪園|樓|閣|工業大廈|大樓|苑|大廈|工業中心|中心|官邸|閣|居|灣|臺|山莊|小築|台|別墅)$",
-			// "$1");
-			String matcherLine = line.replaceAll("(\\(|\\)|\\[|\\]|\\.)", "\\$1");
+			String processingPattern = pattern.replaceAll("(\\(|\\)|\\[|\\]|\\.)", "\\$1");
 
-			if (!message.matches(".*" + matcherLine + ".*")) {
-
+			if (!message.matches(".*" + processingPattern + ".*")) {
 				for (String key : keyMap.keySet()) {
-					if (matcherLine.matches(".*" + key + ".*")) {
-						matcherLine = matcherLine.replaceAll(key, "");
-						i -= 20;
+					if (processingPattern.matches(".*" + key + ".*")) {
+						processingPattern = processingPattern.replaceAll(key, "");
+						weight -= 20;
 					}
 				}
-
-				if (!message.matches(".*" + matcherLine + ".*")) {
-					matcherLine = matcherLine.replaceAll("(邨|新城|花園)", "");
-					i -= 10;
+				if (!message.matches(".*" + processingPattern + ".*")) {
+					processingPattern = processingPattern.replaceAll("(邨|新城|花園)", "");
+					weight -= 10;
 				}
-
 			}
 
-			if (message.matches(".*" + matcherLine + ".*")) {
-				keyMap.put(line, i);
+			if (message.matches(".*" + processingPattern + ".*")) {
+				keyMap.put(pattern, weight);
 			}
 
-			line = reader.readLine();
 		}
 
-		reader.close();
 	}
 
 	public static int BoyerMooreHorspoolSimpleSearch(char[] pattern, char[] text) {
