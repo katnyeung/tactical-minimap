@@ -127,7 +127,7 @@ public class TelegramParserScheduler {
 		Pattern tearGasPattern = Pattern.compile("(催淚)");
 		Pattern riotPolicePattern = Pattern.compile("(防暴)");
 		Pattern waterCarPattern = Pattern.compile("(水炮)");
-		Pattern blockPattern = Pattern.compile("(關閉|落閘|全封)");
+		Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
 
 		// get message
 		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
@@ -167,9 +167,9 @@ public class TelegramParserScheduler {
 
 					processData(message, "street", keyMap, 10);
 
-					processData(message, "village", keyMap, 10);
-
 					processData(message, "region", keyMap, 10);
+					
+					processData(message, "village", keyMap, 10);
 
 					if (keyMap.keySet().size() == 0) {
 						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());

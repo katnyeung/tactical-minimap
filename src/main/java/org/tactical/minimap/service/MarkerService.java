@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -54,6 +55,9 @@ public class MarkerService {
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		markerList = markerList.stream().limit(50).collect(Collectors.toList());
+		
+		//for deactive marker
 		Optional<Marker> lastMarker = markerList.parallelStream().min(Comparator.comparing(Marker::getLastupdatedate));
 
 		Date lastMarkerDate = null;
