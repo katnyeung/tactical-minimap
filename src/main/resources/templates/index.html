@@ -790,7 +790,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var expirePercent = 0;
 					
 					if(item.message){
-						textMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>';
+						textMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(30) +  '</mark><br/>';
 					}
 
 					if (item.controllable){						
@@ -872,7 +872,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
 					}else{
 						if(markerIndex < 10){
-							htmlContent = icon + textMessage.substr(30) + '</div></div>';
+							htmlContent = icon + textMessage + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
 						}
