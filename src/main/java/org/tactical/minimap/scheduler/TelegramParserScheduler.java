@@ -228,12 +228,12 @@ public class TelegramParserScheduler {
 								} else if (tearGasMatcher.find()) {
 									marker = TearGasMarker.class.newInstance();
 								} else if (riotPoliceMatcher.find()) {
-									if (isPoliceMatcher.groupCount() > 1) {
+									if (riotPoliceMatcher.groupCount() > 1) {
 										try {
-											level = Integer.parseInt(isPoliceMatcher.group(1));
+											level = Integer.parseInt(riotPoliceMatcher.group(1));
 											logger.info("message level : {} ", level);
 										} catch (NumberFormatException nfe) {
-											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+											logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
 										}
 									}
 									marker = RiotPoliceMarker.class.newInstance();
