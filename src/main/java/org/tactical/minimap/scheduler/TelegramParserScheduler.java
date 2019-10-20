@@ -227,9 +227,17 @@ public class TelegramParserScheduler {
 								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
 								Matcher waterCarMatcher = waterCarPattern.matcher(message);
 								Matcher blockMatcher = blockPattern.matcher(message);
-								
+
 								if (waterCarMatcher.find()) {
 									marker = WaterTruckMarker.class.newInstance();
+								} else if (blackFlagMatcher.find()) {
+									marker = FlagBlackMarker.class.newInstance();
+								} else if (blueFlagMatcher.find()) {
+									marker = FlagBlueMarker.class.newInstance();
+								} else if (orangeFlagMatcher.find()) {
+									marker = FlagOrangeMarker.class.newInstance();
+								} else if (blockMatcher.find()) {
+									marker = BlockadeMarker.class.newInstance();
 								} else if (tearGasMatcher.find()) {
 									marker = TearGasMarker.class.newInstance();
 								} else if (riotPoliceMatcher.find()) {
@@ -245,15 +253,7 @@ public class TelegramParserScheduler {
 									}
 									marker = PoliceMarker.class.newInstance();
 									marker.setLevel(level);
-								} else if (blackFlagMatcher.find()) {
-									marker = FlagBlackMarker.class.newInstance();
-								} else if (blueFlagMatcher.find()) {
-									marker = FlagBlueMarker.class.newInstance();
-								} else if (orangeFlagMatcher.find()) {
-									marker = FlagOrangeMarker.class.newInstance();
-								} else if (blockMatcher.find()) {
-									marker = BlockadeMarker.class.newInstance();
-								} else  {
+								} else {
 									marker = InfoMarker.class.newInstance();
 								}
 
