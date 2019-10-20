@@ -107,6 +107,8 @@ public class TelegramParserScheduler {
 
 		sc.close();
 
+		patternList.sort((s1, s2) -> s2.length() - s1.length());
+				
 		patternMap.put(category, patternList);
 	}
 
