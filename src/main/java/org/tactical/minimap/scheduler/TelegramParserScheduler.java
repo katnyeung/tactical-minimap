@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,7 +123,9 @@ public class TelegramParserScheduler {
 		Pattern blueFlagPattern = Pattern.compile("(藍旗)");
 		Pattern tearGasPattern = Pattern.compile("(催淚)");
 		Pattern riotPolicePattern = Pattern.compile("(防暴)");
-		
+		Pattern waterCarPattern = Pattern.compile("(水炮)");
+		Pattern blockPattern = Pattern.compile("(關閉|落閘|全封)");
+
 		// get message
 		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
 		logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
@@ -244,8 +247,12 @@ public class TelegramParserScheduler {
 
 								logger.info("adding marker " + marker.getType());
 
-								markerService.addMarker(layer, markerDTO, marker);
-
+								Marker processedMarker = markerService.addMarker(layer, markerDTO, marker);
+								
+								if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
+									redisService.addMarkerMessage(layer.getLayerKey(), processedMarker.getMarkerId(), marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
+								}
+								
 								okIdList.add(telegramMessage.getTelegramMessageId());
 							} catch (InstantiationException | IllegalAccessException e) {
 								e.printStackTrace();
