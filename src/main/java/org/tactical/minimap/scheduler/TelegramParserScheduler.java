@@ -157,15 +157,15 @@ public class TelegramParserScheduler {
 
 					logger.info("processing message {}", message);
 
-					processData(message, "subDistrict", keyMap, 20);
-
-					processData(message, "building", keyMap, 25);
-
-					processData(message, "estate", keyMap, 10);
+					processData(message, "region", keyMap, 10);
 
 					processData(message, "street", keyMap, 10);
 
-					processData(message, "region", keyMap, 10);
+					processData(message, "building", keyMap, 25);
+
+					processData(message, "subDistrict", keyMap, 20);
+
+					processData(message, "estate", keyMap, 10);
 
 					processData(message, "village", keyMap, 10);
 
