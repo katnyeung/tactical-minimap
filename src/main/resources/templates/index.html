@@ -111,7 +111,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
     background-image: none !important;
     margin:0px;
     padding:10px;
-    font-size:20px;
+    font-size:18px;
 }
 
 </style>
@@ -840,9 +840,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 							var diffMinute = Math.floor((new Date() - itemDate)/1000/60);
 							
-							if(diffMinute < 10){
+							if(diffMinute < 5){
 								iconBorderColor = '#ff00cd';
-							} else if(diffMinute < 20){
+							} else if(diffMinute < 15){
 								iconBorderColor = '#ff004b';
 							} else if(diffMinute < 30){
 								iconBorderColor = '#ff5173';
@@ -872,7 +872,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 19){
 						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>';
 					}else{
-						if(markerIndex < 12){
+						if(markerIndex < 8){
 							htmlContent = icon + textMessage + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
