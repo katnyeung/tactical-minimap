@@ -55,7 +55,6 @@ public class MarkerService {
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
-		markerList = markerList.stream().limit(80).collect(Collectors.toList());
 		
 		//for deactive marker
 		Optional<Marker> lastMarker = markerList.parallelStream().min(Comparator.comparing(Marker::getLastupdatedate));
