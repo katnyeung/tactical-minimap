@@ -881,7 +881,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 19){
 						updateMessage =  textMessage + counter + upDownButton + copyButton;
 					}else{
-						if(markerIndex < 1){
+						if(markerIndex < 10){
 							updateMessage = textMessage;
 						}else{
 							updateMessage = '';			
@@ -1048,7 +1048,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						$('#marker_message_' + item.markerId).html(updateMessage);						
 						$('#marker_icon_' + item.markerId).attr('class', updateClass);
 						$('#marker_icon_' + item.markerId).attr('style', updateCSS);
-						//marker[0].setIcon(divIcon);
 						
 						if(item.type == 'image'){
 							if(marker[0].getPopup().getContent() != imageContent){
