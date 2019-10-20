@@ -89,6 +89,8 @@ public class TelegramParserScheduler {
 
 			prepareData("village", mapFolder + patternFolder + "/village.chi");
 
+			prepareData("additional", mapFolder + patternFolder + "/additional.chi");
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,7 +110,7 @@ public class TelegramParserScheduler {
 		sc.close();
 
 		patternList.sort((s1, s2) -> s2.length() - s1.length());
-				
+
 		patternMap.put(category, patternList);
 	}
 
@@ -161,15 +163,17 @@ public class TelegramParserScheduler {
 
 					processData(message, "region", keyMap, 10);
 
-					processData(message, "street", keyMap, 10);
+					processData(message, "subDistrict", keyMap, 20);
 
 					processData(message, "building", keyMap, 25);
 
-					processData(message, "subDistrict", keyMap, 20);
+					processData(message, "street", keyMap, 10);
 
 					processData(message, "estate", keyMap, 10);
 
 					processData(message, "village", keyMap, 10);
+
+					processData(message, "additional", keyMap, 10);
 
 					if (keyMap.keySet().size() == 0) {
 						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
@@ -177,11 +181,17 @@ public class TelegramParserScheduler {
 
 					} else {
 
-						final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+						final Map<String, Integer> sortedMap = keyMap.entrySet()
+								.stream()
+								.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3)
+								.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 						logger.info("keyMap {} ", sortedMap);
 						// get geo location
-						HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
+						HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
+								.queryString("key", apiKey)
+								.queryString("address", String.join(" ", sortedMap.keySet()))
+								.asJson();
 
 						JSONObject body = response.getBody().getObject();
 
