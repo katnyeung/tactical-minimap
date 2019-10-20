@@ -22,7 +22,7 @@ public class FlagBlueMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 75;
+		return 56;
 	}
 
 	@Override

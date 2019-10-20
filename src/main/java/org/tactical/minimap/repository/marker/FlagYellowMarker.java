@@ -22,7 +22,7 @@ public class FlagYellowMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 80;
+		return 56;
 	}
 
 	@Override
