@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -98,7 +99,7 @@ public class TelegramParserScheduler {
 	}
 
 	private void prepareData(String category, String filePath) throws IOException {
-		List<String> patternList = new ArrayList<String>();
+		List<String> patternList = new LinkedList<String>();
 
 		File file = new File(filePath);
 		Scanner sc = new Scanner(file);
