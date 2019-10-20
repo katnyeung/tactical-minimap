@@ -231,6 +231,7 @@ public class TelegramParserScheduler {
 									if (riotPoliceMatcher.groupCount() > 1) {
 										try {
 											level = Integer.parseInt(riotPoliceMatcher.group(1));
+											level = level < 10 ? level : 10;
 											logger.info("message level : {} ", level);
 										} catch (NumberFormatException nfe) {
 											logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
@@ -242,6 +243,7 @@ public class TelegramParserScheduler {
 									if (isPoliceMatcher.groupCount() > 1) {
 										try {
 											level = Integer.parseInt(isPoliceMatcher.group(1));
+											level = level < 10 ? level : 10;
 											logger.info("message level : {} ", level);
 										} catch (NumberFormatException nfe) {
 											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
