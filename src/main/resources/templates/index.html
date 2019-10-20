@@ -844,7 +844,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							if(diffMinute < 5){
 								iconBorderColor = '#ff00cd';
 							} else if(diffMinute < 15){
-								iconBorderColor = '#ff004b';
+								iconBorderColor = '#ff3a42';
 							} else if(diffMinute < 30){
 								iconBorderColor = '#ff5173';
 							} else if(diffMinute < 60){
@@ -863,22 +863,33 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					
 					var htmlContent;
 					var icon;
+					var updateClass;
+					var updateCSS;
 					
 					if(item.type == 'image'){
-						icon = '<div><img src="/images/i/'+item.imagePath+'" class="img-border m-n4 rounded '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
+						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important';
+						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/i/'+item.imagePath+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
 					}else{
-						icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; '+ pulseStyle +'" /><div>' ;
+						updateClass = 'img-border m-n4 '+ pulseClass +'';
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; '+ pulseStyle +'';
+						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
 					}
 					
+					var updateMessage = '';
+					
 					if(map.getZoom() >= 19){
-						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>';
+						updateMessage =  textMessage + counter + upDownButton + copyButton;
 					}else{
-						if(markerIndex < 8){
-							htmlContent = icon + textMessage + '</div></div>';
+						if(markerIndex < 1){
+							updateMessage = textMessage;
 						}else{
-							htmlContent = icon + '</div></div>';
+							updateMessage = '';			
 						}
 					}
+					
+					htmlContent = icon + '<div id="marker_message_' + item.markerId + '">' + updateMessage + '</div></div></div>';
+					
 					
 					var popup = L.popup().setContent(content);
 					
@@ -1034,13 +1045,16 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 						marker[0].setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
 						
-						marker[0].setIcon(divIcon);
+						$('#marker_message_' + item.markerId).html(updateMessage);						
+						$('#marker_icon_' + item.markerId).attr('class', updateClass);
+						$('#marker_icon_' + item.markerId).attr('style', updateCSS);
+						//marker[0].setIcon(divIcon);
 						
 						if(item.type == 'image'){
 							if(marker[0].getPopup().getContent() != imageContent){
 						        marker[0].openPopup();
+								marker[0].setPopupContent(imageContent);
 							}
-							marker[0].setPopupContent(imageContent);
 						}else{
 							if(marker[0].getPopup().getContent() != content){
 						        marker[0].openPopup();
