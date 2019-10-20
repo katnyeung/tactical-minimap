@@ -867,7 +867,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(item.type == 'image'){
 						icon = '<div><img src="/images/i/'+item.imagePath+'" class="img-border m-n4 rounded '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important" /><div>' ;
 					}else{
-						icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 8) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 8) * item.iconSize)) + 'px; '+ pulseStyle +'" /><div>' ;
+						icon = '<div><img src="/icon/'+item.icon+'" class="img-border m-n4 '+ pulseClass +'" style="--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; '+ pulseStyle +'" /><div>' ;
 					}
 					
 					if(map.getZoom() >= 19){
@@ -1044,8 +1044,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						}else{
 							if(marker[0].getPopup().getContent() != content){
 						        marker[0].openPopup();
+								marker[0].setPopupContent(content);	
 							}
-							marker[0].setPopupContent(content);	
 						}
 			
 						if(item.message){
