@@ -22,7 +22,7 @@ public class WaterTruckMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 85;
+		return 54;
 	}
 
 	@Override
