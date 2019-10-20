@@ -979,6 +979,35 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 						}
 						
+						marker.on('click', function(e){
+							marker.setZIndexOffset(maxZIndex++);		
+						});
+						
+					    marker.on('dragstart', function(e) {
+					    	  pause = true;
+					    });
+					    
+						marker.on('dragend', function(e) {
+							$.ajax({
+								type : "POST",
+								url : '/marker/move',
+								data : {
+									'lat' : e.target.getLatLng().lat,
+									'lng' : e.target.getLatLng().lng,
+									'markerId' : item.markerId
+								},
+								success : function(data) {
+									pause = false;
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+								}
+							});
+							
+							if(marker.relatedMarker){
+								marker.relatedMarker.setLatLng(e.target.getLatLng());
+							}
+							
+						})
+
 						marker.on('dblclick', function(event){
 							if(item.controllable){
 								$.ajax({
