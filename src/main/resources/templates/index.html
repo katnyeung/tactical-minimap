@@ -869,9 +869,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 					
 					if(map.getZoom() >= 19){
-						htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
+						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>';
 					}else{
-						if(markerIndex < 20){
+						if(markerIndex < 10){
 							htmlContent = icon + textMessage + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
