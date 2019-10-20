@@ -110,7 +110,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 #toast-container > .toast {
     background-image: none !important;
     margin:0px;
-    padding:10px;
+    padding:20px;
 }
 
 </style>
@@ -871,7 +871,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 19){
 						htmlContent = icon + textMessage + counter + upDownButton + copyButton + '</div></div>';
 					}else{
-						if(markerIndex < 10){
+						if(markerIndex < 12){
 							htmlContent = icon + textMessage + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
@@ -1385,7 +1385,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    toastr.options.positionClass = 'toast-bottom-right';
 		    toastr.options.extendedTimeOut = 1000; //1000;
-		    toastr.options.timeOut = 60000;
+		    toastr.options.timeOut = 40000;
 		    toastr.options.fadeOut = 250;
 		    toastr.options.fadeIn = 250;
 		    

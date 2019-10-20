@@ -15,8 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +73,6 @@ public class TelegramParserScheduler {
 
 	static Map<String, List<String>> patternMap;
 
-	@PostConstruct
 	public void initialConfig() {
 		try {
 			patternMap = new HashMap<String, List<String>>();
@@ -116,6 +113,7 @@ public class TelegramParserScheduler {
 	@Async
 	@Scheduled(fixedRate = 10000)
 	public void doParse() throws IOException, ParseException {
+		initialConfig();
 
 		// time pattern
 		Pattern timePattern = Pattern.compile("([0-9][0-9]\\:?[0-9][0-9])");
@@ -168,7 +166,7 @@ public class TelegramParserScheduler {
 					processData(message, "street", keyMap, 10);
 
 					processData(message, "region", keyMap, 10);
-					
+
 					processData(message, "village", keyMap, 10);
 
 					if (keyMap.keySet().size() == 0) {
@@ -177,34 +175,23 @@ public class TelegramParserScheduler {
 
 					} else {
 
-						final Map<String, Integer> sortedMap = keyMap
-								.entrySet()
-								.stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-								.limit(3)
-								.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+						final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 						logger.info("keyMap {} ", sortedMap);
 						// get geo location
-						HttpResponse<JsonNode> response = Unirest
-								.get("https://maps.googleapis.com/maps/api/geocode/json")
-								.queryString("key", apiKey)
-								.queryString("address", String.join(" ", sortedMap.keySet()))
-								.asJson();
+						HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
 
 						JSONObject body = response.getBody().getObject();
 
 						logger.info("google return {} ", response.getBody().toPrettyString());
 
 						if (body.get("status").equals("OK")) {
-							JSONObject latlng = body.getJSONArray("results")
-									.getJSONObject(0)
-									.getJSONObject("geometry")
-									.getJSONObject("location");
+							JSONObject latlng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
 
 							// add marker
 							double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 							double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-							
+
 							Layer layer = layerService.getLayerByKey("scout");
 
 							MarkerDTO markerDTO = new MarkerDTO();
@@ -260,11 +247,11 @@ public class TelegramParserScheduler {
 								logger.info("adding marker " + marker.getType());
 
 								Marker processedMarker = markerService.addMarker(layer, markerDTO, marker);
-								
+
 								if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
 									redisService.addMarkerMessage(layer.getLayerKey(), processedMarker.getMarkerId(), marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
 								}
-								
+
 								okIdList.add(telegramMessage.getTelegramMessageId());
 							} catch (InstantiationException | IllegalAccessException e) {
 								e.printStackTrace();
