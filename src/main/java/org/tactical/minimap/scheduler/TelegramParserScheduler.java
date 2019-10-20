@@ -202,8 +202,8 @@ public class TelegramParserScheduler {
 									.getJSONObject("location");
 
 							// add marker
-							double randLat = (ThreadLocalRandom.current().nextInt(0, 4 + 1) - 2) / 1000.0;
-							double randLng = (ThreadLocalRandom.current().nextInt(0, 4 + 1) - 2) / 1000.0;
+							double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+							double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 							
 							Layer layer = layerService.getLayerByKey("scout");
 
