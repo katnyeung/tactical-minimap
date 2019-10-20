@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -201,11 +202,14 @@ public class TelegramParserScheduler {
 									.getJSONObject("location");
 
 							// add marker
+							double randLat = (ThreadLocalRandom.current().nextInt(0, 4 + 1) - 2) / 1000.0;
+							double randLng = (ThreadLocalRandom.current().nextInt(0, 4 + 1) - 2) / 1000.0;
+							
 							Layer layer = layerService.getLayerByKey("scout");
 
 							MarkerDTO markerDTO = new MarkerDTO();
-							markerDTO.setLat(latlng.getDouble("lat"));
-							markerDTO.setLng(latlng.getDouble("lng"));
+							markerDTO.setLat(latlng.getDouble("lat") + randLat);
+							markerDTO.setLng(latlng.getDouble("lng") + randLng);
 							markerDTO.setLayer("scout");
 							markerDTO.setMessage(telegramMessage.getMessage());
 							markerDTO.setUuid("TELEGRAM_BOT");
