@@ -118,12 +118,12 @@ public class TelegramParserScheduler {
 		// time pattern
 		Pattern timePattern = Pattern.compile("([0-9][0-9]\\:?[0-9][0-9])");
 		// marker pattern
-		Pattern policeMarkerPattern = Pattern.compile("([0-9])*?名*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?(EU|eu|衝|警車|警|籠|豬籠|軍裝)");
+		Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?(EU|eu|衝|警車|警|籠|豬籠|軍裝)");
 		Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 		Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 		Pattern blueFlagPattern = Pattern.compile("(藍旗)");
 		Pattern tearGasPattern = Pattern.compile("(催淚)");
-		Pattern riotPolicePattern = Pattern.compile("(防暴|速龍)");
+		Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名)*?(防暴|速龍)");
 		Pattern waterCarPattern = Pattern.compile("(水炮)");
 		Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
 
@@ -228,7 +228,16 @@ public class TelegramParserScheduler {
 								} else if (tearGasMatcher.find()) {
 									marker = TearGasMarker.class.newInstance();
 								} else if (riotPoliceMatcher.find()) {
+									if (isPoliceMatcher.groupCount() > 1) {
+										try {
+											level = Integer.parseInt(isPoliceMatcher.group(1));
+											logger.info("message level : {} ", level);
+										} catch (NumberFormatException nfe) {
+											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+										}
+									}
 									marker = RiotPoliceMarker.class.newInstance();
+									marker.setLevel(level);
 								} else if (isPoliceMatcher.find()) {
 									if (isPoliceMatcher.groupCount() > 1) {
 										try {
