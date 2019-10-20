@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
+import org.tactical.minimap.repository.marker.BlockadeMarker;
 import org.tactical.minimap.repository.marker.FlagBlackMarker;
 import org.tactical.minimap.repository.marker.FlagBlueMarker;
 import org.tactical.minimap.repository.marker.FlagOrangeMarker;
@@ -34,6 +35,7 @@ import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.repository.marker.PoliceMarker;
 import org.tactical.minimap.repository.marker.RiotPoliceMarker;
 import org.tactical.minimap.repository.marker.TearGasMarker;
+import org.tactical.minimap.repository.marker.WaterTruckMarker;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -219,8 +221,12 @@ public class TelegramParserScheduler {
 								Matcher orangeFlagMatcher = orangeFlagPattern.matcher(message);
 								Matcher tearGasMatcher = tearGasPattern.matcher(message);
 								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
+								Matcher waterCarMatcher = waterCarPattern.matcher(message);
+								Matcher blockMatcher = blockPattern.matcher(message);
 								
-								if (tearGasMatcher.find()) {
+								if (waterCarMatcher.find()) {
+									marker = WaterTruckMarker.class.newInstance();
+								} else if (tearGasMatcher.find()) {
 									marker = TearGasMarker.class.newInstance();
 								} else if (riotPoliceMatcher.find()) {
 									marker = RiotPoliceMarker.class.newInstance();
@@ -241,6 +247,8 @@ public class TelegramParserScheduler {
 									marker = FlagBlueMarker.class.newInstance();
 								} else if (orangeFlagMatcher.find()) {
 									marker = FlagOrangeMarker.class.newInstance();
+								} else if (blockMatcher.find()) {
+									marker = BlockadeMarker.class.newInstance();
 								} else  {
 									marker = InfoMarker.class.newInstance();
 								}

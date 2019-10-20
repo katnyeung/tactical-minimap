@@ -839,13 +839,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 							var diffMinute = Math.floor((new Date() - itemDate)/1000/60);
 							
-							if(diffMinute < 30){
+							if(diffMinute < 10){
+								iconBorderColor = '#ff00f9';
+							} else if(diffMinute < 20){
+								iconBorderColor = '#fd3599';
+							} else if(diffMinute < 30){
 								iconBorderColor = '#ff0000';
-							}else if(diffMinute < 60){
+							} else if(diffMinute < 60){
 								iconBorderColor = '#ff9500';
-							}else if(diffMinute < 90){
+							} else if(diffMinute < 90){
 								iconBorderColor = '#fffe99';
-							}else if(diffMinute < 120){
+							} else if(diffMinute < 120){
 								iconBorderColor = '#ffffb4';
 							}
 							
@@ -867,8 +871,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 19){
 						htmlContent = icon + counter + upDownButton + copyButton + '</div></div>';
 					}else{
-						if(markerIndex < 3){
-							htmlContent = icon + textMessage + '</div></div>';
+						if(markerIndex < 10){
+							htmlContent = icon + textMessage.substr(30) + '</div></div>';
 						}else{
 							htmlContent = icon + '</div></div>';
 						}
