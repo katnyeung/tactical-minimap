@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MarkerService {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public static final Pattern timePattern = Pattern.compile("([0-9][0-9])\\:?([0-9][0-9])");
+	public static final Pattern timePattern = Pattern.compile("([0-2][0-3])\\:?([0-5][0-9])");
 
 	@Autowired
 	MarkerDAO<Marker> markerDAO;

@@ -846,7 +846,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 							var diffMinute = Math.floor((new Date() - itemDate)/1000/60);
 							
-							if(diffMinute < 5){
+							if(diffMinute < 0){
+								iconBorderColor = '#ffffff';
+							}else if(diffMinute < 5){
 								iconBorderColor = '#fd00ff';
 							} else if(diffMinute < 15){
 								iconBorderColor = '#f9061e';
