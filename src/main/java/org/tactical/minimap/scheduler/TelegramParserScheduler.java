@@ -40,6 +40,7 @@ import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.service.TelegramMessageService;
+import org.tactical.minimap.util.MarkerGeoCoding;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
 import kong.unirest.HttpResponse;
@@ -74,23 +75,33 @@ public class TelegramParserScheduler {
 
 	static Map<String, List<String>> patternMap;
 
+	// time pattern
+	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
+	// marker pattern
+	Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
+	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
+	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
+	Pattern tearGasPattern = Pattern.compile("(催淚)");
+	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
+	Pattern waterCarPattern = Pattern.compile("(水炮)");
+	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
+
 	public void initialConfig() {
 		try {
 			patternMap = new HashMap<String, List<String>>();
 
-			prepareData("region", mapFolder + patternFolder + "/region.chi");
+			prepareData("region", mapFolder + patternFolder + "/v2/region");
 
-			prepareData("subDistrict", mapFolder + patternFolder + "/subDistrict.chi");
+			prepareData("district", mapFolder + patternFolder + "/v2/district");
 
-			prepareData("building", mapFolder + patternFolder + "/building.chi");
+			prepareData("building", mapFolder + patternFolder + "/v2/building");
 
-			prepareData("estate", mapFolder + patternFolder + "/estate.chi");
+			prepareData("street", mapFolder + patternFolder + "/v2/street");
 
-			prepareData("street", mapFolder + patternFolder + "/street.chi");
+			prepareData("mtr", mapFolder + patternFolder + "/v2/mtr");
 
-			prepareData("village", mapFolder + patternFolder + "/village.chi");
-
-			prepareData("additional", mapFolder + patternFolder + "/additional.chi");
+			prepareData("additional", mapFolder + patternFolder + "/v2/additional");
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -119,18 +130,6 @@ public class TelegramParserScheduler {
 	@Scheduled(fixedRate = 10000)
 	public void doParse() throws IOException, ParseException {
 		initialConfig();
-
-		// time pattern
-		Pattern timePattern = Pattern.compile("([0-2][0-3]\\:?[0-5][0-9])");
-		// marker pattern
-		Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
-		Pattern blackFlagPattern = Pattern.compile("(黑旗)");
-		Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
-		Pattern blueFlagPattern = Pattern.compile("(藍旗)");
-		Pattern tearGasPattern = Pattern.compile("(催淚)");
-		Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
-		Pattern waterCarPattern = Pattern.compile("(水炮)");
-		Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
 
 		// get message
 		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
@@ -162,18 +161,16 @@ public class TelegramParserScheduler {
 
 					logger.info("processing message {}", message);
 
-					processData(message, "region", keyMap, 10);
+					processData(message, "region", keyMap, 40);
 
-					processData(message, "subDistrict", keyMap, 20);
+					processData(message, "street", keyMap, 30);
+					
+					processData(message, "district", keyMap, 25);
 
-					processData(message, "building", keyMap, 25);
+					processData(message, "building", keyMap, 15);
 
-					processData(message, "street", keyMap, 10);
-
-					processData(message, "estate", keyMap, 10);
-
-					processData(message, "village", keyMap, 10);
-
+					processData(message, "mtr", keyMap, 15);
+					
 					processData(message, "additional", keyMap, 10);
 
 					if (keyMap.keySet().size() == 0) {
@@ -182,34 +179,20 @@ public class TelegramParserScheduler {
 
 					} else {
 
-						final Map<String, Integer> sortedMap = keyMap.entrySet()
-								.stream()
-								.sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3)
-								.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+						MarkerGeoCoding latlng = doGoogle(keyMap);
+						//arkerGeoCoding latlng = doGeoDataHK(keyMap);
+						
+						if (latlng == null) {
 
-						logger.info("keyMap {} ", sortedMap);
-						// get geo location
-						HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
-								.queryString("key", apiKey)
-								.queryString("address", String.join(" ", sortedMap.keySet()))
-								.asJson();
+							logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
+							notOkIdList.add(telegramMessage.getTelegramMessageId());
 
-						JSONObject body = response.getBody().getObject();
-
-						logger.info("google return {} ", response.getBody().toPrettyString());
-
-						if (body.get("status").equals("OK")) {
-							JSONObject latlng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
-
-							// add marker
-							double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-							double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-
+						} else {
 							Layer layer = layerService.getLayerByKey("scout");
 
 							MarkerDTO markerDTO = new MarkerDTO();
-							markerDTO.setLat(latlng.getDouble("lat") + randLat);
-							markerDTO.setLng(latlng.getDouble("lng") + randLng);
+							markerDTO.setLat(latlng.getLat());
+							markerDTO.setLng(latlng.getLng());
 							markerDTO.setLayer("scout");
 							markerDTO.setMessage(telegramMessage.getMessage());
 							markerDTO.setUuid("TELEGRAM_BOT");
@@ -282,11 +265,10 @@ public class TelegramParserScheduler {
 								notOkIdList.add(telegramMessage.getTelegramMessageId());
 								logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
 							}
-						} else {
-							logger.info("google not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
-							notOkIdList.add(telegramMessage.getTelegramMessageId());
 						}
+
 					}
+
 				} else {
 					logger.info("time pattern not found. mark to fail " + telegramMessage.getTelegramMessageId());
 					notOkIdList.add(telegramMessage.getTelegramMessageId());
@@ -300,6 +282,89 @@ public class TelegramParserScheduler {
 		if (notOkIdList.size() > 0)
 			telegrameMessageService.updateTelegramMessageNotOK(notOkIdList);
 
+	}
+
+	private MarkerGeoCoding doGoogle(final HashMap<String, Integer> keyMap) {
+
+		final Map<String, Integer> sortedMap = keyMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.limit(4)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		logger.info("keyMap {} ", sortedMap);
+		// get geo location
+		HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
+				.queryString("key", apiKey)
+				.queryString("address", String.join(" ", sortedMap.keySet()))
+				.asJson();
+
+		JSONObject body = response.getBody().getObject();
+
+		logger.info("google return {} ", response.getBody().toPrettyString());
+
+		if (body.get("status").equals("OK")) {
+			JSONObject jsonObjLatLng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
+
+			// add marker
+			MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+
+			latlng.setLat(jsonObjLatLng.getDouble("lat") + randLat);
+			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);
+
+			return latlng;
+		} else {
+			return null;
+		}
+	}
+	
+	private MarkerGeoCoding doGeoDataHK(final HashMap<String, Integer> keyMap) {
+
+		final Map<String, Integer> sortedMap = keyMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		logger.info("keyMap {} ", sortedMap);
+		// get geo location
+		HttpResponse<JsonNode> response = Unirest.get("http://www.als.ogcio.gov.hk/lookup")
+				.header("Accept","application/json")
+				.header("Accept-Language","en,zh-Hant")
+				.header("Accept-Encoding","gzip")
+				.queryString("q", String.join(" ", sortedMap.keySet()))
+				.queryString("n", "1")
+				.asJson();
+
+		JSONObject body = response.getBody().getObject();
+
+		logger.info("google return {} ", response.getBody().toPrettyString());
+		
+		if (body.getJSONArray("SuggestedAddress") != null) {
+			JSONObject jsonObjLatLng = body
+					.getJSONArray("SuggestedAddress")
+					.getJSONObject(0)
+					.getJSONObject("Address")
+					.getJSONObject("PremisesAddress")
+					.getJSONArray("GeospatialInformation")
+					.getJSONObject(0);
+					
+
+			// add marker
+			MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+
+			latlng.setLat(jsonObjLatLng.getDouble("Latitude") + randLat);
+			latlng.setLng(jsonObjLatLng.getDouble("Longitude") + randLng);
+			
+			return latlng;
+		} else {
+			return null;
+		}
 	}
 
 	private HashMap<String, String> getRules() {
@@ -321,23 +386,22 @@ public class TelegramParserScheduler {
 
 			String processingPattern = pattern.replaceAll("(\\(|\\)|\\[|\\]|\\.)", "\\$1");
 
-			if (!message.matches(".*" + processingPattern + ".*")) {
-				for (String key : keyMap.keySet()) {
-					if (processingPattern.matches(".*" + key + ".*")) {
-						processingPattern = processingPattern.replaceAll(key, "");
-						weight -= 20;
-					}
-				}
-				if (!message.matches(".*" + processingPattern + ".*")) {
-					processingPattern = processingPattern.replaceAll("(邨)", "");
-					weight -= 10;
-				}
-			}
-
 			if (message.matches(".*" + processingPattern + ".*")) {
-				keyMap.put(pattern, weight);
+				if (keyMap.keySet().size() == 0) {
+					keyMap.put(pattern, weight);
+				} else {
+					boolean isExist = false;
+					for (String key : keyMap.keySet()) {
+						if (key.matches(".*" + pattern + ".*")) {
+							logger.info("matched pattern {} {}", category, pattern);
+							isExist = true;
+						}
+					}
+					if (!isExist)
+						keyMap.put(pattern, weight);
+					logger.info("{}", keyMap);
+				}
 			}
-
 		}
 
 	}
