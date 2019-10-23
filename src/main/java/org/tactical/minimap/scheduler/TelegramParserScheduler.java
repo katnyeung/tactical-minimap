@@ -94,6 +94,10 @@ public class TelegramParserScheduler {
 			prepareData("region", mapFolder + patternFolder + "/v2/region");
 
 			prepareData("district", mapFolder + patternFolder + "/v2/district");
+			
+			prepareData("estate", mapFolder + patternFolder + "/v2/estate.building");
+			
+			prepareData("28hse", mapFolder + patternFolder + "/v2/28hse.building");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/building");
 
@@ -166,6 +170,10 @@ public class TelegramParserScheduler {
 					processData(message, "street", keyMap, 30);
 					
 					processData(message, "district", keyMap, 25);
+					
+					processData(message, "estate", keyMap, 15);
+					
+					processData(message, "28hse", keyMap, 15);
 
 					processData(message, "building", keyMap, 15);
 
