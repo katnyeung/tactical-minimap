@@ -101,6 +101,8 @@ public class TelegramParserScheduler {
 
 			prepareData("building", mapFolder + patternFolder + "/v2/building");
 
+			prepareData("plaza", mapFolder + patternFolder + "/v2/plaza");
+			
 			prepareData("street", mapFolder + patternFolder + "/v2/street");
 
 			prepareData("mtr", mapFolder + patternFolder + "/v2/mtr");
@@ -177,6 +179,8 @@ public class TelegramParserScheduler {
 
 					processData(message, "building", keyMap, 15);
 
+					processData(message, "plaza", keyMap, 15);
+					
 					processData(message, "mtr", keyMap, 15);
 					
 					processData(message, "additional", keyMap, 10);
