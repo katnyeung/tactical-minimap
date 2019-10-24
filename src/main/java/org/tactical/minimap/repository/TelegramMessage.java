@@ -2,6 +2,7 @@ package org.tactical.minimap.repository;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +34,11 @@ public class TelegramMessage extends Auditable<String> {
 	@Lob
 	@NotNull
 	String message;
+
+	@JsonIgnore
+	@Lob
+	@Column(nullable = true)
+	String media;
 
 	@JsonIgnore
 	@NotNull
@@ -92,6 +98,14 @@ public class TelegramMessage extends Auditable<String> {
 
 	public void setMessagedate(Date messagedate) {
 		this.messagedate = messagedate;
+	}
+
+	public String getMedia() {
+		return media;
+	}
+
+	public void setMedia(String media) {
+		this.media = media;
 	}
 
 }
