@@ -94,19 +94,23 @@ public class TelegramParserScheduler {
 			prepareData("region", mapFolder + patternFolder + "/v2/region");
 
 			prepareData("district", mapFolder + patternFolder + "/v2/district");
-			
-			prepareData("estate", mapFolder + patternFolder + "/v2/estate.building");
-			
-			prepareData("28hse", mapFolder + patternFolder + "/v2/28hse.building");
+
+			prepareData("building", mapFolder + patternFolder + "/v2/estate.building");
+
+			prepareData("building", mapFolder + patternFolder + "/v2/28hse.building");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/building");
 
 			prepareData("plaza", mapFolder + patternFolder + "/v2/plaza");
+
+			prepareData("wildcard", mapFolder + patternFolder + "/v2/plaza_wildcard");
 			
 			prepareData("street", mapFolder + patternFolder + "/v2/street");
 
+			prepareData("wildcard", mapFolder + patternFolder + "/v2/street_wildcard");
+			
 			prepareData("mtr", mapFolder + patternFolder + "/v2/mtr");
-
+			
 			prepareData("additional", mapFolder + patternFolder + "/v2/additional");
 
 		} catch (IOException e) {
@@ -129,7 +133,13 @@ public class TelegramParserScheduler {
 
 		patternList.sort((s1, s2) -> s2.length() - s1.length());
 
-		patternMap.put(category, patternList);
+		if (patternMap.get(category) != null) {
+			List<String> currentStringList = patternMap.get(category);
+			currentStringList.addAll(patternList);
+		} else {
+			patternMap.put(category, patternList);
+		}
+
 	}
 
 	@Async
@@ -170,18 +180,16 @@ public class TelegramParserScheduler {
 					processData(message, "region", keyMap, 40);
 
 					processData(message, "street", keyMap, 30);
-					
+
 					processData(message, "district", keyMap, 25);
-					
-					processData(message, "estate", keyMap, 15);
-					
-					processData(message, "28hse", keyMap, 15);
 
 					processData(message, "building", keyMap, 15);
 
 					processData(message, "plaza", keyMap, 15);
-					
+
 					processData(message, "mtr", keyMap, 15);
+
+					processData(message, "wildcard", keyMap, 5);
 					
 					processData(message, "additional", keyMap, 10);
 
@@ -192,8 +200,8 @@ public class TelegramParserScheduler {
 					} else {
 
 						MarkerGeoCoding latlng = doGoogle(keyMap);
-						//arkerGeoCoding latlng = doGeoDataHK(keyMap);
-						
+						// arkerGeoCoding latlng = doGeoDataHK(keyMap);
+
 						if (latlng == null) {
 
 							logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
@@ -298,18 +306,11 @@ public class TelegramParserScheduler {
 
 	private MarkerGeoCoding doGoogle(final HashMap<String, Integer> keyMap) {
 
-		final Map<String, Integer> sortedMap = keyMap.entrySet()
-				.stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-				.limit(4)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json")
-				.queryString("key", apiKey)
-				.queryString("address", String.join(" ", sortedMap.keySet()))
-				.asJson();
+		HttpResponse<JsonNode> response = Unirest.get("https://maps.googleapis.com/maps/api/geocode/json").queryString("key", apiKey).queryString("address", String.join(" ", sortedMap.keySet())).asJson();
 
 		JSONObject body = response.getBody().getObject();
 
@@ -332,37 +333,21 @@ public class TelegramParserScheduler {
 			return null;
 		}
 	}
-	
+
 	private MarkerGeoCoding doGeoDataHK(final HashMap<String, Integer> keyMap) {
 
-		final Map<String, Integer> sortedMap = keyMap.entrySet()
-				.stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("http://www.als.ogcio.gov.hk/lookup")
-				.header("Accept","application/json")
-				.header("Accept-Language","en,zh-Hant")
-				.header("Accept-Encoding","gzip")
-				.queryString("q", String.join(" ", sortedMap.keySet()))
-				.queryString("n", "1")
-				.asJson();
+		HttpResponse<JsonNode> response = Unirest.get("http://www.als.ogcio.gov.hk/lookup").header("Accept", "application/json").header("Accept-Language", "en,zh-Hant").header("Accept-Encoding", "gzip").queryString("q", String.join(" ", sortedMap.keySet())).queryString("n", "1").asJson();
 
 		JSONObject body = response.getBody().getObject();
 
 		logger.info("google return {} ", response.getBody().toPrettyString());
-		
+
 		if (body.getJSONArray("SuggestedAddress") != null) {
-			JSONObject jsonObjLatLng = body
-					.getJSONArray("SuggestedAddress")
-					.getJSONObject(0)
-					.getJSONObject("Address")
-					.getJSONObject("PremisesAddress")
-					.getJSONArray("GeospatialInformation")
-					.getJSONObject(0);
-					
+			JSONObject jsonObjLatLng = body.getJSONArray("SuggestedAddress").getJSONObject(0).getJSONObject("Address").getJSONObject("PremisesAddress").getJSONArray("GeospatialInformation").getJSONObject(0);
 
 			// add marker
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
@@ -372,7 +357,7 @@ public class TelegramParserScheduler {
 
 			latlng.setLat(jsonObjLatLng.getDouble("Latitude") + randLat);
 			latlng.setLng(jsonObjLatLng.getDouble("Longitude") + randLng);
-			
+
 			return latlng;
 		} else {
 			return null;

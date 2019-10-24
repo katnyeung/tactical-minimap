@@ -90,19 +90,28 @@ public class MarkerService {
 
 		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 		int minute = Calendar.getInstance().get(Calendar.MINUTE);
-
+		
+		int patternHour = Integer.MAX_VALUE;
+		int patternMinute = Integer.MAX_VALUE;
+		
 		Matcher timeMatcher = timePattern.matcher(markerDTO.getMessage());
 		if (timeMatcher.find() && timeMatcher.groupCount() > 1) {
 			try {
-				hour = Integer.parseInt(timeMatcher.group(1));
-				minute = Integer.parseInt(timeMatcher.group(2));
+				patternHour = Integer.parseInt(timeMatcher.group(1));
+				patternMinute = Integer.parseInt(timeMatcher.group(2));
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 		}
-
-		markerDTO.setHour(hour);
-		markerDTO.setMinute(minute);
+		
+		//only within 120 minutes, if marker 
+		if(Math.abs((patternHour * 60 + patternMinute) - (hour * 60 + minute)) <= 120) {
+			markerDTO.setHour(patternHour);
+			markerDTO.setMinute(patternMinute);
+		}else {
+			markerDTO.setHour(hour);
+			markerDTO.setMinute(minute);
+		}
 
 		marker = marker.fill(markerDTO);
 

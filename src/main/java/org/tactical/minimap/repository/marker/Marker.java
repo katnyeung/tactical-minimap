@@ -306,10 +306,12 @@ public abstract class Marker extends Auditable<String> {
 		return "Marker [markerId=" + markerId + "]";
 	}
 
+	@JsonIgnore
 	public String getDescription() {
 		return "Marker";
 	}
 
+	@JsonIgnore
 	public String getLogMessage() {
 		return this.getDescription() + ":" + this.getMessage();
 	}

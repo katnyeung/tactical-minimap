@@ -787,7 +787,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					
 					var upDownButton = '';
 					var counter = '';
-					var textMessage = '';
 					var message = '';
 					var deleteBtn = '';
 					var content = '';
@@ -795,10 +794,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var pulseStyle;
 					var copyButton = '';
 					var expirePercent = 0;
-					
-					if(item.message){
-						textMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>';
-					}
 
 					if (item.controllable){						
 						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
@@ -884,20 +879,19 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 					
 					var updateMessage = '';
-					
+
 					if(map.getZoom() >= 19){
-						updateMessage =  textMessage + counter + upDownButton + copyButton;
+						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerIndex < 10){
-							updateMessage = textMessage;
+							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,20) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
 						}
 					}
 					
 					htmlContent = icon + '<div id="marker_message_' + item.markerId + '">' + updateMessage + '</div></div></div>';
-					
-					
+										
 					var popup = L.popup().setContent(content);
 					
 					divIcon = L.divIcon({
