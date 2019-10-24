@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,13 +88,15 @@ public class MarkerService {
 
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		Calendar cal1 = Calendar.getInstance(tz1);
 
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-		int minute = Calendar.getInstance().get(Calendar.MINUTE);
-		
+		int hour = cal1.get(Calendar.HOUR_OF_DAY);
+		int minute = cal1.get(Calendar.MINUTE);
+
 		int patternHour = Integer.MAX_VALUE;
 		int patternMinute = Integer.MAX_VALUE;
-		
+
 		Matcher timeMatcher = timePattern.matcher(markerDTO.getMessage());
 		if (timeMatcher.find() && timeMatcher.groupCount() > 1) {
 			try {

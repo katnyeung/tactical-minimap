@@ -211,8 +211,8 @@ public class TelegramParserScheduler {
 							Layer layer = layerService.getLayerByKey("scout");
 
 							MarkerDTO markerDTO = new MarkerDTO();
-							markerDTO.setLat(latlng.getLat());
-							markerDTO.setLng(latlng.getLng());
+							markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
+							markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
 							markerDTO.setLayer("scout");
 							markerDTO.setMessage(telegramMessage.getMessage());
 							markerDTO.setUuid("TELEGRAM_BOT");
@@ -322,8 +322,8 @@ public class TelegramParserScheduler {
 			// add marker
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
-			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
 
 			latlng.setLat(jsonObjLatLng.getDouble("lat") + randLat);
 			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);
