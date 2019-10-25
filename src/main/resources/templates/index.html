@@ -859,7 +859,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerIndex < 10){
-							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,20) +  '</mark><br/>';
+							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
 						}
