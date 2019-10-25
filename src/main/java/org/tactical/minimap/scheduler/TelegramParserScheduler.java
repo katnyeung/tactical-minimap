@@ -221,7 +221,7 @@ public class TelegramParserScheduler {
 							markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
 							markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
 							markerDTO.setLayer("scout");
-							markerDTO.setMessage(telegramMessage.getMessage());
+							markerDTO.setMessage(telegramMessage.getMessage() + "\n#" + telegramMessage.getGroupKey());
 							markerDTO.setUuid("TELEGRAM_BOT");
 
 							try {
