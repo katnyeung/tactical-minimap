@@ -57,8 +57,8 @@ public class MarkerService {
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		markerList = markerList.stream().limit(80).collect(Collectors.toList());
-		
-		//for deactive marker
+
+		// for deactive marker
 		Optional<Marker> lastMarker = markerList.parallelStream().min(Comparator.comparing(Marker::getLastupdatedate));
 
 		Date lastMarkerDate = null;
@@ -106,12 +106,12 @@ public class MarkerService {
 				e.printStackTrace();
 			}
 		}
-		
-		//only within 120 minutes, if marker 
-		if(Math.abs((patternHour * 60 + patternMinute) - (hour * 60 + minute)) <= 120) {
+
+		// only within 120 minutes, if marker
+		if (Math.abs((patternHour * 60 + patternMinute) - (hour * 60 + minute)) <= 120) {
 			markerDTO.setHour(patternHour);
 			markerDTO.setMinute(patternMinute);
-		}else {
+		} else {
 			markerDTO.setHour(hour);
 			markerDTO.setMinute(minute);
 		}
@@ -222,7 +222,7 @@ public class MarkerService {
 			if (markerLastUpdateTimeInMillis > dateBackTimeInMillis) {
 				double percentage = (markerLastUpdateTimeInMillis - dateBackTimeInMillis) / (currentTimeInMillis - dateBackTimeInMillis * 1.0);
 
-				markerOpacity = percentage * 1;
+				markerOpacity = Math.floor(percentage * 100.0 / 100.0);
 			}
 
 			marker.setOpacity(markerOpacity);
@@ -245,9 +245,12 @@ public class MarkerService {
 					weight = 0.9;
 				}
 
-				marker.setOpacity(1 * weight);
+				marker.setOpacity(weight);
 
 			}
+
+			// process marker new line and wrap issue
+			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
 		}
 	}
 

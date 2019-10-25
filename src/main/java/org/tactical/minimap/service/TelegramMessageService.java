@@ -33,6 +33,11 @@ public class TelegramMessageService {
 		telegramMessageDAO.updateProcessNotOK(idList);
 	}
 
+	@Transactional(readOnly = false)
+	public void saveTelegramMessage(TelegramMessage tm) {
+		telegramMessageDAO.save(tm);
+	}
+
 	public List<TelegramMessageRule> getActiveTelegramMessageRules() {
 		return telegramMessageRuleDAO.findActiveTelegramMessageRule();
 	}

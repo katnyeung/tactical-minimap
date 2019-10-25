@@ -41,6 +41,11 @@ public class TelegramMessage extends Auditable<String> {
 	String media;
 
 	@JsonIgnore
+	@Lob
+	@Column(nullable = true)
+	String result;
+
+	@JsonIgnore
 	@NotNull
 	@Size(max = 1)
 	String status;
@@ -106,6 +111,14 @@ public class TelegramMessage extends Auditable<String> {
 
 	public void setMedia(String media) {
 		this.media = media;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
 	}
 
 }

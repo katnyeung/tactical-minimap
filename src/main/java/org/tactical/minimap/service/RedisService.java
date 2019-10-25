@@ -3,14 +3,10 @@ package org.tactical.minimap.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
-import org.tactical.minimap.web.result.MarkerMessage;
 
 @Service
 public class RedisService {
@@ -174,51 +169,6 @@ public class RedisService {
 		for (String key : keys) {
 			stringRedisTemplate.opsForSet().remove(key, layerKey);
 		}
-	}
-
-	public void addMarkerMessage(String layer, Long markerId, String type, String message, Long dateTime) {
-		Long queueLength = stringRedisTemplate.opsForList().leftPush(ConstantsUtil.MARKER_MESSAGE_QUEUE_KEY + ":" + layer, dateTime + "`" + markerId + "`" + type + "`" + message);
-
-		if (queueLength > ConstantsUtil.MARKER_MESSAGE_QUEUE_SIZE) {
-			stringRedisTemplate.opsForList().trim(ConstantsUtil.MARKER_MESSAGE_QUEUE_KEY + ":" + layer, 0, ConstantsUtil.MARKER_MESSAGE_QUEUE_SIZE);
-		}
-	}
-
-	public List<MarkerMessage> getMarkerMessage(List<String> layerList, Long timeStampInMilles) {
-		List<MarkerMessage> messageList = new ArrayList<MarkerMessage>();
-		for (String layer : layerList) {
-			List<String> rawMessageList = stringRedisTemplate.opsForList().range(ConstantsUtil.MARKER_MESSAGE_QUEUE_KEY + ":" + layer, 0, ConstantsUtil.MARKER_MESSAGE_QUEUE_SIZE);
-			for (String rawMessage : rawMessageList) {
-				String[] rawMessageArray = rawMessage.split("`");
-
-				if (rawMessageArray.length > 2) {
-					
-					Long messageTimeStampInMilles = Long.parseLong(rawMessageArray[0]);
-					if (messageTimeStampInMilles > timeStampInMilles) {
-						logger.info("raw : " + rawMessage + " - " + rawMessageArray.length);
-						
-						MarkerMessage mm = new MarkerMessage();
-
-						mm.setTime(new Date(messageTimeStampInMilles));
-						mm.setMarkerId(Long.parseLong(rawMessageArray[1]));
-						mm.setType(rawMessageArray[2]);
-						mm.setMessage(rawMessageArray[3]);
-
-						messageList.add(mm);
-
-					}
-				}
-			}
-		}
-
-		Collections.sort(messageList, new Comparator<MarkerMessage>() {
-			@Override
-			public int compare(MarkerMessage msg1, MarkerMessage msg2) {
-				return msg1.getTime().compareTo(msg2.getTime());
-			}
-		});
-
-		return messageList.stream().limit(ConstantsUtil.MARKER_MESSAGE_QUEUE_SIZE).collect(Collectors.toList());
 	}
 
 }

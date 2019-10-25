@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -43,6 +42,8 @@ import org.tactical.minimap.service.TelegramMessageService;
 import org.tactical.minimap.util.MarkerGeoCoding;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 
+import com.google.gson.Gson;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -53,7 +54,7 @@ public class TelegramParserScheduler {
 	public final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	TelegramMessageService telegrameMessageService;
+	TelegramMessageService telegramMessageService;
 
 	@Autowired
 	MarkerService markerService;
@@ -148,7 +149,7 @@ public class TelegramParserScheduler {
 		initialConfig();
 
 		// get message
-		List<TelegramMessage> telegramMessageList = telegrameMessageService.getPendingTelegramMessage();
+		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage();
 		logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
 
 		List<Long> okIdList = new ArrayList<Long>();
@@ -199,6 +200,11 @@ public class TelegramParserScheduler {
 
 					} else {
 
+						// save parse result
+						Gson gson = new Gson();
+						telegramMessage.setResult(gson.toJson(keyMap));
+						telegramMessageService.saveTelegramMessage(telegramMessage);
+						
 						MarkerGeoCoding latlng = doGoogle(keyMap);
 						// arkerGeoCoding latlng = doGeoDataHK(keyMap);
 
@@ -273,11 +279,7 @@ public class TelegramParserScheduler {
 
 								logger.info("adding marker " + marker.getType());
 
-								Marker processedMarker = markerService.addMarker(layer, markerDTO, marker);
-
-								if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
-									redisService.addMarkerMessage(layer.getLayerKey(), processedMarker.getMarkerId(), marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
-								}
+								markerService.addMarker(layer, markerDTO, marker);
 
 								okIdList.add(telegramMessage.getTelegramMessageId());
 							} catch (InstantiationException | IllegalAccessException e) {
@@ -297,10 +299,10 @@ public class TelegramParserScheduler {
 		}
 
 		if (okIdList.size() > 0)
-			telegrameMessageService.updateTelegramMessageOK(okIdList);
+			telegramMessageService.updateTelegramMessageOK(okIdList);
 
 		if (notOkIdList.size() > 0)
-			telegrameMessageService.updateTelegramMessageNotOK(notOkIdList);
+			telegramMessageService.updateTelegramMessageNotOK(notOkIdList);
 
 	}
 
@@ -367,7 +369,7 @@ public class TelegramParserScheduler {
 	private HashMap<String, String> getRules() {
 		HashMap<String, String> ruleMap = new HashMap<String, String>();
 
-		List<TelegramMessageRule> telegramMessageRuleList = telegrameMessageService.getActiveTelegramMessageRules();
+		List<TelegramMessageRule> telegramMessageRuleList = telegramMessageService.getActiveTelegramMessageRules();
 
 		for (TelegramMessageRule tmr : telegramMessageRuleList) {
 			ruleMap.put(tmr.getRule(), tmr.getGoal());

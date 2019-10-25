@@ -34,8 +34,6 @@ import org.tactical.minimap.web.DTO.MarkerDTO;
 import org.tactical.minimap.web.DTO.MarkerResponseDTO;
 import org.tactical.minimap.web.result.DefaultResult;
 import org.tactical.minimap.web.result.MarkerListResult;
-import org.tactical.minimap.web.result.MarkerMessage;
-import org.tactical.minimap.web.result.MarkerMessageListResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -117,10 +115,6 @@ public class MarkerRestController {
 
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
-				if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
-					redisService.addMarkerMessage(layer.getLayerKey(), result.getMarkerId(), marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
-				}
-
 				return DefaultResult.success();
 			}
 
@@ -156,43 +150,6 @@ public class MarkerRestController {
 
 		return MarkerListResult.success(markerList);
 
-	}
-
-	@GetMapping("/{layerKeys}/message")
-	public MarkerMessageListResult getMessageList(@PathVariable("layerKeys") String layerKeys, String timestamp) {
-
-		Long timeStampInMilles = Long.parseLong(timestamp);
-		
-		Map<String, String> layerMap = new HashMap<String, String>();
-
-		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
-
-		for (String layerKey : layerKeys.split(",")) {
-			Matcher matcher = pattern.matcher(layerKey);
-
-			if (matcher.find()) {
-				if (matcher.groupCount() > 1) {
-					layerMap.put(matcher.group(1), matcher.group(2));
-				}
-			}
-		}
-
-		List<String> layerList = layerMap.keySet().stream().collect(Collectors.toList());
-		List<MarkerMessage> markerMessageList = redisService.getMarkerMessage(layerList, timeStampInMilles);
-
-		Long latestTimeStamp = getLastTimeStamp(markerMessageList, timeStampInMilles);
-
-		return MarkerMessageListResult.success(markerMessageList, latestTimeStamp);
-	}
-
-	private Long getLastTimeStamp(List<MarkerMessage> markerMessageList, Long timestamp) {
-		Long latestTimeStamp = timestamp;
-		for (MarkerMessage mm : markerMessageList) {
-			if (mm.getTime().getTime() > latestTimeStamp) {
-				latestTimeStamp = mm.getTime().getTime();
-			}
-		}
-		return latestTimeStamp;
 	}
 
 	@Auth
@@ -259,10 +216,6 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		markerService.updateMessage(marker, markerDTO.getMessage());
-
-		if (markerDTO.getMessage() != null && !markerDTO.getMessage().equals("")) {
-			redisService.addMarkerMessage(marker.getLayer().getLayerKey(), marker.getMarkerId(), marker.getDescription(), markerDTO.getMessage(), Calendar.getInstance().getTimeInMillis());
-		}
 
 		return DefaultResult.success();
 
