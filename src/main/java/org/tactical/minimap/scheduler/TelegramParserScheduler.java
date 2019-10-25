@@ -96,13 +96,13 @@ public class TelegramParserScheduler {
 			prepareData("region", mapFolder + patternFolder + "/v2/region");
 
 			prepareData("district", mapFolder + patternFolder + "/v2/recreation");
-			
+
 			prepareData("district", mapFolder + patternFolder + "/v2/district");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/estate.building");
 
 			prepareData("wildcard", mapFolder + patternFolder + "/v2/estate.building_wildcard");
-			
+
 			prepareData("building", mapFolder + patternFolder + "/v2/28hse.building");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/building");
@@ -110,13 +110,13 @@ public class TelegramParserScheduler {
 			prepareData("plaza", mapFolder + patternFolder + "/v2/plaza");
 
 			prepareData("wildcard", mapFolder + patternFolder + "/v2/plaza_wildcard");
-			
+
 			prepareData("street", mapFolder + patternFolder + "/v2/street");
 
 			prepareData("wildcard", mapFolder + patternFolder + "/v2/street_wildcard");
-			
+
 			prepareData("mtr", mapFolder + patternFolder + "/v2/mtr");
-			
+
 			prepareData("additional", mapFolder + patternFolder + "/v2/additional");
 
 		} catch (IOException e) {
@@ -162,17 +162,17 @@ public class TelegramParserScheduler {
 
 		for (TelegramMessage telegramMessage : telegramMessageList) {
 			String message = telegramMessage.getMessage();
-			
+
 			if (message.length() > 150) {
 				logger.info("message characters length > 150. mark to fail " + telegramMessage.getTelegramMessageId());
 				notOkIdList.add(telegramMessage.getTelegramMessageId());
-				
+
 			} else {
 				Matcher matcher = timePattern.matcher(message);
 
 				if (matcher.find()) {
 					HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
-					
+
 					// convert message
 					message = message.replaceAll("\n", "");
 
@@ -197,7 +197,7 @@ public class TelegramParserScheduler {
 					processData(message, "mtr", keyMap, 15);
 
 					processData(message, "wildcard", keyMap, 5);
-					
+
 					processData(message, "additional", keyMap, 10);
 
 					if (keyMap.keySet().size() == 0) {
@@ -210,7 +210,7 @@ public class TelegramParserScheduler {
 						Gson gson = new Gson();
 						telegramMessage.setResult(gson.toJson(keyMap));
 						telegramMessageService.saveTelegramMessage(telegramMessage);
-						
+
 						MarkerGeoCoding latlng = doGoogle(keyMap);
 						// arkerGeoCoding latlng = doGeoDataHK(keyMap);
 
@@ -242,11 +242,11 @@ public class TelegramParserScheduler {
 								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
 								Matcher waterCarMatcher = waterCarPattern.matcher(message);
 								Matcher blockMatcher = blockPattern.matcher(message);
-								if(telegramMessage.getMedia() != null) {
-									ImageMarker im = ImageMarker.class.newInstance();
-									im.setImagePath(telegramMessage.getMedia());
-									marker = im;
-								}else if (waterCarMatcher.find()) {
+
+								if (telegramMessage.getMedia() != null) {
+									marker = ImageMarker.class.newInstance();
+									markerDTO.setImagePath(telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1"));
+								} else if (waterCarMatcher.find()) {
 									marker = WaterTruckMarker.class.newInstance();
 								} else if (blackFlagMatcher.find()) {
 									marker = FlagBlackMarker.class.newInstance();
