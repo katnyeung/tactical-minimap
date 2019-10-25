@@ -157,16 +157,17 @@ public class TelegramParserScheduler {
 
 		for (TelegramMessage telegramMessage : telegramMessageList) {
 			String message = telegramMessage.getMessage();
+			
 			if (message.length() > 150) {
 				logger.info("message characters length > 150. mark to fail " + telegramMessage.getTelegramMessageId());
 				notOkIdList.add(telegramMessage.getTelegramMessageId());
+				
 			} else {
 				Matcher matcher = timePattern.matcher(message);
 
 				if (matcher.find()) {
 					HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
-					// String time = matcher.group(1).replaceAll(":", "");
-
+					
 					// convert message
 					message = message.replaceAll("\n", "");
 
@@ -324,8 +325,8 @@ public class TelegramParserScheduler {
 			// add marker
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
-			double randLat = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
-			double randLng = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 40 + 1) - 20) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 40 + 1) - 20) / 100000.0;
 
 			latlng.setLat(jsonObjLatLng.getDouble("lat") + randLat);
 			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);
