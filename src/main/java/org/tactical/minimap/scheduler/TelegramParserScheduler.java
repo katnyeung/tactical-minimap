@@ -35,6 +35,7 @@ import org.tactical.minimap.repository.marker.PoliceMarker;
 import org.tactical.minimap.repository.marker.RiotPoliceMarker;
 import org.tactical.minimap.repository.marker.TearGasMarker;
 import org.tactical.minimap.repository.marker.WaterTruckMarker;
+import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -239,8 +240,11 @@ public class TelegramParserScheduler {
 								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
 								Matcher waterCarMatcher = waterCarPattern.matcher(message);
 								Matcher blockMatcher = blockPattern.matcher(message);
-
-								if (waterCarMatcher.find()) {
+								if(telegramMessage.getMedia() != null) {
+									ImageMarker im = ImageMarker.class.newInstance();
+									im.setImagePath(telegramMessage.getMedia());
+									marker = im;
+								}else if (waterCarMatcher.find()) {
 									marker = WaterTruckMarker.class.newInstance();
 								} else if (blackFlagMatcher.find()) {
 									marker = FlagBlackMarker.class.newInstance();
