@@ -570,29 +570,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    
 			    map.addControl(new dragLockControl());
 			    
-				var heatMapControl = L.control({position: 'topleft'});
-				
-				heatMapControl.onAdd = function (map) {
-					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-					container.id = 'heatMapControlDiv';
-					container.innerHTML = '<button id="heatMapControl" title="after click this button,mouse drag to draw, drag end to finish">H</button>';
-					container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
-					
-					return container;
-
-				}
-
-				heatMapControl.addTo(map);
-   
-				$('#heatMapControl').click(function(){
-					if(draw){
-						draw = false;
-					}else{
-						draw = true;
-					}
-					
-				});
-			    
 				var command = L.control({position: 'topleft'});
 				
 				command.onAdd = function (map) {

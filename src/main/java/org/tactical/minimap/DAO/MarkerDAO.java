@@ -16,7 +16,7 @@ public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng ORDER BY m.createdate DESC")
 	public List<T> findAllByLatLng(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
 
-	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE m.lastupdatedate < :lastMarkerDate AND l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_DEACTIVED + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng ORDER BY m.lastupdatedate DESC")
+	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE m.lastupdatedate < :lastMarkerDate AND l.layerKey <> 'public' AND l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_DEACTIVED + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng ORDER BY m.lastupdatedate DESC")
 	public List<T> findDeactiveMarkerByLatLng(Pageable pageable, @Param("lastMarkerDate") Date lastMarkerDate, @Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
 
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE Type(m) = PoliceMarker AND l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng")

@@ -98,6 +98,8 @@ public class TelegramParserScheduler {
 
 			prepareData("building", mapFolder + patternFolder + "/v2/estate.building");
 
+			prepareData("wildcard", mapFolder + patternFolder + "/v2/estate.building_wildcard");
+			
 			prepareData("building", mapFolder + patternFolder + "/v2/28hse.building");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/building");
