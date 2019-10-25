@@ -95,6 +95,8 @@ public class TelegramParserScheduler {
 
 			prepareData("region", mapFolder + patternFolder + "/v2/region");
 
+			prepareData("district", mapFolder + patternFolder + "/v2/recreation");
+			
 			prepareData("district", mapFolder + patternFolder + "/v2/district");
 
 			prepareData("building", mapFolder + patternFolder + "/v2/estate.building");
