@@ -856,7 +856,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var updateMessage = '';
 
 					if(map.getZoom() >= 19){
-						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message +  '</mark><br/>' + counter + upDownButton + copyButton;
+						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,item.message.lastIndexOf("#")) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerIndex < 10){
 							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,item.message.lastIndexOf("#")).substr(0, 30) +  '</mark><br/>';
