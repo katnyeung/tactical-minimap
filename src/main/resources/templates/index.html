@@ -842,6 +842,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var icon;
 					var updateClass;
 					var updateCSS;
+					var scale = (map.getZoom() - 12) / 5;
+					scale = scale > 0 ? scale < 1 ? scale : 1 : 0.1;
+					console.log(scale);
 					
 					if(item.type == 'image'){
 						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';
@@ -849,17 +852,20 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/i/'+item.imagePath+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
 					}else{
 						updateClass = 'img-border m-n4 '+ pulseClass +'';
-						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; height:' + (item.iconSize + ((item.level / 10) * item.iconSize)) + 'px; '+ pulseStyle +'';
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + ((item.iconSize + ((item.level / 10) * item.iconSize)) * scale) + 'px; height:' + ((item.iconSize + ((item.level / 10) * item.iconSize)) * scale) + 'px; '+ pulseStyle +'';
 						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
 					}
 					
 					var updateMessage = '';
 
+					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
+
 					if(map.getZoom() >= 19){
-						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,item.message.lastIndexOf("#")) +  '</mark><br/>' + counter + upDownButton + copyButton;
+						
+						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerIndex < 10){
-							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0,item.message.lastIndexOf("#")).substr(0, 30) +  '</mark><br/>';
+							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
 						}
