@@ -904,6 +904,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								maxWidth: "auto"
 							});
 							marker.setPopupContent(imageContent);
+							marker.getPopup().update();
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
@@ -912,6 +913,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								maxWidth: "auto"
 							});
 							marker.setPopupContent(content);
+							marker.getPopup().update();
 						}
 						
 						if(item.message){
@@ -1017,7 +1019,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						marker.markerId = item.markerId;
 						
 						allMarkerList.push(marker);
-
 						
 						// do notification
 						markerDate = Date.parse(item.lastupdatedate);
