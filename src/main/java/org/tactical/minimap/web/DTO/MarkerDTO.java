@@ -17,7 +17,7 @@ public class MarkerDTO {
 
 	String shapeList;
 
-	String imagePath;
+	String imageFile;
 
 	String color;
 
@@ -97,12 +97,12 @@ public class MarkerDTO {
 		this.shapeList = shapeList;
 	}
 
-	public String getImagePath() {
-		return imagePath;
+	public String getImageFile() {
+		return imageFile;
 	}
 
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setImageFile(String imageFile) {
+		this.imageFile = imageFile;
 	}
 
 	public String getColor() {

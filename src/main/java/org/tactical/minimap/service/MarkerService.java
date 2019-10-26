@@ -303,7 +303,7 @@ public class MarkerService {
 			markerDTO.setShapeList(om.writeValueAsString(shapeList));
 
 		} else if (marker instanceof ImageMarker) {
-			markerDTO.setImagePath(((ImageMarker) marker).getImagePath());
+			markerDTO.setImageFile(((ImageMarker) marker).getImagePath());
 		}
 
 		Marker cloneMarker = marker.getClass().newInstance();

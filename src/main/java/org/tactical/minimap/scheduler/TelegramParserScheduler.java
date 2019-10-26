@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import org.tactical.minimap.repository.marker.RiotPoliceMarker;
 import org.tactical.minimap.repository.marker.TearGasMarker;
 import org.tactical.minimap.repository.marker.WaterTruckMarker;
 import org.tactical.minimap.repository.marker.livestream.ImageMarker;
+import org.tactical.minimap.service.ImageService;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -65,6 +67,9 @@ public class TelegramParserScheduler {
 
 	@Autowired
 	RedisService redisService;
+
+	@Autowired
+	ImageService imageService;
 
 	@Value("${API_KEY}")
 	String apiKey;
@@ -245,7 +250,15 @@ public class TelegramParserScheduler {
 
 								if (telegramMessage.getMedia() != null) {
 									marker = ImageMarker.class.newInstance();
-									markerDTO.setImagePath(telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1"));
+									
+									String fileName = telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1");
+									File file = new File(imageService.getServerFullPath(fileName));
+									String ext = FilenameUtils.getExtension(fileName);
+									
+									markerDTO.setImageFile(fileName);
+									
+									imageService.resizeImage(file, file, ext, 512);
+									
 								} else if (waterCarMatcher.find()) {
 									marker = WaterTruckMarker.class.newInstance();
 								} else if (blackFlagMatcher.find()) {

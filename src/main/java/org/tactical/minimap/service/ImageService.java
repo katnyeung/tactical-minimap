@@ -62,8 +62,13 @@ public class ImageService {
 
 	}
 
+	public String getServerFullPath(String fileName) {
+		return uploadFolder + fileName;
+	}
+	
 	public File uploadImage(MultipartFile file, String fileName) throws IllegalStateException, IOException {
-		File targetFile = new File(uploadFolder + fileName);
+		File targetFile = new File(getServerFullPath(fileName));
+		
 		logger.info("upload file to : " + targetFile.getAbsolutePath());
 
 		Path filepath = targetFile.toPath();

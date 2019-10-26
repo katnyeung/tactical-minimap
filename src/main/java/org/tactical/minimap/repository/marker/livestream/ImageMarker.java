@@ -25,15 +25,16 @@ public class ImageMarker extends Marker {
 
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
-		ImageMarker marker = new ImageMarker();
-		marker.setLat(markerDTO.getLat());
-		marker.setLng(markerDTO.getLng());
-		marker.setMessage(markerDTO.getMessage());
-		marker.setExpire(getMarkerExpire());
-		marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-		marker.setUuid(markerDTO.getUuid());
-		marker.setImagePath(markerDTO.getImagePath());
-		return marker;
+		this.setLat(markerDTO.getLat());
+		this.setLng(markerDTO.getLng());
+		this.setMessage(markerDTO.getMessage());
+		this.setExpire(getMarkerExpire());
+		this.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+		this.setUuid(markerDTO.getUuid());
+		this.setHour(markerDTO.getHour());
+		this.setMinute(markerDTO.getMinute());
+		this.setImagePath(markerDTO.getImageFile());
+		return this;
 	}
 
 	@Override
