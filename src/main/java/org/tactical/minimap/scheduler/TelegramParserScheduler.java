@@ -176,141 +176,150 @@ public class TelegramParserScheduler {
 				Matcher matcher = timePattern.matcher(message);
 
 				if (matcher.find()) {
-					HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
 
-					// convert message
-					message = message.replaceAll("\n", "");
+					try {
 
-					HashMap<String, String> messageRules = getRules();
+						HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
 
-					for (String mrKey : messageRules.keySet()) {
-						message = message.replaceAll(mrKey, messageRules.get(mrKey));
-					}
+						// convert message
+						message = message.replaceAll("\n", "");
 
-					logger.info("processing message {}", message);
+						HashMap<String, String> messageRules = getRules();
 
-					processData(message, "region", keyMap, 40);
+						for (String mrKey : messageRules.keySet()) {
+							message = message.replaceAll(mrKey, messageRules.get(mrKey));
+						}
 
-					processData(message, "street", keyMap, 30);
+						logger.info("processing message {}", message);
 
-					processData(message, "district", keyMap, 25);
+						processData(message, "region", keyMap, 40);
 
-					processData(message, "building", keyMap, 15);
+						processData(message, "street", keyMap, 30);
 
-					processData(message, "plaza", keyMap, 15);
+						processData(message, "district", keyMap, 25);
 
-					processData(message, "mtr", keyMap, 15);
+						processData(message, "building", keyMap, 15);
 
-					processData(message, "wildcard", keyMap, 5);
+						processData(message, "plaza", keyMap, 15);
 
-					processData(message, "additional", keyMap, 10);
+						processData(message, "mtr", keyMap, 15);
 
-					if (keyMap.keySet().size() == 0) {
-						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
-						notOkIdList.add(telegramMessage.getTelegramMessageId());
+						processData(message, "wildcard", keyMap, 5);
 
-					} else {
+						processData(message, "additional", keyMap, 10);
 
-						// save parse result
-						Gson gson = new Gson();
-						telegramMessage.setResult(gson.toJson(keyMap));
-						telegramMessageService.saveTelegramMessage(telegramMessage);
-
-						MarkerGeoCoding latlng = doGoogle(keyMap);
-						// arkerGeoCoding latlng = doGeoDataHK(keyMap);
-
-						if (latlng == null) {
-
-							logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
+						if (keyMap.keySet().size() == 0) {
+							logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
 							notOkIdList.add(telegramMessage.getTelegramMessageId());
 
 						} else {
-							Layer layer = layerService.getLayerByKey("scout");
 
-							MarkerDTO markerDTO = new MarkerDTO();
-							markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
-							markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
-							markerDTO.setLayer("scout");
-							markerDTO.setMessage(telegramMessage.getMessage() + "\n#" + telegramMessage.getGroupKey());
-							markerDTO.setUuid("TELEGRAM_BOT");
+							// save parse result
+							Gson gson = new Gson();
+							telegramMessage.setResult(gson.toJson(keyMap));
+							telegramMessageService.saveTelegramMessage(telegramMessage);
 
-							try {
-								// analyst target icon
-								int level = 1;
-								Marker marker = null;
+							MarkerGeoCoding latlng = doGoogle(keyMap);
+							// arkerGeoCoding latlng = doGeoDataHK(keyMap);
 
-								Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
-								Matcher blackFlagMatcher = blackFlagPattern.matcher(message);
-								Matcher blueFlagMatcher = blueFlagPattern.matcher(message);
-								Matcher orangeFlagMatcher = orangeFlagPattern.matcher(message);
-								Matcher tearGasMatcher = tearGasPattern.matcher(message);
-								Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
-								Matcher waterCarMatcher = waterCarPattern.matcher(message);
-								Matcher blockMatcher = blockPattern.matcher(message);
+							if (latlng == null) {
 
-								if (telegramMessage.getMedia() != null) {
-									marker = ImageMarker.class.newInstance();
-									
-									String fileName = telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1");
-									File file = new File(imageService.getServerFullPath(fileName));
-									String ext = FilenameUtils.getExtension(fileName);
-									
-									markerDTO.setImagePath(fileName);
-									
-									imageService.resizeImage(file, file, ext, 512);
-									
-								} else if (waterCarMatcher.find()) {
-									marker = WaterTruckMarker.class.newInstance();
-								} else if (blackFlagMatcher.find()) {
-									marker = FlagBlackMarker.class.newInstance();
-								} else if (blueFlagMatcher.find()) {
-									marker = FlagBlueMarker.class.newInstance();
-								} else if (orangeFlagMatcher.find()) {
-									marker = FlagOrangeMarker.class.newInstance();
-								} else if (blockMatcher.find()) {
-									marker = BlockadeMarker.class.newInstance();
-								} else if (tearGasMatcher.find()) {
-									marker = TearGasMarker.class.newInstance();
-								} else if (riotPoliceMatcher.find()) {
-									if (riotPoliceMatcher.groupCount() > 1) {
-										try {
-											level = Integer.parseInt(riotPoliceMatcher.group(1));
-											level = level < 10 ? level : 10;
-											logger.info("message level : {} ", level);
-										} catch (NumberFormatException nfe) {
-											logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
-										}
-									}
-									marker = RiotPoliceMarker.class.newInstance();
-									marker.setLevel(level);
-								} else if (isPoliceMatcher.find()) {
-									if (isPoliceMatcher.groupCount() > 1) {
-										try {
-											level = Integer.parseInt(isPoliceMatcher.group(1));
-											level = level < 10 ? level : 10;
-											logger.info("message level : {} ", level);
-										} catch (NumberFormatException nfe) {
-											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
-										}
-									}
-									marker = PoliceMarker.class.newInstance();
-									marker.setLevel(level);
-								} else {
-									marker = InfoMarker.class.newInstance();
-								}
-
-								logger.info("adding marker " + marker.getType());
-
-								markerService.addMarker(layer, markerDTO, marker);
-
-								okIdList.add(telegramMessage.getTelegramMessageId());
-							} catch (InstantiationException | IllegalAccessException e) {
-								e.printStackTrace();
+								logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
 								notOkIdList.add(telegramMessage.getTelegramMessageId());
-								logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
+
+							} else {
+								Layer layer = layerService.getLayerByKey("scout");
+
+								MarkerDTO markerDTO = new MarkerDTO();
+								markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
+								markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
+								markerDTO.setLayer("scout");
+								markerDTO.setMessage(telegramMessage.getMessage() + "\n#" + telegramMessage.getGroupKey());
+								markerDTO.setUuid("TELEGRAM_BOT");
+
+								try {
+									// analyst target icon
+									int level = 1;
+									Marker marker = null;
+
+									Matcher isPoliceMatcher = policeMarkerPattern.matcher(message);
+									Matcher blackFlagMatcher = blackFlagPattern.matcher(message);
+									Matcher blueFlagMatcher = blueFlagPattern.matcher(message);
+									Matcher orangeFlagMatcher = orangeFlagPattern.matcher(message);
+									Matcher tearGasMatcher = tearGasPattern.matcher(message);
+									Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
+									Matcher waterCarMatcher = waterCarPattern.matcher(message);
+									Matcher blockMatcher = blockPattern.matcher(message);
+
+									if (telegramMessage.getMedia() != null) {
+										marker = ImageMarker.class.newInstance();
+
+										String fileName = telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1");
+										File file = new File(imageService.getServerFullPath(fileName));
+										String ext = FilenameUtils.getExtension(fileName);
+
+										markerDTO.setImagePath(fileName);
+
+										imageService.resizeImage(file, file, ext, 512);
+
+									} else if (waterCarMatcher.find()) {
+										marker = WaterTruckMarker.class.newInstance();
+									} else if (blackFlagMatcher.find()) {
+										marker = FlagBlackMarker.class.newInstance();
+									} else if (blueFlagMatcher.find()) {
+										marker = FlagBlueMarker.class.newInstance();
+									} else if (orangeFlagMatcher.find()) {
+										marker = FlagOrangeMarker.class.newInstance();
+									} else if (blockMatcher.find()) {
+										marker = BlockadeMarker.class.newInstance();
+									} else if (tearGasMatcher.find()) {
+										marker = TearGasMarker.class.newInstance();
+									} else if (riotPoliceMatcher.find()) {
+										if (riotPoliceMatcher.groupCount() > 1) {
+											try {
+												level = Integer.parseInt(riotPoliceMatcher.group(1));
+												level = level < 10 ? level : 10;
+												logger.info("message level : {} ", level);
+											} catch (NumberFormatException nfe) {
+												logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
+											}
+										}
+										marker = RiotPoliceMarker.class.newInstance();
+										marker.setLevel(level);
+									} else if (isPoliceMatcher.find()) {
+										if (isPoliceMatcher.groupCount() > 1) {
+											try {
+												level = Integer.parseInt(isPoliceMatcher.group(1));
+												level = level < 10 ? level : 10;
+												logger.info("message level : {} ", level);
+											} catch (NumberFormatException nfe) {
+												logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+											}
+										}
+										marker = PoliceMarker.class.newInstance();
+										marker.setLevel(level);
+									} else {
+										marker = InfoMarker.class.newInstance();
+									}
+
+									logger.info("adding marker " + marker.getType());
+
+									markerService.addMarker(layer, markerDTO, marker);
+
+									okIdList.add(telegramMessage.getTelegramMessageId());
+								} catch (InstantiationException | IllegalAccessException e) {
+									e.printStackTrace();
+									notOkIdList.add(telegramMessage.getTelegramMessageId());
+									logger.info("exception occur. mark to fail " + telegramMessage.getTelegramMessageId());
+								}
 							}
+
 						}
 
+					} catch (Exception e) {
+						e.printStackTrace();
+						logger.info("exception occur . mark to fail " + telegramMessage.getTelegramMessageId());
+						notOkIdList.add(telegramMessage.getTelegramMessageId());
 					}
 
 				} else {
