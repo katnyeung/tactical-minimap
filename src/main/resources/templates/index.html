@@ -847,7 +847,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					
 					if(item.type == 'image'){
 						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';
-						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + item.iconSize + 'px; '+ pulseStyle +';border:2px solid #3366AA !important';
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; '+ pulseStyle +';border:2px solid #3366AA !important';
 						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/i/'+item.imagePath+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
 					}else{
 						updateClass = 'img-border m-n4 '+ pulseClass +'';
