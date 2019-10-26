@@ -918,7 +918,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 						if(item.message){
 					        marker.on('mouseover', function (e) {
-					        	this.updatePopup();
+					        	this.getPopup().update();
 					            this.openPopup();
 					        });
 						}
@@ -1062,7 +1062,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						if(item.message){
 							if(!marker[0]._events.mouseover){
 						        marker[0].on('mouseover', function (e) {
-						        	this.updatePopup();
+						        	this.getPopup().update();
 						            this.openPopup();
 						        });
 							}
