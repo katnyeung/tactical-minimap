@@ -842,9 +842,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var icon;
 					var updateClass;
 					var updateCSS;
-					var scale = (map.getZoom() - 12) / 5;
+					var scale = (map.getZoom() - 12) / 4;
 					scale = scale > 0 ? scale < 1 ? scale : 1 : 0.1;
-					console.log(scale);
 					
 					if(item.type == 'image'){
 						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';
