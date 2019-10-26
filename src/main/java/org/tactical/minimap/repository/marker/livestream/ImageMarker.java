@@ -33,7 +33,7 @@ public class ImageMarker extends Marker {
 		this.setUuid(markerDTO.getUuid());
 		this.setHour(markerDTO.getHour());
 		this.setMinute(markerDTO.getMinute());
-		this.setImagePath(markerDTO.getImageFile());
+		this.setImagePath(markerDTO.getImagePath());
 		return this;
 	}
 

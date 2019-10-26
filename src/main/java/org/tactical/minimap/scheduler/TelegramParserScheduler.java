@@ -255,7 +255,7 @@ public class TelegramParserScheduler {
 									File file = new File(imageService.getServerFullPath(fileName));
 									String ext = FilenameUtils.getExtension(fileName);
 									
-									markerDTO.setImageFile(fileName);
+									markerDTO.setImagePath(fileName);
 									
 									imageService.resizeImage(file, file, ext, 512);
 									

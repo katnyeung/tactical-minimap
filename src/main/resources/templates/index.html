@@ -903,6 +903,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoClose: true,
 								maxWidth: "auto"
 							});
+							marker.setPopupContent(imageContent);
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
@@ -910,6 +911,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoClose: true,
 								maxWidth: "auto"
 							});
+							marker.setPopupContent(content);
 						}
 						
 						if(item.message){
