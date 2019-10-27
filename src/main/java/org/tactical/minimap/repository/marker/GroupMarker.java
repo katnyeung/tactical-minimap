@@ -17,7 +17,7 @@ public class GroupMarker extends Marker {
 
 	@Override
 	public String getIcon() {
-		return "group.png";
+		return "protection.png";
 	}
 
 	@Override
@@ -52,6 +52,6 @@ public class GroupMarker extends Marker {
 	
 	@Override
 	public String getDescription() {
-		return "人群";
+		return "安全";
 	}
 }

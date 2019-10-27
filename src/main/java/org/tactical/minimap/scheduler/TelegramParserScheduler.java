@@ -27,9 +27,11 @@ import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
 import org.tactical.minimap.repository.marker.BlockadeMarker;
+import org.tactical.minimap.repository.marker.DangerMarker;
 import org.tactical.minimap.repository.marker.FlagBlackMarker;
 import org.tactical.minimap.repository.marker.FlagBlueMarker;
 import org.tactical.minimap.repository.marker.FlagOrangeMarker;
+import org.tactical.minimap.repository.marker.GroupMarker;
 import org.tactical.minimap.repository.marker.InfoMarker;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.repository.marker.PoliceMarker;
@@ -92,6 +94,9 @@ public class TelegramParserScheduler {
 	Pattern tearGasPattern = Pattern.compile("(催淚)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
+	Pattern groupPattern = Pattern.compile("(安全)");
+	Pattern dangerPattern = Pattern.compile("(制服)");
+
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
 
 	public void initialConfig() {
@@ -250,6 +255,8 @@ public class TelegramParserScheduler {
 									Matcher riotPoliceMatcher = riotPolicePattern.matcher(message);
 									Matcher waterCarMatcher = waterCarPattern.matcher(message);
 									Matcher blockMatcher = blockPattern.matcher(message);
+									Matcher groupMatcher = groupPattern.matcher(message);
+									Matcher dangerMatcher = dangerPattern.matcher(message);
 
 									if (telegramMessage.getMedia() != null) {
 										marker = ImageMarker.class.newInstance();
@@ -260,8 +267,12 @@ public class TelegramParserScheduler {
 
 										markerDTO.setImagePath(fileName);
 
-										imageService.resizeImage(file, file, ext, 512);
+										imageService.resizeImage(file, file, ext, 400);
 
+									} else if (dangerMatcher.find()) {
+										marker = DangerMarker.class.newInstance();
+									} else if (groupMatcher.find()) {
+										marker = GroupMarker.class.newInstance();
 									} else if (waterCarMatcher.find()) {
 										marker = WaterTruckMarker.class.newInstance();
 									} else if (blackFlagMatcher.find()) {
@@ -414,11 +425,23 @@ public class TelegramParserScheduler {
 		for (String pattern : patternList) {
 			int weight = categoryWeight;
 
-			String processingPattern = pattern.replaceAll("(\\(|\\)|\\[|\\]|\\.)", "\\$1");
+			String processingPattern = pattern;
 
-			if (message.matches(".*" + processingPattern + ".*")) {
+			String replaceToPattern = null;
+			if (processingPattern.indexOf("|") > 0) {
+				replaceToPattern = processingPattern.substring(processingPattern.indexOf("|") + 1, processingPattern.length());
+				processingPattern = processingPattern.substring(0, processingPattern.indexOf("|"));
+			}
+
+			Pattern addressPattern = Pattern.compile(processingPattern);
+			Matcher addressMatcher = addressPattern.matcher(message);
+
+			if (addressMatcher.find()) {
+				double weightMultipler = (((message.length() * 1.0) - addressMatcher.start()) / message.length()) * 30;
+				weight += weightMultipler;
+				
 				if (keyMap.keySet().size() == 0) {
-					keyMap.put(pattern, weight);
+					addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
 				} else {
 					boolean isExist = false;
 					for (String key : keyMap.keySet()) {
@@ -428,12 +451,21 @@ public class TelegramParserScheduler {
 						}
 					}
 					if (!isExist)
-						keyMap.put(pattern, weight);
+						addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
 					logger.info("{}", keyMap);
 				}
 			}
 		}
 
+	}
+
+	private void addPattern(String pattern, Integer weight, HashMap<String, Integer> keyMap, String patternMessage, String replaceToPattern) {
+		if (replaceToPattern != null) {
+			String newPattern = patternMessage.replaceAll(pattern, replaceToPattern);
+			keyMap.put(newPattern, weight);
+		} else {
+			keyMap.put(pattern, weight);
+		}
 	}
 
 	public static int BoyerMooreHorspoolSimpleSearch(char[] pattern, char[] text) {

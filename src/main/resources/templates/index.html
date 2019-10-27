@@ -859,11 +859,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
 
-					if(map.getZoom() >= 19){
+					if(map.getZoom() >= 20){
 						
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
-						if(markerIndex < 10){
+						if(markerIndex < 15){
 							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
@@ -1451,8 +1451,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			<div>救護</div>
 		</button>
 		<button id="btnGroupMarker" class="btn btn-info mt-1">
-			<img src="/icon/group.png" style="width: 32px; height: 32px" />
-			<div>人群</div>
+			<img src="/icon/protection.png" style="width: 32px; height: 32px" />
+			<div>安全</div>
 		</button>
 		<button id="btnSupplyMarker" class="btn btn-success mt-1">
 			<img src="/icon/supply.png" style="width: 32px; height: 32px" />
