@@ -261,7 +261,7 @@ public class MarkerService {
 
 		if (mc != null) {
 
-			mc.setPulse(ConstantsUtil.PULSE_RATE);
+			mc.setPulse(mc.getPulse() + ConstantsUtil.PULSE_RATE);
 
 			redisService.saveMarkerCache(mc);
 

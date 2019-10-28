@@ -799,7 +799,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if (item.markerCache != null) {
 						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + item.markerCache.upVote + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + item.markerCache.downVote + '</a>' + deleteBtn + '</mark></div>';
 						
-						counter = '<div style="width:150px;padding-left:8px;margin-top:-4px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.lastupdatedate).formatDate() + '</mark></div>';
+						counter = '<div style="width:150px;padding-left:8px;margin-top:-4px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.createdate).formatDate() + '</mark></div>';
 						
 						if(item.markerCache.pulse > 0){
 							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';
@@ -812,7 +812,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						expirePercent = item.markerCache.expire / item.expire;
 						
 						if(item.markerCache.expire <= item.expire){
-							var itemDate = new Date(item.lastupdatedate);
+							var itemDate = new Date(item.createdate);
 							itemDate.setHours(item.hour);
 							itemDate.setMinutes(item.minute);
 							
@@ -1027,7 +1027,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						allMarkerList.push(marker);
 						
 						// do notification
-						markerDate = Date.parse(item.lastupdatedate);
+						markerDate = Date.parse(item.createdate);
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
