@@ -94,10 +94,10 @@ public class TelegramParserScheduler {
 	Pattern tearGasPattern = Pattern.compile("(催淚)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
-	Pattern groupPattern = Pattern.compile("(安全)");
+	Pattern groupPattern = Pattern.compile("(安全|safe|Safe)");
 	Pattern dangerPattern = Pattern.compile("(制服)");
 
-	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站)");
+	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路)");
 
 	public void initialConfig() {
 		try {
@@ -366,8 +366,8 @@ public class TelegramParserScheduler {
 			// add marker
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
-			double randLat = (ThreadLocalRandom.current().nextInt(0, 40 + 1) - 20) / 100000.0;
-			double randLng = (ThreadLocalRandom.current().nextInt(0, 40 + 1) - 20) / 100000.0;
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
 
 			latlng.setLat(jsonObjLatLng.getDouble("lat") + randLat);
 			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);

@@ -37,7 +37,7 @@ public class TearGasMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 160;
+		return 220;
 	}
 
 	@Override

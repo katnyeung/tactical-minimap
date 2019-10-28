@@ -22,7 +22,7 @@ public class GroupMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 46;
 	}
 
 	@Override

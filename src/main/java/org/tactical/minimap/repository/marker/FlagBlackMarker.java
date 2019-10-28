@@ -37,7 +37,7 @@ public class FlagBlackMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 240;
+		return 180;
 	}
 
 	@Override
