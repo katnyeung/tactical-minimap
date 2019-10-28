@@ -1137,18 +1137,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					markerIndex++;
 				});
 				
-				document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
-					  var tagName = event.target.tagName,
-					  popup = map._popup;
-					  console.log("here");
-					  // Also check if flag is already set.
-					  if (tagName === "IMG" && popup && !popup._updated) {
-					    popup._updated = true; // Set flag to prevent looping.
-					    popup.update();
-					  }
-					  
-					}, true);
-
 				$(".btnDelete").on("click", function(e) {
 					var button = $(this);
 					e.preventDefault();
