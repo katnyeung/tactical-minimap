@@ -21,13 +21,31 @@ import org.springframework.stereotype.Service;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
+import org.tactical.minimap.web.DTO.MarkerWebSocketDTO;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class RedisService {
-	Logger logger = LoggerFactory.getLogger(this.getClass());
+	public final Logger logger = LoggerFactory.getLogger(getClass());
+	final ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
+
+	public void saveLoggedUser(String uuid, MarkerWebSocketDTO markerWSDTO) {
+		stringRedisTemplate.opsForHash().putAll(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid, markerWSDTO.toHashMap());
+		stringRedisTemplate.expire(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid, 10, TimeUnit.SECONDS);
+	}
+
+	public MarkerWebSocketDTO getLoggedUser(String uuid) {
+		Map<Object, Object> objMap = stringRedisTemplate.opsForHash().entries(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid);
+		if (objMap != null) {
+			return MarkerWebSocketDTO.fromHashMap(objMap);
+		} else {
+			return null;
+		}
+	}
 
 	public void saveMarkerCache(MarkerCache markerCache) {
 		stringRedisTemplate.opsForHash().putAll(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerCache.getMarkerId().toString(), markerCache.toHashMap());
@@ -110,6 +128,11 @@ public class RedisService {
 			markerCacheList.add(this.getMarkerCacheByMarkerId(markerId));
 		}
 		return markerCacheList;
+	}
+
+	public void setTempKey(String key, String value, int time) {
+		stringRedisTemplate.opsForValue().set(key, value);
+		stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
 	}
 
 	public List<String> findKeys(String query) {

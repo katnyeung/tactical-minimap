@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
@@ -32,6 +35,9 @@ import org.tactical.minimap.repository.marker.shape.ShapeMarkerDetail;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
+import org.tactical.minimap.web.DTO.MarkerWebSocketDTO;
+import org.tactical.minimap.web.result.MarkerResult;
+import org.tactical.minimap.web.result.MarkerResultListResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,8 +57,73 @@ public class MarkerService {
 	@Autowired
 	LayerService layerService;
 
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
+
 	@PersistenceContext
 	EntityManager em;
+
+	public List<MarkerResult> findMultiLayerMarkersResponse(String uuid, List<Long> markerIdList, List<String> layerKeys, Double lat, Double lng, Double range) {
+
+		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
+
+		List<MarkerResult> mrList = new LinkedList<MarkerResult>();
+
+		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Long> processedList = new ArrayList<Long>();
+		
+		for (Marker marker : markerList) {
+			boolean isControllable = false;
+			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
+				isControllable = true;
+			}
+
+			MarkerResult mr;
+
+			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+
+			double opacity = getMarkerOpacity(marker);
+
+			// process marker new line and wrap issue
+			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
+
+			if (markerIdList != null) {
+				if (!markerIdList.contains(marker.getMarkerId())) {
+					// new marker, not in client list
+					mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+				} else {
+					// marker exist in client
+					if (Calendar.getInstance().getTimeInMillis() - marker.getLastupdatedate().getTime() < 10000) {
+						mr = MarkerResult.makeResult(marker.getMarkerId()).status("U").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+					} else {
+						mr = MarkerResult.makeResult(marker.getMarkerId()).status("O").cache(mc).opacity(opacity).controllable(isControllable);
+					}
+
+				}
+
+				// processed, remove the Id from list
+				processedList.add(marker.getMarkerId());
+			} else {
+				// request marker first time
+				mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+			}
+
+			mrList.add(mr);
+		}
+
+		if (markerIdList != null) {
+			for (Long markerId : markerIdList) {
+				// marker no more in process
+				if(!processedList.contains(markerId)) {
+					MarkerResult mr = MarkerResult.makeResult(markerId).status("X");
+					mrList.add(mr);
+				}
+
+			}
+		}
+
+		return mrList;
+	}
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
 		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
@@ -88,7 +159,7 @@ public class MarkerService {
 
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
-		
+
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
 		Calendar cal1 = Calendar.getInstance(tz1);
 
@@ -200,59 +271,25 @@ public class MarkerService {
 		return totalUpVote;
 	}
 
-	public void addMarkerCache(List<Marker> markerList, String uuid) {
-		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
+	public double getMarkerOpacity(Marker marker) {
 
-		for (Marker marker : markerList) {
-			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+		// set opacity
+		int minute = 60 * 1000;
+		Date currentDate = Calendar.getInstance().getTime();
+		double weight = 1.0;
 
-			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
-				marker.setControllable(true);
-			}
-
-			double markerOpacity = 0.0;
-
-			Calendar dateBackCalendar = Calendar.getInstance();
-			Long currentTimeInMillis = dateBackCalendar.getTimeInMillis();
-
-			dateBackCalendar.add(Calendar.HOUR_OF_DAY, -3);
-
-			Long dateBackTimeInMillis = dateBackCalendar.getTimeInMillis();
-			Long markerLastUpdateTimeInMillis = marker.getLastupdatedate().getTime();
-
-			if (markerLastUpdateTimeInMillis > dateBackTimeInMillis) {
-				double percentage = (markerLastUpdateTimeInMillis - dateBackTimeInMillis) / (currentTimeInMillis - dateBackTimeInMillis * 1.0);
-
-				markerOpacity = Math.floor(percentage * 100.0 / 100.0);
-			}
-
-			marker.setOpacity(markerOpacity);
-
-			if (mc != null) {
-				marker.setMarkerCache(mc);
-
-				// set opacity
-				int minute = 60 * 1000;
-				Date currentDate = Calendar.getInstance().getTime();
-				double weight = 1.0;
-
-				if (marker.getLastupdatedate().getTime() + (18 * minute) <= currentDate.getTime()) {
-					weight = 0.6;
-				} else if (marker.getLastupdatedate().getTime() + (15 * minute) <= currentDate.getTime()) {
-					weight = 0.7;
-				} else if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
-					weight = 0.8;
-				} else if (marker.getLastupdatedate().getTime() + (6 * minute) <= currentDate.getTime()) {
-					weight = 0.9;
-				}
-
-				marker.setOpacity(weight);
-
-			}
-
-			// process marker new line and wrap issue
-			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
+		if (marker.getLastupdatedate().getTime() + (18 * minute) <= currentDate.getTime()) {
+			weight = 0.6;
+		} else if (marker.getLastupdatedate().getTime() + (15 * minute) <= currentDate.getTime()) {
+			weight = 0.7;
+		} else if (marker.getLastupdatedate().getTime() + (12 * minute) <= currentDate.getTime()) {
+			weight = 0.8;
+		} else if (marker.getLastupdatedate().getTime() + (6 * minute) <= currentDate.getTime()) {
+			weight = 0.9;
 		}
+
+		return weight;
+
 	}
 
 	public boolean pulseMarker(Marker marker) {
@@ -317,6 +354,45 @@ public class MarkerService {
 		}
 
 		markerDAO.save(cloneMarker);
+	}
+
+	public void broadcastUpdateToAllLoggedUser() {
+		List<String> keyList = redisService.findKeys(ConstantsUtil.REDIS_USER_PREFIX + ":*");
+		for (String key : keyList) {
+			String uuid = key.replace(ConstantsUtil.REDIS_USER_PREFIX + ":", "");
+			MarkerWebSocketDTO markerWSDTO = redisService.getLoggedUser(uuid);
+			
+			logger.info("broadcast to user {} : {} ", uuid, markerWSDTO);
+			
+			List<MarkerResult> markerResultList = processMarkers(markerWSDTO);
+
+			simpMessagingTemplate.convertAndSend("/markers/list/" + uuid, MarkerResultListResult.success(markerResultList));
+		}
+	}
+
+	public List<MarkerResult> processMarkers(MarkerWebSocketDTO markerWSDTO) {
+		Map<String, String> layerMap = new HashMap<String, String>();
+		List<Long> markerIdList = new ArrayList<Long>();
+
+		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
+
+		for (String layerKey : markerWSDTO.getLayerString().split(",")) {
+			Matcher matcher = pattern.matcher(layerKey);
+
+			if (matcher.find()) {
+				if (matcher.groupCount() > 1) {
+					layerMap.put(matcher.group(1), matcher.group(2));
+				}
+			}
+		}
+
+		if (markerWSDTO.getMarkerIdList().length() > 0) {
+			for (String markerId : markerWSDTO.getMarkerIdList().split(",")) {
+				markerIdList.add(Long.parseLong(markerId));
+			}
+		}
+
+		return findMultiLayerMarkersResponse(markerWSDTO.getUuid(), markerIdList, layerMap.keySet().stream().collect(Collectors.toList()), markerWSDTO.getLat(), markerWSDTO.getLng(), ConstantsUtil.RANGE);
 	}
 
 }

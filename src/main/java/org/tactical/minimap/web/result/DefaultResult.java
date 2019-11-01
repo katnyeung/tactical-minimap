@@ -1,22 +1,14 @@
 package org.tactical.minimap.web.result;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.tactical.minimap.util.ConstantsUtil;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public class DefaultResult {
-	Date datetime;
 	String status;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL) //ignore null field on this property only
 	String remarks;
-
-	public Date getDatetime() {
-		return datetime;
-	}
-
-	public void setDatetime(Date datetime) {
-		this.datetime = datetime;
-	}
 
 	public String getStatus() {
 		return status;
@@ -35,7 +27,6 @@ public class DefaultResult {
 	}
 
 	public DefaultResult() {
-		datetime = Calendar.getInstance().getTime();
 		status = null;
 		remarks = null;
 	}

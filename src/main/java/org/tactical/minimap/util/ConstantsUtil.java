@@ -5,6 +5,8 @@ public class ConstantsUtil {
 	public static final String STATUS_ERROR = "error";
 	public static final Double RANGE = 1.0;
 
+	public static final String REDIS_USER_PREFIX = "user";
+	
 	public static final String REDIS_MARKER_PREFIX = "marker";
 	public static final String REDIS_MARKER_RESPONSE_LOCK_PREFIX = "marker_response";
 	public static final String REDIS_MARKER_LOCK_PREFIX = "marker_lock";

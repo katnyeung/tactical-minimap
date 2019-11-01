@@ -155,11 +155,11 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@NotNull
 	private String uuid;
-	
+
 	@JsonInclude(Include.NON_NULL)
 	@Column(nullable = true)
 	Integer hour;
-	
+
 	@JsonInclude(Include.NON_NULL)
 	@Column(nullable = true)
 	Integer minute;
@@ -172,6 +172,7 @@ public abstract class Marker extends Auditable<String> {
 	@OneToMany(mappedBy = "marker", cascade = CascadeType.ALL)
 	List<MarkerResponse> markerResponseList;
 
+	@JsonInclude(Include.NON_NULL)
 	@Transient
 	MarkerCache markerCache;
 

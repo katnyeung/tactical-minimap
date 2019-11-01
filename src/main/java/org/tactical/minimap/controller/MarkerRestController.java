@@ -33,7 +33,8 @@ import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 import org.tactical.minimap.web.DTO.MarkerResponseDTO;
 import org.tactical.minimap.web.result.DefaultResult;
-import org.tactical.minimap.web.result.MarkerListResult;
+import org.tactical.minimap.web.result.MarkerResult;
+import org.tactical.minimap.web.result.MarkerResultListResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -92,6 +93,9 @@ public class MarkerRestController {
 		if (lockedTimeInMillis == null) {
 			Marker result = markerService.addMarker(layer, markerDTO, marker);
 			if (result != null) {
+
+				markerService.broadcastUpdateToAllLoggedUser();
+
 				return DefaultResult.success();
 			} else {
 				return DefaultResult.error("please fill in required content");
@@ -115,6 +119,8 @@ public class MarkerRestController {
 
 				redisService.updateLock(layer.getLayerKey(), uuid, marker.getAddDelay());
 
+				markerService.broadcastUpdateToAllLoggedUser();
+
 				return DefaultResult.success();
 			}
 
@@ -123,8 +129,8 @@ public class MarkerRestController {
 
 	}
 
-	@GetMapping("/{layerKeys}/list")
-	public DefaultResult getMarker(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	@GetMapping("/{layerKeys}/list2")
+	public DefaultResult getMarkerResult(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
 		Map<String, String> layerMap = new HashMap<String, String>();
@@ -143,13 +149,10 @@ public class MarkerRestController {
 				}
 			}
 		}
+		logger.info("marker DTO : list : " + markerDTO.getMarkerIdList());
+		List<MarkerResult> markerResultList = markerService.findMultiLayerMarkersResponse(uuid, markerDTO.getMarkerIdList(), layerMap.keySet().stream().collect(Collectors.toList()), lat, lng, ConstantsUtil.RANGE);
 
-		List<Marker> markerList = markerService.findMultiLayerMarkers(layerMap.keySet().stream().collect(Collectors.toList()), lat, lng, ConstantsUtil.RANGE);
-
-		markerService.addMarkerCache(markerList, uuid);
-
-		return MarkerListResult.success(markerList);
-
+		return MarkerResultListResult.success(markerResultList);
 	}
 
 	@Auth
@@ -159,6 +162,8 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		markerService.moveMarker(marker, markerDTO.getLat(), markerDTO.getLng());
+
+		markerService.broadcastUpdateToAllLoggedUser();
 
 		return DefaultResult.success();
 
@@ -171,6 +176,9 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		if (markerService.pulseMarker(marker)) {
+
+			markerService.broadcastUpdateToAllLoggedUser();
+
 			return DefaultResult.success();
 		} else {
 			return DefaultResult.error("marker not ready");
@@ -187,6 +195,8 @@ public class MarkerRestController {
 
 		try {
 			markerService.copyMarkerToLayer(marker, markerDTO.getLayer(), uuid);
+
+			markerService.broadcastUpdateToAllLoggedUser();
 		} catch (InstantiationException | IllegalAccessException | JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -205,6 +215,8 @@ public class MarkerRestController {
 		markerService.deleteMarker(marker);
 		redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + markerDTO.getMarkerId());
 
+		markerService.broadcastUpdateToAllLoggedUser();
+
 		return DefaultResult.success();
 
 	}
@@ -216,6 +228,8 @@ public class MarkerRestController {
 		Marker marker = markerService.findMarkerByMarkerId(markerDTO.getMarkerId());
 
 		markerService.updateMessage(marker, markerDTO.getMessage());
+
+		markerService.broadcastUpdateToAllLoggedUser();
 
 		return DefaultResult.success();
 

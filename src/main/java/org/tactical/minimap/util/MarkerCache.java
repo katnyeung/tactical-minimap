@@ -4,20 +4,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MarkerCache {
 	@JsonIgnore
 	Long markerId;
+	
 	@JsonIgnore
 	double lat;
 	@JsonIgnore
 	double lng;
 
-	int upVote;
-	int downVote;
+	@JsonProperty("u")
+	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+	int upVote = 0;
+
+	@JsonProperty("d")
+	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+	int downVote = 0;
 
 	Long expire;
 
+	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	int pulse = 0;
 	
 	@JsonIgnore

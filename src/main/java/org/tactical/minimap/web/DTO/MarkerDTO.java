@@ -1,5 +1,7 @@
 package org.tactical.minimap.web.DTO;
 
+import java.util.List;
+
 public class MarkerDTO {
 	Double lat;
 	Double lng;
@@ -24,6 +26,8 @@ public class MarkerDTO {
 	Integer hour;
 
 	Integer minute;
+
+	List<Long> markerIdList;
 
 	public Double getLat() {
 		return lat;
@@ -127,6 +131,14 @@ public class MarkerDTO {
 
 	public void setMinute(Integer minute) {
 		this.minute = minute;
+	}
+
+	public List<Long> getMarkerIdList() {
+		return markerIdList;
+	}
+
+	public void setMarkerIdList(List<Long> markerIdList) {
+		this.markerIdList = markerIdList;
 	}
 
 }
