@@ -727,9 +727,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							}
 
 							var marker = $.grep(markerDataList, function(e){ return e.markerId == item.markerId; });
+							
 							if(marker.length == 0){
-								markerCount++;
-								item.markerIndex = markerCount;
+								item.markerIndex = markerCount++;
 								markerDataList.push(item);
 							}
 							
@@ -902,7 +902,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 20){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
-						if(markerCount - item.markerIndex  < 15){
+						if(markerCount < item.markerIndex + 15){
 							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
