@@ -670,7 +670,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			stompClient.debug = null
 			
 			stompClient.connect({}, function (frame) {
-				toastr['info']('' + frame);
+				toastr['info']('CONNECTED');
 
 				markerDataList = [];
 				stompClient.subscribe('/markers/list/' + key, 
@@ -702,10 +702,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}))
 				}
 			}
-						
+
+			var markerCount = 0;
+			
 			function processMarkerData(data){
 				data = JSON.parse(data.body);
 				if(data.list)
+					var markerIndex = 0;
+				
 					data.list.forEach(function(result){
 						if(result.status == 'X'){
 							markerDataList = markerDataList.filter(function( obj ) {
@@ -724,6 +728,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 							var marker = $.grep(markerDataList, function(e){ return e.markerId == item.markerId; });
 							if(marker.length == 0){
+								markerCount++;
+								item.markerIndex = markerCount;
 								markerDataList.push(item);
 							}
 							
@@ -793,7 +799,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 				});
 
-				var markerIndex = 0;
 				markerDataList.forEach(function(item) {
 					var marker = $.grep(markerObjectList, function(e){ return e.markerId == item.markerId; });
 					
@@ -897,7 +902,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 20){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
-						if(markerIndex < 15){
+						if(markerCount - item.markerIndex  < 15){
 							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
@@ -1165,8 +1170,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							}
 						}
 					}
-					
-					markerIndex++;
 				});
 				
 				$(".btnDelete").on("click", function(e) {
