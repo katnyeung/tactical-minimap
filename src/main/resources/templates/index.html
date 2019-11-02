@@ -684,7 +684,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				isConnected = true;
 			});
 						
-			//setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 10000);
+			setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 20000);
 			
 			function updateMarkers(lat, lng) {
 				if(!pause){
