@@ -895,7 +895,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
 
 					if(map.getZoom() >= 20){
-						
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerIndex < 15){
@@ -919,9 +918,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var imageContent;
 					
 					if(item.controllable){
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'" width="400px"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<img src="/images/i/'+item.imagePath+'"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<img src="/images/i/'+item.imagePath+'" width="400px"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);
@@ -944,7 +943,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								maxWidth: "auto"
 							});
 							marker.setPopupContent(imageContent);
-							marker.getPopup().update();
+							marker.getPopup();
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
@@ -953,7 +952,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								maxWidth: "auto"
 							});
 							marker.setPopupContent(content);
-							marker.getPopup().update();
+							marker.getPopup();
 						}
 						
 						if(item.message){
