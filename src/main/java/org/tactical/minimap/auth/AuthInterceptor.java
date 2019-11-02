@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.CookieUtil;
@@ -27,6 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class AuthInterceptor implements HandlerInterceptor {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	LayerService layerService;
+	
 	@Autowired
 	MarkerService markerService;
 
@@ -82,13 +87,21 @@ public class AuthInterceptor implements HandlerInterceptor {
 					HttpSession session = request.getSession();
 					String uuid = CookieUtil.getUUID(request, response, session);
 					Set<String> loggedLayer = redisService.getLoggedLayers(uuid);
+					
+					Layer layer = layerService.getLayerByKey(request.getParameter("layer"));
 
-					if (loggedLayer.contains(request.getParameter("layer"))) {
-						return true;
-					} else {
-						returnMessage(response, "login required");
+					if (layer != null) {
+						if (layer.getPassword() == null || (layer.getPassword() != null && loggedLayer.contains(layer.getLayerKey()))) {
+							return true;
+						}else {
+							returnMessage(response, "login required");
+							return false;
+						}
+					}else{
+						returnMessage(response, "no such layer");
 						return false;
 					}
+
 				}
 
 			}
