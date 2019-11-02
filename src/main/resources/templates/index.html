@@ -1067,7 +1067,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
-							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+item.message+'</b></a><br/>');
+							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ item.message.substr(0, messageCutOff) +'</b></a><br/>');
 							
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
