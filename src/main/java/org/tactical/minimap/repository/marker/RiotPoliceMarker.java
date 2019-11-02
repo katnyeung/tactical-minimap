@@ -22,7 +22,7 @@ public class RiotPoliceMarker extends Marker {
 
 	@Override
 	public int getIconSize() {
-		return 32;
+		return 28;
 	}
 
 	@Override

@@ -38,6 +38,9 @@
 <script src="/js/sockjs.min.js"></script>
 <script src="/js/stomp.min.js"></script>
 
+<link rel="stylesheet" href="/css/L.Control.Locate.min.css" />
+<script src="/js/L.Control.Locate.min.js" charset="utf-8"></script>
+
 <style>
 .iconMarkup {
 	margin-left: -50px!improtant;
@@ -278,7 +281,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			L.marker([22.208161,114.030623],{icon:station_icon}).bindTooltip("長洲警署").addTo(map)
 			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
 			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)
-			
+
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 				jsonpParam: 'json_callback',
@@ -555,23 +558,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    
 			}
 		    
-			var logControl =  L.Control.extend({
-				
-				options: {
-					position: 'bottomright'
-				},
-				
-				onAdd: function (map) {
-					var container = L.DomUtil.create('div', '');
-					container.id = 'logControl';
-					container.innerHTML = '<div id="markerMessageLog" class="rounded"></div>';
-
-					return container;
+			var lc = L.control.locate({
+			    position: 'topright',
+			    strings: {
+			        title: "Show me where I am, yo!"
+			    },
+			    locateOptions: {
+		               enableHighAccuracy: true
 				}
-			});
-		    
-		    map.addControl(new logControl());
-		    
+			}).addTo(map);
+			
+		
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -707,7 +704,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			function processMarkerData(data){
 				data = JSON.parse(data.body);
-				if(data.list)
+				
+				if(data.list) {
 					var markerIndex = 0;
 				
 					data.list.forEach(function(result){
@@ -769,8 +767,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 					});
 
-				processMarker(markerDataList);
-
+					processMarker(markerDataList);
+				}
 			}
 			
 			function processMarker(markerDataList){
