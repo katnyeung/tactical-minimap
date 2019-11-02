@@ -84,4 +84,9 @@ public class ImageMarker extends Marker {
 	public String getDescription() {
 		return "影像";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

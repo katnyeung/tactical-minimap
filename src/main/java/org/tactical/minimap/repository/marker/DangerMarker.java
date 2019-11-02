@@ -53,5 +53,10 @@ public class DangerMarker extends Marker {
 	@Override
 	public String getDescription() {
 		return "危險";
+	}	
+	
+	@Override
+	public int getPulseRate() {
+		return 20;
 	}
 }

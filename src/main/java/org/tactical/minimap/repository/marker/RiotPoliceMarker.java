@@ -54,4 +54,9 @@ public class RiotPoliceMarker extends Marker {
 	public String getDescription() {
 		return "防暴";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 14;
+	}
 }

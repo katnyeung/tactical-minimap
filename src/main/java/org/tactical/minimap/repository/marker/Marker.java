@@ -106,6 +106,9 @@ public abstract class Marker extends Auditable<String> {
 	@Transient
 	public abstract String getType();
 
+	@Transient
+	public abstract int getPulseRate();
+	
 	@JsonIgnore
 	@Transient
 	public abstract long getMarkerExpire();

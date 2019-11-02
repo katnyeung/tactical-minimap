@@ -54,4 +54,9 @@ public class MedicalMarker extends Marker {
 	public String getDescription() {
 		return "救護";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

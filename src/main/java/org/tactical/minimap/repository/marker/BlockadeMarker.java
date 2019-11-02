@@ -54,4 +54,9 @@ public class BlockadeMarker extends Marker {
 	public String getDescription() {
 		return "封路";
 	}
+
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

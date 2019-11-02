@@ -56,4 +56,9 @@ public class WarningMarker extends Marker {
 	public String getDescription() {
 		return "警示";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 16;
+	}
 }

@@ -62,7 +62,7 @@ public class RedisService {
 		mc.setUpRate(marker.getUpRate());
 		mc.setDownRate(marker.getDownRate());
 		mc.setLayer(marker.getLayer().getLayerKey());
-		mc.setPulse(ConstantsUtil.PULSE_RATE);
+		mc.setPulse(marker.getPulseRate());
 
 		saveMarkerCache(mc);
 	}

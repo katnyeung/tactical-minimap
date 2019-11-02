@@ -54,4 +54,9 @@ public class TearGasMarker extends Marker {
 	public String getDescription() {
 		return "催淚彈";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 20;
+	}
 }

@@ -32,7 +32,6 @@ public class ConstantsUtil {
 	public static final Object DEFAULT_LNG = "114.1711";
 
 	public static final String USER_LOGGED_LAYER_PREFIX = "user_logged_layer";
-	public static final int PULSE_RATE = 16;
 
 	public static final int LOGGED_MARKER_VOTE_MULTIPLER = 5;
 

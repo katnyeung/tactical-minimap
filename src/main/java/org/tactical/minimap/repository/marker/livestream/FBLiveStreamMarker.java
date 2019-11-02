@@ -69,4 +69,9 @@ public class FBLiveStreamMarker extends Marker {
 	public int getVoteDelay() {
 		return 10;
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

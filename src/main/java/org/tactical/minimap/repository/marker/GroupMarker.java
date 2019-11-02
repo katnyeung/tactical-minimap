@@ -54,4 +54,9 @@ public class GroupMarker extends Marker {
 	public String getDescription() {
 		return "安全";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 16;
+	}
 }

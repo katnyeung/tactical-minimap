@@ -54,4 +54,9 @@ public class SupplyMarker extends Marker {
 	public String getDescription() {
 		return "補給";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

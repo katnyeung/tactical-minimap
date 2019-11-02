@@ -54,4 +54,9 @@ public class InfoMarker extends Marker {
 	public String getDescription() {
 		return "資訊";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

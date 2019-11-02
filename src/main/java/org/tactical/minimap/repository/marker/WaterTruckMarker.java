@@ -54,4 +54,9 @@ public class WaterTruckMarker extends Marker {
 	public String getDescription() {
 		return "水車";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 16;
+	}
 }

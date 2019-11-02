@@ -49,4 +49,9 @@ public class ConflictMarker extends Marker {
 	public int getVoteDelay() {
 		return 15;
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }

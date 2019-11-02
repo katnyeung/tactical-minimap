@@ -54,4 +54,9 @@ public class PoliceMarker extends Marker {
 	public String getDescription() {
 		return "警察";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 12;
+	}
 }

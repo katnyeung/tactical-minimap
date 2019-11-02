@@ -54,4 +54,9 @@ public class FlagBlueMarker extends Marker {
 	public String getDescription() {
 		return "危險";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 12;
+	}
 }

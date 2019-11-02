@@ -147,4 +147,9 @@ public class ShapeMarker extends Marker {
 	public String getDescription() {
 		return "圖標";
 	}
+	
+	@Override
+	public int getPulseRate() {
+		return 8;
+	}
 }
