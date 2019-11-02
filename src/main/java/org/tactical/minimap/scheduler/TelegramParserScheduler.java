@@ -340,8 +340,10 @@ public class TelegramParserScheduler {
 			}
 		}
 
-		if (okIdList.size() > 0)
+		if (okIdList.size() > 0) {
 			telegramMessageService.updateTelegramMessageOK(okIdList);
+			markerService.broadcastUpdateToAllLoggedUser();
+		}
 
 		if (notOkIdList.size() > 0)
 			telegramMessageService.updateTelegramMessageNotOK(notOkIdList);
