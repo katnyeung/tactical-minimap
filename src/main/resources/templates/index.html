@@ -313,6 +313,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			var messagesToSpeech = [];
 			var snd;
 			var boardcastSeconds = -1;
+			var lastdataCount = 0;
 			
 			function broadcastMarker(){
 				if(locationFilter.isEnabled()){
@@ -321,14 +322,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 					
 					if(boardcastSeconds-- < 0){
-						boardcastSeconds = 40;
+						boardcastSeconds = (lastdataCount * 10) + 40;
 						
 						if(!lastTimestamp){
 							lastTimestamp = Date.now() - 240000;
 						}						
 
-						console.log(lastTimestamp);
-						
 						var bounds = locationFilter.getBounds();
 						
 						var fromLat = bounds.getSouthWest().lat;
@@ -351,7 +350,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								lastTimestamp = data.lastTimestamp;
 																
 								if(data.list){
+									lastdataCount = data.list.length;
+									
 									messagesToSpeech = [];
+									
 									data.list.forEach(function(item){
 										messagesToSpeech.push(item);
 									})
@@ -382,6 +384,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 			
 			locationFilter.on("change", function (e) {
+				console.log(locationFilter.getBounds());
 			});
 
 			locationFilter.on("enabled", function () {				 

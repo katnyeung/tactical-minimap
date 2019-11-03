@@ -49,7 +49,8 @@ public abstract class SpeechService {
 					message = matcher.replaceFirst(hour + hourUnit + " " + minute + "分");
 				}
 			}
-			
+			// replace the channel message
+			message = message.substring(0, message.lastIndexOf("#"));
 			
 			String base64wavString = this.getSpeech(message);
 			base64wavList.add(base64wavString);
