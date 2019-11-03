@@ -314,7 +314,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			var snd;
 			var boardcastSeconds = -1;
 			var lastdataCount = 0;
-			
+			var isFirstBroadcast = true;
 			function broadcastMarker(){
 				if(locationFilter.isEnabled()){
 					if(boardcastSeconds >= 0){
@@ -322,7 +322,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					}
 					
 					if(boardcastSeconds-- < 0){
-						boardcastSeconds = (lastdataCount * 10) + 40;
+						if(isFirstBroadcast){
+							boardcastSeconds = 100;
+							isFirstBroadcast = false;
+						}else{
+							boardcastSeconds = (lastdataCount * 15) + 30;
+						}
 						
 						if(!lastTimestamp){
 							lastTimestamp = Date.now() - 240000;
