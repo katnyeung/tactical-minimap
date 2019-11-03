@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,14 +28,17 @@ import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerResponseService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
+import org.tactical.minimap.service.speech.SpeechService;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.CookieUtil;
 import org.tactical.minimap.util.MarkerCache;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 import org.tactical.minimap.web.DTO.MarkerResponseDTO;
+import org.tactical.minimap.web.DTO.MarkerSpeechDTO;
 import org.tactical.minimap.web.result.DefaultResult;
 import org.tactical.minimap.web.result.MarkerResult;
 import org.tactical.minimap.web.result.MarkerResultListResult;
+import org.tactical.minimap.web.result.StringListResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -54,6 +58,10 @@ public class MarkerRestController {
 
 	@Autowired
 	RedisService redisService;
+
+	@Autowired
+	@Qualifier("EkhoSpeechService")
+	SpeechService speechService;
 
 	@Auth
 	@PostMapping("/add")
@@ -129,7 +137,7 @@ public class MarkerRestController {
 
 	}
 
-	@GetMapping("/{layerKeys}/list2")
+	@GetMapping("/{layerKeys}/list")
 	public DefaultResult getMarkerResult(@PathVariable("layerKeys") String layerKeys, MarkerDTO markerDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		String uuid = CookieUtil.getUUID(request, response, session);
 
@@ -153,6 +161,29 @@ public class MarkerRestController {
 		List<MarkerResult> markerResultList = markerService.findMultiLayerMarkersResponse(uuid, markerDTO.getMarkerIdList(), layerMap.keySet().stream().collect(Collectors.toList()), lat, lng, ConstantsUtil.RANGE);
 
 		return MarkerResultListResult.success(markerResultList);
+	}
+
+	@PostMapping("/{layerKeys}/speech")
+	public DefaultResult speech(@PathVariable("layerKeys") String layerKeys, MarkerSpeechDTO msDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		Map<String, String> layerMap = new HashMap<String, String>();
+
+		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
+
+		for (String layerKey : layerKeys.split(",")) {
+			Matcher matcher = pattern.matcher(layerKey);
+
+			if (matcher.find()) {
+				if (matcher.groupCount() > 1) {
+					layerMap.put(matcher.group(1), matcher.group(2));
+				}
+			}
+		}
+
+		StringListResult slr = speechService.getSpeechFromCoord(layerMap.keySet().stream().collect(Collectors.toList()), msDTO.getFromLat(), msDTO.getFromLng(), msDTO.getToLat(), msDTO.getToLng(), msDTO.getTimestamp());
+
+		slr.setStatus("success");
+		
+		return slr;
 	}
 
 	@Auth
@@ -183,7 +214,6 @@ public class MarkerRestController {
 		} else {
 			return DefaultResult.error("marker not ready");
 		}
-
 	}
 
 	@Auth
@@ -203,7 +233,6 @@ public class MarkerRestController {
 		}
 
 		return DefaultResult.success();
-
 	}
 
 	@Auth
@@ -218,7 +247,6 @@ public class MarkerRestController {
 		markerService.broadcastUpdateToAllLoggedUser();
 
 		return DefaultResult.success();
-
 	}
 
 	@Auth
@@ -232,7 +260,6 @@ public class MarkerRestController {
 		markerService.broadcastUpdateToAllLoggedUser();
 
 		return DefaultResult.success();
-
 	}
 
 	@PostMapping("/up")

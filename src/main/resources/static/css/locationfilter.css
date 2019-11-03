@@ -1,0 +1,24 @@
+div.leaflet-marker-icon.location-filter.resize-marker {
+    background: url( img/resize-handle.png ) no-repeat;  
+    cursor: move;
+}
+div.leaflet-marker-icon.location-filter.move-marker {
+    background: url( img/move-handle.png ) no-repeat;  
+    cursor: move;
+}
+
+div.location-filter.button-container {
+
+  padding: 10px !important;
+  border: 1px solid #999;
+  cursor: pointer;
+  line-height: 16px;
+  font-size:0.75em;
+  font-weight:bold;
+  text-align: center;
+  background-color:white;
+  
+  border-radius: 3px;
+  
+  color:#333333;
+}

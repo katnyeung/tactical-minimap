@@ -69,9 +69,9 @@ public class MarkerService {
 
 		List<MarkerResult> mrList = new LinkedList<MarkerResult>();
 
-		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		List<Long> processedList = new ArrayList<Long>();
-		
+
 		for (Marker marker : markerList) {
 			boolean isControllable = false;
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
@@ -114,7 +114,7 @@ public class MarkerService {
 		if (markerIdList != null) {
 			for (Long markerId : markerIdList) {
 				// marker no more in process
-				if(!processedList.contains(markerId)) {
+				if (!processedList.contains(markerId)) {
 					MarkerResult mr = MarkerResult.makeResult(markerId).status("X");
 					mrList.add(mr);
 				}
@@ -126,7 +126,7 @@ public class MarkerService {
 	}
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
-		List<Marker> markerList = markerDAO.findAllByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		markerList = markerList.stream().limit(80).collect(Collectors.toList());
 
 		// for deactive marker
@@ -141,16 +141,12 @@ public class MarkerService {
 
 		if (markerList.size() < ConstantsUtil.MARKER_LIST_SIZE) {
 			int remainRecord = ConstantsUtil.MARKER_LIST_SIZE - markerList.size();
-			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkerByLatLng(PageRequest.of(0, remainRecord), lastMarkerDate, layerKeys, lat - range, lng - range, lat + range, lng + range);
+			List<Marker> deactiveMarkerList = markerDAO.findDeactiveMarkersByLatLng(PageRequest.of(0, remainRecord), lastMarkerDate, layerKeys, lat - range, lng - range, lat + range, lng + range);
 
 			markerList.addAll(deactiveMarkerList);
 		}
 
 		return markerList;
-	}
-
-	public List<Marker> findMultiLayerMarkersType(List<String> layerKeys, double fromLat, double fromLng, double toLat, double toLng) {
-		return markerDAO.findAllByLatLngType(layerKeys, fromLat, fromLng, toLat, toLng);
 	}
 
 	public List<Marker> findMarkers(String layer, Double lat, Double lng, Double range) {
@@ -361,9 +357,9 @@ public class MarkerService {
 		for (String key : keyList) {
 			String uuid = key.replace(ConstantsUtil.REDIS_USER_PREFIX + ":", "");
 			MarkerWebSocketDTO markerWSDTO = redisService.getLoggedUser(uuid);
-			
+
 			logger.info("broadcast to user {} : {} ", uuid, markerWSDTO);
-			
+
 			List<MarkerResult> markerResultList = processMarkers(markerWSDTO);
 
 			simpMessagingTemplate.convertAndSend("/markers/list/" + uuid, MarkerResultListResult.success(markerResultList));
@@ -393,6 +389,10 @@ public class MarkerService {
 		}
 
 		return findMultiLayerMarkersResponse(markerWSDTO.getUuid(), markerIdList, layerMap.keySet().stream().collect(Collectors.toList()), markerWSDTO.getLat(), markerWSDTO.getLng(), ConstantsUtil.RANGE);
+	}
+
+	public List<Marker> findLatestActiveMarkersInRange(List<String> layerKeys, double fromLat, double fromLng, double toLat, double toLng, Long timestamp) {
+		return markerDAO.findLatestActiveMarkersByLatLng(layerKeys, fromLat, fromLng, toLat, toLng, timestamp);
 	}
 
 }

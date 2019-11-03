@@ -41,6 +41,9 @@
 <link rel="stylesheet" href="/css/L.Control.Locate.min.css" />
 <script src="/js/L.Control.Locate.min.js" charset="utf-8"></script>
 
+<link rel="stylesheet" href="/css/locationfilter.css" />
+<script src="/js/locationfilter.js" charset="utf-8"></script>
+
 <style>
 .iconMarkup {
 	margin-left: -50px!improtant;
@@ -281,7 +284,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			L.marker([22.208161,114.030623],{icon:station_icon}).bindTooltip("長洲警署").addTo(map)
 			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
 			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)
-
+			L.marker([22.30267,114.171363],{icon:station_icon}).bindTooltip("尖沙咀警署").addTo(map)
+			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 				jsonpParam: 'json_callback',
@@ -292,7 +296,108 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				autoType: false,
 				minLength: 2
 			}));
+		    
+			var lc = L.control.locate({
+			    position: 'topleft',
+			    strings: {
+			        title: "Show me where I am, yo!"
+			    },
+			    locateOptions: {
+		               enableHighAccuracy: true
+				}
+			}).addTo(map);
+		
+			var locationFilter = new L.LocationFilter().addTo(map);
+			var broadcastLoop;
+			var lastTimestamp;
+			var messagesToSpeech = [];
+			var snd;
+			var boardcastSeconds = -1;
+			
+			function broadcastMarker(){
+				if(locationFilter.isEnabled()){
+					if(boardcastSeconds >= 0){
+						$("#boardcastButton").text("(" + boardcastSeconds + ")");
+					}
+					
+					if(boardcastSeconds-- < 0){
+						boardcastSeconds = 40;
+						
+						if(!lastTimestamp){
+							lastTimestamp = Date.now() - 240000;
+						}						
 
+						console.log(lastTimestamp);
+						
+						var bounds = locationFilter.getBounds();
+						
+						var fromLat = bounds.getSouthWest().lat;
+						var fromLng = bounds.getSouthWest().lng;
+						var toLat = bounds.getNorthEast().lat;
+						var toLng = bounds.getNorthEast().lng;
+						
+						$.ajax({
+							type : "POST",
+							url : '/marker/' + layerKeysString + '/speech',
+							data : {
+								'fromLat' : fromLat,
+								'fromLng' : fromLng,
+								'toLat' : toLat,
+								'toLng' : toLng,
+								'timestamp' : lastTimestamp
+							},
+							success : function(data) {
+
+								lastTimestamp = data.lastTimestamp;
+																
+								if(data.list){
+									messagesToSpeech = [];
+									data.list.forEach(function(item){
+										messagesToSpeech.push(item);
+									})
+								}
+								
+								playNext();
+							}
+						});
+					}
+
+				}
+
+			}
+			
+			function playNext(){
+				if(messagesToSpeech.length > 0){
+					snd = new Audio("data:audio/wav;base64," + messagesToSpeech.pop());
+					snd.play();
+					
+					snd.addEventListener("ended", function(){
+						snd.currentTime = 0;
+						setTimeout(function() {
+							playNext();
+						}, 1000);
+					    
+					});
+				}
+			}
+			
+			locationFilter.on("change", function (e) {
+			});
+
+			locationFilter.on("enabled", function () {				 
+				 broadcastMarker();
+				 broadcastLoop = setInterval(function(){broadcastMarker();}, 1000);
+			});
+
+			locationFilter.on("disabled", function () {
+				 if(snd){
+					 snd.pause();
+					 snd.currentTime = 0;
+				 }
+				 boardcastSeconds = -1;
+				 clearInterval(broadcastLoop);
+			});
+			
 			var command = L.control({position: 'bottomleft'});
 			
 			command.onAdd = function (map) {
@@ -334,66 +439,109 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 
 			command.addTo(map);
-			
-			var helpControl =  L.Control.extend({
-			
-				options: {
-					position: 'bottomright'
-				},
-				
-				onAdd: function (map) {
-					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-					container.id = 'helpControl';
-					container.innerHTML = '<i class="far fa-flag fa-2x"></i>';
-					container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
-					
-					container.onclick = function(){
-						window.open('https://docs.google.com/document/d/1_fB1PXTwfpnjwhP0xS0grxl6KoYcQHAC1cTOvFN0DGM/edit?usp=sharing','info_document');
-					}
-					
-					return container;
-				}
-			});
-		    
-		    map.addControl(new helpControl());
-		    		    
+
 			if(loggedLayers.length > 0){
+				var excludedPublicLayers = loggedLayers;
 				
-				drawnItems = L.featureGroup().addTo(map);
+				var index = excludedPublicLayers.indexOf("public");
+				if (index > -1) {
+					excludedPublicLayers.splice(index, 1);
+				}
 				
-				map.addControl(new L.Control.Draw({
-					draw: {
-						polygon: true,
-						polyline: true,
-						circlemarker: false,
-						circle:false,
-						rectangle: true,
-						marker: false,
-					},
-					edit: {
-						featureGroup: drawnItems,
-						remove: false,
-						edit:false
-					}
-				}));
-				var addressPoints = [];
-				
-				var heat = L.heatLayer(addressPoints,{radius:15,gradient:{0.5: 'white', 1:'red'}}).addTo(map),
-				    draw = false;
-
-			     map.on('mousemove', function (e) {
-					if (draw) {
-					 	if(e.originalEvent.which == 1){
-							map.dragging.disable();
-							heat.setOptions({radius:15,gradient:{0.5: 'white', 1:$('#shapeColor').val()}})
-						    heat.addLatLng(e.latlng);
+				if(excludedPublicLayers.length > 0){
+					drawnItems = L.featureGroup().addTo(map);
+					
+					map.addControl(new L.Control.Draw({
+						draw: {
+							polygon: true,
+							polyline: true,
+							circlemarker: false,
+							circle:false,
+							rectangle: true,
+							marker: false,
+						},
+						edit: {
+							featureGroup: drawnItems,
+							remove: false,
+							edit:false
 						}
-					}
-			     });
-			
-				map.on('mouseup',function(e){
-					if(draw){
+					}));
+					var addressPoints = [];
+					
+					var heat = L.heatLayer(addressPoints,{radius:15,gradient:{0.5: 'white', 1:'red'}}).addTo(map),
+					    draw = false;
 
+				     map.on('mousemove', function (e) {
+						if (draw) {
+						 	if(e.originalEvent.which == 1){
+								map.dragging.disable();
+								heat.setOptions({radius:15,gradient:{0.5: 'white', 1:$('#shapeColor').val()}})
+							    heat.addLatLng(e.latlng);
+							}
+						}
+				     });
+				
+					map.on('mouseup',function(e){
+						if(draw){
+
+							var layer = $('#markerLayer').val();
+							var color = $('#shapeColor').val();
+							
+							if(layer){
+								$.ajax({
+									type : "POST",
+									url : '/marker/add',
+									data : {
+										'lat' : addressPoints[addressPoints.length-1].lat,
+										'lng' : addressPoints[addressPoints.length-1].lng,
+										'shapeType' : 'heat',
+										'type' : 'shape',
+										'layer' : layer,
+										'color' : color,
+										'message' : '',
+										'shapeList' : JSON.stringify(addressPoints)
+									},
+									success : function(data) {
+										if(data.status == 'success'){
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);
+										}else{
+											if(data.status == 'success'){
+												updateMarkers(map.getCenter().lat, map.getCenter().lng);
+											}else{
+												var alertPopup = L.popup();
+												alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
+											}
+										}
+									}
+								});
+							}else{
+								var alertPopup = L.popup();
+								alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
+							}
+							
+							draw = false;
+							addressPoints = [];
+							heat.setLatLngs(addressPoints);
+							heat.redraw();
+							
+							map.dragging.enable();
+
+						}
+
+					})
+					
+				    map.on(L.Draw.Event.CREATED, function (e) {
+						var type = e.layerType;
+						var layerObject = e.layer;
+						
+						var latlngArr = [];
+						
+						if(Array.isArray(layerObject.getLatLngs()[0])){
+							latlngArr = layerObject.getLatLngs()[0];
+						}else{
+							latlngArr = layerObject.getLatLngs();
+						}
+						
 						var layer = $('#markerLayer').val();
 						var color = $('#shapeColor').val();
 						
@@ -402,14 +550,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								type : "POST",
 								url : '/marker/add',
 								data : {
-									'lat' : addressPoints[addressPoints.length-1].lat,
-									'lng' : addressPoints[addressPoints.length-1].lng,
-									'shapeType' : 'heat',
+									'lat' : latlngArr[latlngArr.length-1].lat,
+									'lng' : latlngArr[latlngArr.length-1].lng,
+									'shapeType' : type,
 									'type' : 'shape',
 									'layer' : layer,
 									'color' : color,
 									'message' : '',
-									'shapeList' : JSON.stringify(addressPoints)
+									'shapeList' : JSON.stringify(latlngArr)
 								},
 								success : function(data) {
 									if(data.status == 'success'){
@@ -428,147 +576,78 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							var alertPopup = L.popup();
 							alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
 						}
+				    });
+				    
+					var dragLockControl =  L.Control.extend({
+					
+						options: {
+							position: 'topright'
+						},
 						
-						draw = false;
-						addressPoints = [];
-						heat.setLatLngs(addressPoints);
-						heat.redraw();
-						
-						map.dragging.enable();
-
-					}
-
-				})
-				
-			    map.on(L.Draw.Event.CREATED, function (e) {
-					var type = e.layerType;
-					var layerObject = e.layer;
-					
-					var latlngArr = [];
-					
-					if(Array.isArray(layerObject.getLatLngs()[0])){
-						latlngArr = layerObject.getLatLngs()[0];
-					}else{
-						latlngArr = layerObject.getLatLngs();
-					}
-					
-					var layer = $('#markerLayer').val();
-					var color = $('#shapeColor').val();
-					
-					if(layer){
-						$.ajax({
-							type : "POST",
-							url : '/marker/add',
-							data : {
-								'lat' : latlngArr[latlngArr.length-1].lat,
-								'lng' : latlngArr[latlngArr.length-1].lng,
-								'shapeType' : type,
-								'type' : 'shape',
-								'layer' : layer,
-								'color' : color,
-								'message' : '',
-								'shapeList' : JSON.stringify(latlngArr)
-							},
-							success : function(data) {
-								if(data.status == 'success'){
-									updateMarkers(map.getCenter().lat, map.getCenter().lng);
+						onAdd: function (map) {
+							var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+							container.id = 'dragLockButton';
+							container.innerHTML = '<i class="fas fa-lock fa-2x"></i>';
+							container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
+							
+							container.onclick = function(){
+								if(dragLock){
+									dragLock = false;
+									$('#dragLockButton')[0].innerHTML = '<i class="fas fa-unlock fa-2x"></i>';
 								}else{
-									if(data.status == 'success'){
-										updateMarkers(map.getCenter().lat, map.getCenter().lng);
-									}else{
-										var alertPopup = L.popup();
-										alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);
-									}
+									dragLock = true;
+									$('#dragLockButton')[0].innerHTML = '<i class="fas fa-lock fa-2x"></i>';
 								}
-							}
-						});
-					}else{
-						var alertPopup = L.popup();
-						alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);
-					}
-			    });
-
-				var fullScreenControl =  L.Control.extend({
-				
-					options: {
-						position: 'topright'
-					},
-					
-					onAdd: function (map) {
-						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-						container.id = 'fullScreenControl';
-						container.innerHTML = '<i class="fas fa-expand fa-2x"></i>';
-						container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
-						
-						container.onclick = function(){
-							toggleFullScreen();
-						}
-						
-						return container;
-					}
-				});
-			    
-			    map.addControl(new fullScreenControl());
-			    
-				var dragLockControl =  L.Control.extend({
-				
-					options: {
-						position: 'topright'
-					},
-					
-					onAdd: function (map) {
-						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-						container.id = 'dragLockButton';
-						container.innerHTML = '<i class="fas fa-lock fa-2x"></i>';
-						container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
-						
-						container.onclick = function(){
-							if(dragLock){
-								dragLock = false;
-								$('#dragLockButton')[0].innerHTML = '<i class="fas fa-unlock fa-2x"></i>';
-							}else{
-								dragLock = true;
-								$('#dragLockButton')[0].innerHTML = '<i class="fas fa-lock fa-2x"></i>';
+								
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);
 							}
 							
-							updateMarkers(map.getCenter().lat, map.getCenter().lng);
+							return container;
 						}
+					});
+				    
+				    map.addControl(new dragLockControl());
+				    
+					var command = L.control({position: 'topleft'});
+					
+					command.onAdd = function (map) {
+						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+						container.id = 'shapeColorDiv';
+						container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="ff0000" />';
+						container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
 						
 						return container;
+
 					}
-				});
-			    
-			    map.addControl(new dragLockControl());
-			    
-				var command = L.control({position: 'topleft'});
+
+					command.addTo(map);
+
+					$('#shapeColor').colorPicker({colors: ["000000", "003399", "009966", "00cc00", "cc0000","cc6600","ff0000","ff9900","ff66cc","990099","ccff00","ffffff"]});
+				}
 				
-				command.onAdd = function (map) {
+			}
+
+			var fullScreenControl =  L.Control.extend({
+				options: {
+					position: 'topright'
+				},
+				
+				onAdd: function (map) {
 					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-					container.id = 'shapeColorDiv';
-					container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="ff0000" />';
-					container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';
+					container.id = 'fullScreenControl';
+					container.innerHTML = '<i class="fas fa-expand fa-2x"></i>';
+					container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';
+					
+					container.onclick = function(){
+						toggleFullScreen();
+					}
 					
 					return container;
-
 				}
-
-				command.addTo(map);
-
-				$('#shapeColor').colorPicker({colors: ["000000", "003399", "009966", "00cc00", "cc0000","cc6600","ff0000","ff9900","ff66cc","990099","ccff00","ffffff"]});
-			    
-			}
+			});
 		    
-			var lc = L.control.locate({
-			    position: 'topright',
-			    strings: {
-			        title: "Show me where I am, yo!"
-			    },
-			    locateOptions: {
-		               enableHighAccuracy: true
-				}
-			}).addTo(map);
-			
-		
+		    map.addControl(new fullScreenControl());
+
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -664,6 +743,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				
 				});
 			}
+			
 			stompClient.debug = null
 			
 			stompClient.connect({}, function (frame) {
