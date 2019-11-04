@@ -46,14 +46,16 @@ public abstract class SpeechService {
 					
 					if (hour == 0)
 						hourUnit = "時";
-					message = matcher.replaceFirst(hour + hourUnit + " " + minute + "分");
+					message = matcher.replaceAll(hour + hourUnit + " " + minute + "分");
 				}
 			}
 			// replace the channel message
 			if(message.lastIndexOf("#") >= 0) {
 				message = message.substring(0, message.lastIndexOf("#"));
 			}
+			message = message.replaceAll("(eu|EU)", "衝鋒車");
 			
+			logger.info("making speech request : {} ",message);
 			String base64wavString = this.getSpeech(message);
 			base64wavList.add(base64wavString);
 			
