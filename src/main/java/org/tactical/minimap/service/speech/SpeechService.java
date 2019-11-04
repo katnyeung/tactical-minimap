@@ -50,7 +50,9 @@ public abstract class SpeechService {
 				}
 			}
 			// replace the channel message
-			message = message.substring(0, message.lastIndexOf("#"));
+			if(message.lastIndexOf("#") >= 0) {
+				message = message.substring(0, message.lastIndexOf("#"));
+			}
 			
 			String base64wavString = this.getSpeech(message);
 			base64wavList.add(base64wavString);
