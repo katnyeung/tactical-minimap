@@ -165,7 +165,8 @@ public class TelegramParserScheduler {
 
 		// get message
 		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage();
-		logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
+		if (telegramMessageList.size() > 0)
+			logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
 
 		List<Long> okIdList = new ArrayList<Long>();
 		List<Long> notOkIdList = new ArrayList<Long>();

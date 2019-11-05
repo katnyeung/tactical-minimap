@@ -395,4 +395,7 @@ public class MarkerService {
 		return markerDAO.findLatestActiveMarkersByLatLng(layerKeys, fromLat, fromLng, toLat, toLng, timestamp);
 	}
 
+	public List<Marker> findActiveMarkersByMarkerIds(List<String> layerKeys, List<Long> markerIdList) {
+		return markerDAO.findActiveMarkersByMarkerIds(layerKeys, markerIdList);
+	}
 }

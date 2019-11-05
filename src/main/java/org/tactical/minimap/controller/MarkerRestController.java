@@ -163,8 +163,8 @@ public class MarkerRestController {
 		return MarkerResultListResult.success(markerResultList);
 	}
 
-	@PostMapping("/{layerKeys}/speech")
-	public DefaultResult speech(@PathVariable("layerKeys") String layerKeys, MarkerSpeechDTO msDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	@PostMapping("/{layerKeys}/speechByTime")
+	public DefaultResult speechByTime(@PathVariable("layerKeys") String layerKeys, MarkerSpeechDTO msDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		Map<String, String> layerMap = new HashMap<String, String>();
 
 		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
@@ -180,6 +180,35 @@ public class MarkerRestController {
 		}
 
 		StringListResult slr = speechService.getSpeechFromCoord(layerMap.keySet().stream().collect(Collectors.toList()), msDTO.getFromLat(), msDTO.getFromLng(), msDTO.getToLat(), msDTO.getToLng(), msDTO.getTimestamp());
+
+		slr.setStatus("success");
+		
+		return slr;
+	}
+	
+	@PostMapping("/{layerKeys}/speech")
+	public DefaultResult speechList(@PathVariable("layerKeys") String layerKeys, MarkerSpeechDTO msDTO, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		Map<String, String> layerMap = new HashMap<String, String>();
+
+		Pattern pattern = Pattern.compile("([0-9a-zA-Z-_]*)\\$([a-zA-Z]*)");
+
+		for (String layerKey : layerKeys.split(",")) {
+			Matcher matcher = pattern.matcher(layerKey);
+
+			if (matcher.find()) {
+				if (matcher.groupCount() > 1) {
+					layerMap.put(matcher.group(1), matcher.group(2));
+				}
+			}
+		}
+		double fromLat = -1;
+		double fromLng = -1;
+		if (msDTO.getFromLat() != null && msDTO.getFromLng() != null) {
+			fromLat = msDTO.getFromLat();
+			fromLng = msDTO.getFromLng();
+		}
+
+		DefaultResult slr = speechService.getSpeechByMarkerIdList(layerMap.keySet().stream().collect(Collectors.toList()), msDTO.getMarkerIdList(), fromLat, fromLng);
 
 		slr.setStatus("success");
 		

@@ -1,11 +1,15 @@
 package org.tactical.minimap.web.DTO;
 
+import java.util.List;
+
 public class MarkerSpeechDTO {
 	Double fromLat;
 	Double fromLng;
 
 	Double toLat;
 	Double toLng;
+
+	List<Long> markerIdList;
 
 	Long timestamp;
 
@@ -39,6 +43,14 @@ public class MarkerSpeechDTO {
 
 	public void setToLng(Double toLng) {
 		this.toLng = toLng;
+	}
+
+	public List<Long> getMarkerIdList() {
+		return markerIdList;
+	}
+
+	public void setMarkerIdList(List<Long> markerIdList) {
+		this.markerIdList = markerIdList;
 	}
 
 	public Long getTimestamp() {

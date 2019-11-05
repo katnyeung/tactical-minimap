@@ -4,9 +4,6 @@ import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.xembly.Directives;
-import org.xembly.ImpossibleModificationException;
-import org.xembly.Xembler;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -23,7 +20,7 @@ public class AzureSpeechService extends SpeechService {
 		HttpResponse<String> tokenResponse = null;
 		try {
 			tokenResponse = Unirest.post(url + "/sts/v1.0/issueToken")
-				.header("Ocp-Apim-Subscription-Key", "07cbd33a37524f7e890e320013b312cc")				
+				.header("Ocp-Apim-Subscription-Key", "0ee448aa9c3442b59a3bfa28d87db45e")				
 				.asString();
 		} catch (UnirestException ue) {
 			ue.printStackTrace();
@@ -34,34 +31,21 @@ public class AzureSpeechService extends SpeechService {
 			String accessToken = tokenResponse.getBody();
 
 			logger.info("response {}" , tokenResponse);
-			try {
-				String xml = new Xembler(
-				    new Directives().add("speak")
-				    	.attr("version", "1.0")
-				    	.attr("xml:lang", "zh-HK")
-				      .add("voice")
-				      	.attr("xml:lang", "zh-HK")
-				      	.attr("xml:gender", "Female")
-				      	.attr("name", "zh-HK-Tracy-Apollo")
-				      .set(text)
-				  ).xml();
-				
-				HttpResponse<byte[]> byteResponse = Unirest.post("https://japanwest.tts.speech.microsoft.com/cognitiverservice/v1")
-					.header("X-Microsoft-OutputFormat", "raw-16khz-16bit-mono-pcm")
-					.header("Content-Type", "application/ssml+xml")
-					.header("Host", "japanwest.tts.speech.microsoft.com")
-					.header("Authorization", "Bearer " + accessToken)
-					.body(xml)
-					.asBytes();
+			String xmlRaw = "<speak version='1.0' xml:lang='zh-HK'><voice xml:lang='zh-HK' xml:gender='Female' name='zh-HK-Tracy-Apollo'>"+text+"</voice></speak>";
 
-				if (byteResponse.getStatus() == 200) {
-					logger.info("response {}" , byteResponse);
-					response = Base64.getEncoder().encodeToString(byteResponse.getBody());
-				}
-			} catch (ImpossibleModificationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			HttpResponse<byte[]> byteResponse = Unirest.post("https://japanwest.tts.speech.microsoft.com/cognitiverservice/v1")
+				.header("X-Microsoft-OutputFormat", "riff-24khz-16bit-mono-pcm")
+				.header("Content-Type", "application/ssml+xml")
+				.header("Host", "japanwest.tts.speech.microsoft.com")
+				.header("Authorization", "Bearer " + accessToken)
+				.body(xmlRaw)
+				.asBytes();
+
+			if (byteResponse.getStatus() == 200) {
+				logger.info("response {}" , byteResponse);
+				response = Base64.getEncoder().encodeToString(byteResponse.getBody());
 			}
+
 		}
 
 		return response;

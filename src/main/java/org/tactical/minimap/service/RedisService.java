@@ -35,7 +35,7 @@ public class RedisService {
 
 	public void saveLoggedUser(String uuid, MarkerWebSocketDTO markerWSDTO) {
 		stringRedisTemplate.opsForHash().putAll(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid, markerWSDTO.toHashMap());
-		stringRedisTemplate.expire(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid, 30, TimeUnit.SECONDS);
+		stringRedisTemplate.expire(ConstantsUtil.REDIS_USER_PREFIX + ":" + uuid, 25, TimeUnit.SECONDS);
 	}
 
 	public MarkerWebSocketDTO getLoggedUser(String uuid) {
