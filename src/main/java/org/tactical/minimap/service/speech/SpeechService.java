@@ -3,6 +3,7 @@ package org.tactical.minimap.service.speech;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,8 +101,11 @@ public abstract class SpeechService {
 				int hour = Integer.parseInt(matcher.group(1));
 				int minute = Integer.parseInt(matcher.group(2));
 
-				int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-				int currentMinute = Calendar.getInstance().get(Calendar.MINUTE);
+				TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+				Calendar cal1 = Calendar.getInstance(tz1);
+				
+				int currentHour = cal1.get(Calendar.HOUR_OF_DAY);
+				int currentMinute = cal1.get(Calendar.MINUTE);
 
 				int diffMinute = currentMinute - minute;
 				int diffHour = currentHour - hour;
