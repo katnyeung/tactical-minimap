@@ -70,7 +70,7 @@ public abstract class SpeechService {
 			if (fromLat > 0 && fromLng > 0) {
 				double distance = distFrom(fromLat, fromLng, marker.getLat(), marker.getLng());
 				
-				if(distance > 1000){
+				if(distance * 1000 > 1000){
 					message = "距離你 " + (int) (distance) + " 公里. " + message;
 				}else {
 					message = "距離你 " + (int) (distance * 1000) + " 米. " + message;
