@@ -69,7 +69,12 @@ public abstract class SpeechService {
 			// process the distance if any
 			if (fromLat > 0 && fromLng > 0) {
 				double distance = distFrom(fromLat, fromLng, marker.getLat(), marker.getLng());
-				message = "距離你" + (int) (distance * 1000) + "米. " + message;
+				
+				if(distance > 1000){
+					message = "距離你 " + (int) (distance) + " 公里. " + message;
+				}else {
+					message = "距離你 " + (int) (distance * 1000) + " 米. " + message;
+				}
 			}
 
 			sbMessageList.append(message);
