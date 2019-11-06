@@ -36,7 +36,7 @@ public class AzureSpeechService extends SpeechService {
 			HttpResponse<byte[]> byteResponse = Unirest.post("https://southcentralus.api.cognitive.microsoft.com/cognitiverservice/v1")
 				.header("X-Microsoft-OutputFormat", "riff-24khz-16bit-mono-pcm")
 				.header("Content-Type", "application/ssml+xml")
-				.header("Host", "japanwest.tts.speech.microsoft.com")
+				.header("Host", "southcentralus.tts.speech.microsoft.com")
 				.header("Authorization", "Bearer " + accessToken)
 				.body(xmlRaw)
 				.asBytes();

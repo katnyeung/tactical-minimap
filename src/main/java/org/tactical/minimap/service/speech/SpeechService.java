@@ -1,6 +1,8 @@
 package org.tactical.minimap.service.speech;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.service.MarkerService;
+import org.tactical.minimap.service.TelegramMessageService;
 import org.tactical.minimap.web.result.DefaultResult;
 import org.tactical.minimap.web.result.StringListResult;
 import org.tactical.minimap.web.result.StringResult;
@@ -20,6 +23,9 @@ import org.tactical.minimap.web.result.StringResult;
 @Component
 public abstract class SpeechService {
 	public final Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Autowired
+	TelegramMessageService telegramMessageService;
 
 	@Autowired
 	MarkerService markerService;
@@ -49,21 +55,21 @@ public abstract class SpeechService {
 	}
 
 	public DefaultResult getSpeechByMarkerIdList(List<String> layerKeys, List<Long> markerIdList, double fromLat, double fromLng) {
-		logger.info("getting speech from {} " , markerIdList);
-		
+		logger.info("getting speech from {} ", markerIdList);
+
 		List<Marker> markerList = markerService.findActiveMarkersByMarkerIds(layerKeys, markerIdList);
 		StringBuilder sbMessageList = new StringBuilder();
 
 		for (Marker marker : markerList) {
 			String message = marker.getMessage();
-			
+
 			// process text message , time to hour minutes
 			message = convertMessage(marker.getMessage());
-			
-			//process the distance if any
-			if(fromLat > 0 && fromLng > 0) {
+
+			// process the distance if any
+			if (fromLat > 0 && fromLng > 0) {
 				double distance = distFrom(fromLat, fromLng, marker.getLat(), marker.getLng());
-				message = "距離你" + (int)(distance * 1000) + "米. " + message;
+				message = "距離你" + (int) (distance * 1000) + "米. " + message;
 			}
 
 			sbMessageList.append(message);
@@ -71,7 +77,7 @@ public abstract class SpeechService {
 		}
 
 		String base64wavString = this.getSpeech(sbMessageList.toString());
-		
+
 		StringResult sr = StringResult.success(base64wavString);
 		return sr;
 	}
@@ -92,6 +98,8 @@ public abstract class SpeechService {
 	public String convertMessage(String message) {
 		String processedMessage = message;
 
+		processedMessage = processedMessage.replaceAll("\r?\n", "");
+		
 		// time pattern
 		Pattern timePattern = Pattern.compile("([2][0-3]|[0-5][0-9])\\:?([0-5][0-9])");
 		Matcher matcher = timePattern.matcher(processedMessage);
@@ -103,7 +111,7 @@ public abstract class SpeechService {
 
 				TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
 				Calendar cal1 = Calendar.getInstance(tz1);
-				
+
 				int currentHour = cal1.get(Calendar.HOUR_OF_DAY);
 				int currentMinute = cal1.get(Calendar.MINUTE);
 
@@ -116,7 +124,7 @@ public abstract class SpeechService {
 				if (diffHour < 0) {
 					diffHour += 24;
 				}
-				StringBuilder sb = new StringBuilder();
+				StringBuilder sb = new StringBuilder(" ");
 				if (diffHour > 0) {
 					sb.append(diffHour);
 					sb.append("小時");
@@ -125,23 +133,54 @@ public abstract class SpeechService {
 					sb.append(diffMinute);
 					sb.append("分鐘");
 				}
-				sb.append("前");
+				sb.append("前 ");
 				logger.info(sb.toString());
 				processedMessage = matcher.replaceFirst(sb.toString());
 			}
 		}
-		// space the digit
 
 		// and space to pattern that found by parser
+		telegramMessageService.initialConfig();
+		
+		HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
 
-		// remove the channel message
-		if (processedMessage.lastIndexOf("#") >= 0) {
-			processedMessage = processedMessage.substring(0, message.lastIndexOf("#"));
+		try {
+			telegramMessageService.processData(message, "region", keyMap, 40);
+
+			telegramMessageService.processData(message, "street", keyMap, 30);
+
+			telegramMessageService.processData(message, "district", keyMap, 25);
+
+			telegramMessageService.processData(message, "building", keyMap, 15);
+
+			telegramMessageService.processData(message, "plaza", keyMap, 15);
+
+			telegramMessageService.processData(message, "mtr", keyMap, 15);
+
+			telegramMessageService.processData(message, "wildcard", keyMap, 5);
+
+			telegramMessageService.processData(message, "additional", keyMap, 10);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		for(String key  : keyMap.keySet()) {
+			processedMessage = processedMessage.replaceAll("(" + key + ")", " $1 ，");
+		}
+		// remove the channel message
+		if (processedMessage.lastIndexOf("#", processedMessage.length()) >= 0) {
+			processedMessage = processedMessage.replaceAll("(.*)#.*$", "$1");
+		}
+		
 		// replace green object, EU , vcity safe, to longer term
-		processedMessage = processedMessage.replaceAll("(eu|EU)", "衝鋒車");
-
-		logger.info("making speech request : {} ", message);
+		processedMessage = processedMessage.replaceAll("(eu|EU)", "衝鋒 ");
+		processedMessage = processedMessage.replaceAll("(曱甴)", "警察 ");
+		
+		// space the digit
+		
+		
+		logger.info("making speech request : {} ", processedMessage);
 
 		return processedMessage;
 	}

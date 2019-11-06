@@ -6,10 +6,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,14 +74,6 @@ public class TelegramParserScheduler {
 	@Value("${API_KEY}")
 	String apiKey;
 
-	@Value("${PATTERN_FOLDER}")
-	String patternFolder;
-
-	@Value("${MAP_FOLDER}")
-	String mapFolder;
-
-	static Map<String, List<String>> patternMap;
-
 	// time pattern
 	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
 	// marker pattern
@@ -99,69 +89,10 @@ public class TelegramParserScheduler {
 
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路)");
 
-	public void initialConfig() {
-		try {
-			patternMap = new HashMap<String, List<String>>();
-
-			prepareData("region", mapFolder + patternFolder + "/v2/region");
-
-			prepareData("district", mapFolder + patternFolder + "/v2/recreation");
-
-			prepareData("district", mapFolder + patternFolder + "/v2/district");
-
-			prepareData("building", mapFolder + patternFolder + "/v2/estate.building");
-
-			prepareData("wildcard", mapFolder + patternFolder + "/v2/estate.building_wildcard");
-
-			prepareData("building", mapFolder + patternFolder + "/v2/28hse.building");
-
-			prepareData("building", mapFolder + patternFolder + "/v2/building");
-
-			prepareData("plaza", mapFolder + patternFolder + "/v2/plaza");
-
-			prepareData("wildcard", mapFolder + patternFolder + "/v2/plaza_wildcard");
-
-			prepareData("street", mapFolder + patternFolder + "/v2/street");
-
-			prepareData("wildcard", mapFolder + patternFolder + "/v2/street_wildcard");
-
-			prepareData("mtr", mapFolder + patternFolder + "/v2/mtr");
-
-			prepareData("additional", mapFolder + patternFolder + "/v2/additional");
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void prepareData(String category, String filePath) throws IOException {
-		List<String> patternList = new LinkedList<String>();
-
-		File file = new File(filePath);
-		Scanner sc = new Scanner(file);
-
-		while (sc.hasNextLine()) {
-			patternList.add(sc.nextLine());
-		}
-
-		sc.close();
-
-		patternList.sort((s1, s2) -> s2.length() - s1.length());
-
-		if (patternMap.get(category) != null) {
-			List<String> currentStringList = patternMap.get(category);
-			currentStringList.addAll(patternList);
-		} else {
-			patternMap.put(category, patternList);
-		}
-
-	}
-
 	@Async
 	@Scheduled(fixedRate = 10000)
 	public void doParse() throws IOException, ParseException {
-		initialConfig();
+		telegramMessageService.initialConfig();
 
 		// get message
 		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage();
@@ -198,21 +129,21 @@ public class TelegramParserScheduler {
 
 						logger.info("processing message {}", message);
 
-						processData(message, "region", keyMap, 40);
+						telegramMessageService.processData(message, "region", keyMap, 40);
 
-						processData(message, "street", keyMap, 30);
+						telegramMessageService.processData(message, "street", keyMap, 30);
 
-						processData(message, "district", keyMap, 25);
+						telegramMessageService.processData(message, "district", keyMap, 25);
 
-						processData(message, "building", keyMap, 15);
+						telegramMessageService.processData(message, "building", keyMap, 15);
 
-						processData(message, "plaza", keyMap, 15);
+						telegramMessageService.processData(message, "plaza", keyMap, 15);
 
-						processData(message, "mtr", keyMap, 15);
+						telegramMessageService.processData(message, "mtr", keyMap, 15);
 
-						processData(message, "wildcard", keyMap, 5);
+						telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
-						processData(message, "additional", keyMap, 10);
+						telegramMessageService.processData(message, "additional", keyMap, 10);
 
 						if (keyMap.keySet().size() == 0) {
 							logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
@@ -421,72 +352,6 @@ public class TelegramParserScheduler {
 		}
 
 		return ruleMap;
-	}
-
-	private void processData(String message, String category, HashMap<String, Integer> keyMap, final int categoryWeight) throws IOException {
-		List<String> patternList = patternMap.get(category);
-		for (String pattern : patternList) {
-			int weight = categoryWeight;
-
-			String processingPattern = pattern;
-
-			String replaceToPattern = null;
-			if (processingPattern.indexOf("|") > 0) {
-				replaceToPattern = processingPattern.substring(processingPattern.indexOf("|") + 1, processingPattern.length());
-				processingPattern = processingPattern.substring(0, processingPattern.indexOf("|"));
-			}
-
-			Pattern addressPattern = Pattern.compile(processingPattern);
-			Matcher addressMatcher = addressPattern.matcher(message);
-
-			if (addressMatcher.find()) {
-				double weightMultipler = (((message.length() * 1.0) - addressMatcher.start()) / message.length()) * 30;
-				weight += weightMultipler;
-				
-				if (keyMap.keySet().size() == 0) {
-					addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
-				} else {
-					boolean isExist = false;
-					for (String key : keyMap.keySet()) {
-						if (key.matches(".*" + pattern + ".*")) {
-							logger.info("matched pattern {} {}", category, pattern);
-							isExist = true;
-						}
-					}
-					if (!isExist)
-						addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
-					logger.info("{}", keyMap);
-				}
-			}
-		}
-
-	}
-
-	private void addPattern(String pattern, Integer weight, HashMap<String, Integer> keyMap, String patternMessage, String replaceToPattern) {
-		if (replaceToPattern != null) {
-			String newPattern = patternMessage.replaceAll(pattern, replaceToPattern);
-			keyMap.put(newPattern, weight);
-		} else {
-			keyMap.put(pattern, weight);
-		}
-	}
-
-	public static int BoyerMooreHorspoolSimpleSearch(char[] pattern, char[] text) {
-		int patternSize = pattern.length;
-		int textSize = text.length;
-
-		int i = 0, j = 0;
-
-		while ((i + patternSize) <= textSize) {
-			j = patternSize - 1;
-			while (text[i + j] == pattern[j]) {
-				j--;
-				if (j < 0)
-					return i;
-			}
-			i++;
-		}
-		return -1;
 	}
 
 }
