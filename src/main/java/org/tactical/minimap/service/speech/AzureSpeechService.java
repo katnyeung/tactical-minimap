@@ -12,7 +12,7 @@ import kong.unirest.UnirestException;
 @Component
 @Qualifier("AzureSpeechService")
 public class AzureSpeechService extends SpeechService {
-	String url = "https://japanwest.api.cognitive.microsoft.com";
+	String url = "https://southcentralus.api.cognitive.microsoft.com";
 
 	public String getSpeech(String text) {
 		String response = null;
@@ -20,7 +20,7 @@ public class AzureSpeechService extends SpeechService {
 		HttpResponse<String> tokenResponse = null;
 		try {
 			tokenResponse = Unirest.post(url + "/sts/v1.0/issueToken")
-				.header("Ocp-Apim-Subscription-Key", "0ee448aa9c3442b59a3bfa28d87db45e")				
+				.header("Ocp-Apim-Subscription-Key", "03dd2743879543fa9a651c00a800be7a")				
 				.asString();
 		} catch (UnirestException ue) {
 			ue.printStackTrace();
@@ -33,7 +33,7 @@ public class AzureSpeechService extends SpeechService {
 			logger.info("response {}" , tokenResponse);
 			String xmlRaw = "<speak version='1.0' xml:lang='zh-HK'><voice xml:lang='zh-HK' xml:gender='Female' name='zh-HK-Tracy-Apollo'>"+text+"</voice></speak>";
 
-			HttpResponse<byte[]> byteResponse = Unirest.post("https://japanwest.tts.speech.microsoft.com/cognitiverservice/v1")
+			HttpResponse<byte[]> byteResponse = Unirest.post("https://southcentralus.api.cognitive.microsoft.com/cognitiverservice/v1")
 				.header("X-Microsoft-OutputFormat", "riff-24khz-16bit-mono-pcm")
 				.header("Content-Type", "application/ssml+xml")
 				.header("Host", "japanwest.tts.speech.microsoft.com")
