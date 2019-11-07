@@ -66,15 +66,24 @@ public abstract class SpeechService {
 			// process text message , time to hour minutes
 			message = convertMessage(marker.getMessage());
 
+			message = processTime(message);
+
 			// process the distance if any
 			if (fromLat > 0 && fromLng > 0) {
+				String distanceMessage = "";
+
 				double distance = distFrom(fromLat, fromLng, marker.getLat(), marker.getLng());
-				
-				if(distance * 1000 > 1000){
-					message = "距離你 " + (int) (distance) + " 公里. " + message;
-				}else {
-					message = "距離你 " + (int) (distance * 1000) + " 米. " + message;
+				String direction = bearing(fromLat, fromLng, marker.getLat(), marker.getLng());
+
+				if (distance * 1000 > 1000) {
+					distanceMessage = "。在 你 " + direction + "面" + (int) (distance) + " 公里。 ";
+				} else {
+					distanceMessage = "。在 你 " + direction + "面" + (int) (distance * 1000) + " 米。";
 				}
+
+				message = message.replaceAll("=distance=", distanceMessage);
+			} else {
+				message = message.replaceAll("=distance=", "");
 			}
 
 			sbMessageList.append(message);
@@ -100,11 +109,32 @@ public abstract class SpeechService {
 		return dist;
 	}
 
-	public String convertMessage(String message) {
+	public static String bearing(double lat1, double lon1, double lat2, double lon2) {
+		double longitude1 = lon1;
+		double longitude2 = lon2;
+		double latitude1 = Math.toRadians(lat1);
+		double latitude2 = Math.toRadians(lat2);
+		double longDiff = Math.toRadians(longitude2 - longitude1);
+		double y = Math.sin(longDiff) * Math.cos(latitude2);
+		double x = Math.cos(latitude1) * Math.sin(latitude2) - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longDiff);
+		double resultDegree = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
+		
+		String coordNames[] = { "北", "東北", "東", "東南", "南", "西南", "西", "西北", "北" };
+		
+		double directionid = Math.round(resultDegree / 45);
+		if (directionid < 0) {
+			directionid = directionid + 8;
+		}
+		
+		String compasLoc = coordNames[(int) directionid];
+
+		return compasLoc;
+	}
+
+	public String processTime(String message) {
 		String processedMessage = message;
 
-		processedMessage = processedMessage.replaceAll("\r?\n", "");
-		
+		StringBuilder sb = new StringBuilder(" ");
 		// time pattern
 		Pattern timePattern = Pattern.compile("([2][0-3]|[0-5][0-9])\\:?([0-5][0-9])");
 		Matcher matcher = timePattern.matcher(processedMessage);
@@ -122,6 +152,7 @@ public abstract class SpeechService {
 
 				int diffMinute = currentMinute - minute;
 				int diffHour = currentHour - hour;
+
 				if (diffMinute < 0) {
 					diffMinute += 60;
 					diffHour -= 1;
@@ -129,7 +160,6 @@ public abstract class SpeechService {
 				if (diffHour < 0) {
 					diffHour += 24;
 				}
-				StringBuilder sb = new StringBuilder(" ");
 				if (diffHour > 0) {
 					sb.append(diffHour);
 					sb.append("小時");
@@ -140,51 +170,47 @@ public abstract class SpeechService {
 				}
 				sb.append("前 ");
 				logger.info(sb.toString());
-				processedMessage = matcher.replaceFirst(sb.toString());
+				processedMessage = matcher.replaceFirst("");
 			}
 		}
 
+		return sb.toString().replaceAll("2([^0-9])", "兩$1") + " =distance= " + processedMessage;
+	}
+
+	public String convertMessage(String message) {
+		String processedMessage = message;
+
+		processedMessage = processedMessage.replaceAll("\r?\n", "");
+
 		// and space to pattern that found by parser
 		telegramMessageService.initialConfig();
-		
+
 		HashMap<String, Integer> keyMap = new HashMap<String, Integer>();
 
 		try {
-			telegramMessageService.processData(message, "region", keyMap, 40);
-
 			telegramMessageService.processData(message, "street", keyMap, 30);
-
 			telegramMessageService.processData(message, "district", keyMap, 25);
-
-			telegramMessageService.processData(message, "building", keyMap, 15);
-
-			telegramMessageService.processData(message, "plaza", keyMap, 15);
-
-			telegramMessageService.processData(message, "mtr", keyMap, 15);
-
-			telegramMessageService.processData(message, "wildcard", keyMap, 5);
-
-			telegramMessageService.processData(message, "additional", keyMap, 10);
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for(String key  : keyMap.keySet()) {
-			processedMessage = processedMessage.replaceAll("(" + key + ")", " $1 ，");
+
+		for (String key : keyMap.keySet()) {
+			processedMessage = processedMessage.replaceAll("(" + key + ")", " $1 ");
 		}
 		// remove the channel message
 		if (processedMessage.lastIndexOf("#", processedMessage.length()) >= 0) {
 			processedMessage = processedMessage.replaceAll("(.*)#.*$", "$1");
 		}
-		
+
 		// replace green object, EU , vcity safe, to longer term
+
+		processedMessage = processedMessage.replaceAll("(#)", " ");
 		processedMessage = processedMessage.replaceAll("(eu|EU)", "衝鋒 ");
-		processedMessage = processedMessage.replaceAll("(曱甴)", "警察 ");
-		
+		processedMessage = processedMessage.replaceAll("(曱甴| green object|blue object)", "警察 ");
+
 		// space the digit
-		
-		
+
 		logger.info("making speech request : {} ", processedMessage);
 
 		return processedMessage;
