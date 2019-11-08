@@ -101,9 +101,9 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>com.jcabi.incubator</groupId>
-		    <artifactId>xembly</artifactId>
-		    <version>0.22.1</version>
+			<groupId>org.osgeo</groupId>
+			<artifactId>proj4j</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 
 	</dependencies>

@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.osgeo.proj4j.BasicCoordinateTransform;
+import org.osgeo.proj4j.CRSFactory;
+import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.ProjCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +54,7 @@ import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 
 @Service
@@ -318,11 +323,61 @@ public class TelegramParserScheduler {
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
+		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch")
+				.queryString("q", String.join(" ", sortedMap.keySet())).asJson();
+
+		logger.info("geodata return {} ", response.getBody().toPrettyString());
+
+		JSONArray bodyArray = response.getBody().getArray();
+		
+		if (bodyArray.length() > 0) {
+			JSONObject jsonObjectXY = bodyArray.getJSONObject(0);
+			
+			CRSFactory factory = new CRSFactory();
+			CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:2326");
+			CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:4326");
+
+			BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
+
+			// Note these are x, y so lng, lat
+			double x = jsonObjectXY.getDouble("x");
+			double y = jsonObjectXY.getDouble("y");
+			
+			logger.info("from geodata x y : {} {} " , x, y);
+			
+			ProjCoordinate srcCoord = new ProjCoordinate(x, y);
+			ProjCoordinate dstCoord = new ProjCoordinate();
+
+			// Writes result into dstCoord
+			transform.transform(srcCoord, dstCoord);
+			
+			logger.info("dest x y {} {} ", dstCoord.x, dstCoord.y);
+			
+			MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
+
+			latlng.setLat(dstCoord.y + randLat);
+			latlng.setLng(dstCoord.x + randLng);
+
+			return latlng;
+		} else {
+			return null;
+		}
+	}
+	
+	private MarkerGeoCoding doOGCIO(final HashMap<String, Integer> keyMap) {
+
+		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		logger.info("keyMap {} ", sortedMap);
+		// get geo location
 		HttpResponse<JsonNode> response = Unirest.get("http://www.als.ogcio.gov.hk/lookup").header("Accept", "application/json").header("Accept-Language", "en,zh-Hant").header("Accept-Encoding", "gzip").queryString("q", String.join(" ", sortedMap.keySet())).queryString("n", "1").asJson();
 
 		JSONObject body = response.getBody().getObject();
 
-		logger.info("google return {} ", response.getBody().toPrettyString());
+		logger.info("ogcio return {} ", response.getBody().toPrettyString());
 
 		if (body.getJSONArray("SuggestedAddress") != null) {
 			JSONObject jsonObjLatLng = body.getJSONArray("SuggestedAddress").getJSONObject(0).getJSONObject("Address").getJSONObject("PremisesAddress").getJSONArray("GeospatialInformation").getJSONObject(0);
