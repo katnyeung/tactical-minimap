@@ -60,7 +60,7 @@ public class MarkerRestController {
 	RedisService redisService;
 
 	@Autowired
-	@Qualifier("LocalSpeechService")
+	@Qualifier("EkhoSpeechService")
 	SpeechService speechService;
 
 	@Auth
