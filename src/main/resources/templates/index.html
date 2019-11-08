@@ -672,6 +672,18 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map.on("locationfound",function(e){
 				currentLocation = e.latlng;
+				
+				if(window.DeviceOrientationEvent) {
+					window.addEventListener('deviceorientation', function(event) {
+						var deg = parseInt(event.alpha);
+						if(deg){
+							alert(deg);
+						}
+					}, false);
+				}else{
+					console.log("Oriention not support")
+				}
+				
 			});
 			
 			function broadcastMarker(){
