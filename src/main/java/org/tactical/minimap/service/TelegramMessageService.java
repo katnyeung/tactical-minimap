@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tactical.minimap.DAO.TelegramChannelDAO;
 import org.tactical.minimap.DAO.TelegramMessageDAO;
 import org.tactical.minimap.DAO.TelegramMessageRuleDAO;
+import org.tactical.minimap.repository.TelegramChannel;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
 
@@ -30,6 +32,9 @@ public class TelegramMessageService {
 
 	@Autowired
 	TelegramMessageRuleDAO telegramMessageRuleDAO;
+
+	@Autowired
+	TelegramChannelDAO telegramChannelDAO;
 
 	@Value("${PATTERN_FOLDER}")
 	String patternFolder;
@@ -166,5 +171,15 @@ public class TelegramMessageService {
 
 	public List<TelegramMessageRule> getActiveTelegramMessageRules() {
 		return telegramMessageRuleDAO.findActiveTelegramMessageRule();
+	}
+
+	public TelegramChannel getChannelByGroupName(String groupKey) {
+		List<TelegramChannel> telegramChannelList = telegramChannelDAO.findTelegramChannelByGroupName(groupKey);
+
+		if (telegramChannelList.size() > 0) {
+			return telegramChannelList.get(0);
+		} else {
+			return null;
+		}
 	}
 }

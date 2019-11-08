@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.tactical.minimap.repository.Layer;
+import org.tactical.minimap.repository.TelegramChannel;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
 import org.tactical.minimap.repository.marker.BlockadeMarker;
@@ -82,7 +83,7 @@ public class TelegramParserScheduler {
 	// time pattern
 	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
 	// marker pattern
-	Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+	Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
@@ -161,7 +162,13 @@ public class TelegramParserScheduler {
 							telegramMessage.setResult(gson.toJson(keyMap));
 							telegramMessageService.saveTelegramMessage(telegramMessage);
 
-							//MarkerGeoCoding latlng = doGoogle(keyMap);
+							TelegramChannel tc = telegramMessageService.getChannelByGroupName(telegramMessage.getGroupKey());
+
+							if (tc.getSearchPrefix() != null && !tc.getSearchPrefix().equals("")) {
+								keyMap.put(tc.getSearchPrefix(), 100);
+							}
+
+							// MarkerGeoCoding latlng = doGoogle(keyMap);
 							MarkerGeoCoding latlng = doGeoDataHK(keyMap);
 
 							if (latlng == null) {
@@ -323,16 +330,15 @@ public class TelegramParserScheduler {
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch")
-				.queryString("q", String.join(" ", sortedMap.keySet())).asJson();
+		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch").queryString("q", String.join(" ", sortedMap.keySet())).asJson();
 
 		logger.info("geodata return {} ", response.getBody().toPrettyString());
 
 		JSONArray bodyArray = response.getBody().getArray();
-		
+
 		if (bodyArray.length() > 0) {
 			JSONObject jsonObjectXY = bodyArray.getJSONObject(0);
-			
+
 			CRSFactory factory = new CRSFactory();
 			CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:2326");
 			CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:4326");
@@ -342,17 +348,17 @@ public class TelegramParserScheduler {
 			// Note these are x, y so lng, lat
 			double x = jsonObjectXY.getDouble("x");
 			double y = jsonObjectXY.getDouble("y");
-			
-			logger.info("from geodata x y : {} {} " , x, y);
-			
+
+			logger.info("from geodata x y : {} {} ", x, y);
+
 			ProjCoordinate srcCoord = new ProjCoordinate(x, y);
 			ProjCoordinate dstCoord = new ProjCoordinate();
 
 			// Writes result into dstCoord
 			transform.transform(srcCoord, dstCoord);
-			
+
 			logger.info("dest x y {} {} ", dstCoord.x, dstCoord.y);
-			
+
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
 			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
@@ -366,7 +372,7 @@ public class TelegramParserScheduler {
 			return null;
 		}
 	}
-	
+
 	private MarkerGeoCoding doOGCIO(final HashMap<String, Integer> keyMap) {
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));

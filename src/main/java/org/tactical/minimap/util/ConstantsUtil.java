@@ -28,6 +28,8 @@ public class ConstantsUtil {
 	public static final String TELEGRAM_MESSAGE_RULE_ACTIVE = "A";
 	public static final String TELEGRAM_MESSAGE_RULE_DEACTIVE = "O";
 
+	public static final String TELEGRAM_CHANNEL_ACTIVE = "A";
+	
 	public static final Object DEFAULT_LAT = "22.3202";
 	public static final Object DEFAULT_LNG = "114.1711";
 

@@ -20,6 +20,9 @@ public class TelegramChannel extends Auditable<String> {
 	Long telegramChannelId;
 
 	@Size(max = 255)
+	String searchPrefix;
+
+	@Size(max = 255)
 	String groupKey;
 
 	@Size(max = 255)
@@ -43,6 +46,14 @@ public class TelegramChannel extends Auditable<String> {
 
 	public void setTelegramChannelId(Long telegramChannelId) {
 		this.telegramChannelId = telegramChannelId;
+	}
+
+	public String getSearchPrefix() {
+		return searchPrefix;
+	}
+
+	public void setSearchPrefix(String searchPrefix) {
+		this.searchPrefix = searchPrefix;
 	}
 
 	public String getGroupKey() {
