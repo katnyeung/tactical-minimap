@@ -156,8 +156,8 @@ public class TelegramParserScheduler {
 							telegramMessage.setResult(gson.toJson(keyMap));
 							telegramMessageService.saveTelegramMessage(telegramMessage);
 
-							MarkerGeoCoding latlng = doGoogle(keyMap);
-							// arkerGeoCoding latlng = doGeoDataHK(keyMap);
+							//MarkerGeoCoding latlng = doGoogle(keyMap);
+							MarkerGeoCoding latlng = doGeoDataHK(keyMap);
 
 							if (latlng == null) {
 
