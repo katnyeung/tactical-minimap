@@ -169,7 +169,9 @@ public class TelegramParserScheduler {
 							}
 
 							MarkerGeoCoding latlng;
-
+							
+							logger.info("mk match : {} " , keyMap.containsKey("旺角"));
+							
 							if (keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
 								latlng = doGoogle(keyMap);
 							} else {
