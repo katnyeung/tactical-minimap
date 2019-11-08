@@ -168,8 +168,13 @@ public class TelegramParserScheduler {
 								keyMap.put(tc.getSearchPrefix(), 100);
 							}
 
-							// MarkerGeoCoding latlng = doGoogle(keyMap);
-							MarkerGeoCoding latlng = doGeoDataHK(keyMap);
+							MarkerGeoCoding latlng;
+
+							if (keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
+								latlng = doGoogle(keyMap);
+							} else {
+								latlng = doGeoDataHK(keyMap);
+							}
 
 							if (latlng == null) {
 
