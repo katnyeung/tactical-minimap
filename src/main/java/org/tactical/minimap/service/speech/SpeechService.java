@@ -143,7 +143,7 @@ public abstract class SpeechService {
 
 	public static String getFacing(double resultDegree) {
 		
-		String coordNames[] = { "前", "右前", "右", "右後", "後", "左後", "左", "左前", "前" };
+		String coordNames[] = { "前", "左前", "左", "左後", "後", "右後", "右", "右前", "前" };
 
 		double directionid = Math.round(resultDegree / 45);
 		if (directionid < 0) {
