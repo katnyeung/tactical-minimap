@@ -669,6 +669,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			sndBeep.volume = 0.15;
 			
 			var currentLocation;
+			var currentOrientation = -1;
 			
 			map.on("locationfound",function(e){
 				currentLocation = e.latlng;
@@ -677,7 +678,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					window.addEventListener('deviceorientation', function(event) {
 						var deg = parseInt(event.alpha);
 						if(deg){
-							alert(deg);
+							currentOrientation = deg;
 						}
 					}, false);
 				}else{
@@ -698,6 +699,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								parameters = {
 									'fromLat' : currentLocation.lat,
 									'fromLng' : currentLocation.lng,
+									'deg' : currentOrientation,
 									'markerIdList' : markerBroadcastIdList.join(",")
 								};
 								makeSpeechRequest('/marker/' + layerKeysString + '/speech' , parameters);

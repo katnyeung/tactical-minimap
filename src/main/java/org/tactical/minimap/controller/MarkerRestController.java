@@ -203,12 +203,14 @@ public class MarkerRestController {
 		}
 		double fromLat = -1;
 		double fromLng = -1;
+		int degree = -1;
 		if (msDTO.getFromLat() != null && msDTO.getFromLng() != null) {
 			fromLat = msDTO.getFromLat();
 			fromLng = msDTO.getFromLng();
+			degree = msDTO.getDeg();
 		}
 
-		DefaultResult slr = speechService.getSpeechByMarkerIdList(layerMap.keySet().stream().collect(Collectors.toList()), msDTO.getMarkerIdList(), fromLat, fromLng);
+		DefaultResult slr = speechService.getSpeechByMarkerIdList(layerMap.keySet().stream().collect(Collectors.toList()), msDTO.getMarkerIdList(), fromLat, fromLng, degree);
 
 		slr.setStatus("success");
 		

@@ -54,7 +54,7 @@ public abstract class SpeechService {
 		return slr;
 	}
 
-	public DefaultResult getSpeechByMarkerIdList(List<String> layerKeys, List<Long> markerIdList, double fromLat, double fromLng) {
+	public DefaultResult getSpeechByMarkerIdList(List<String> layerKeys, List<Long> markerIdList, double fromLat, double fromLng , int degree) {
 		logger.info("getting speech from {} ", markerIdList);
 
 		List<Marker> markerList = markerService.findActiveMarkersByMarkerIds(layerKeys, markerIdList);
@@ -73,12 +73,18 @@ public abstract class SpeechService {
 				String distanceMessage = "";
 
 				double distance = distFrom(fromLat, fromLng, marker.getLat(), marker.getLng());
-				String direction = bearing(fromLat, fromLng, marker.getLat(), marker.getLng());
+				double markerToUserDegree = bearing(fromLat, fromLng, marker.getLat(), marker.getLng());
 
+				String direction = getDirection(markerToUserDegree) + "面";
+				
+				if(degree > 0) {
+					direction = getFacing(markerToUserDegree - degree) + "方";
+				}
+				
 				if (distance * 1000 > 1000) {
-					distanceMessage = "。在 你 " + direction + "面" + (int) (distance) + " 公里。 ";
+					distanceMessage = "。距離 你 " + direction + (int) (distance) + " 公里。 ";
 				} else {
-					distanceMessage = "。在 你 " + direction + "面" + (int) (distance * 1000) + " 米。";
+					distanceMessage = "。 距離 你 " + direction + (int) (distance * 1000) + " 米。";
 				}
 
 				message = message.replaceAll("=distance=", distanceMessage);
@@ -109,7 +115,7 @@ public abstract class SpeechService {
 		return dist;
 	}
 
-	public static String bearing(double lat1, double lon1, double lat2, double lon2) {
+	public static double bearing(double lat1, double lon1, double lat2, double lon2) {
 		double longitude1 = lon1;
 		double longitude2 = lon2;
 		double latitude1 = Math.toRadians(lat1);
@@ -117,20 +123,37 @@ public abstract class SpeechService {
 		double longDiff = Math.toRadians(longitude2 - longitude1);
 		double y = Math.sin(longDiff) * Math.cos(latitude2);
 		double x = Math.cos(latitude1) * Math.sin(latitude2) - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longDiff);
-		double resultDegree = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
-		
+		return (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
+
+	}
+
+	public static String getDirection(double resultDegree) {
+
 		String coordNames[] = { "北", "東北", "東", "東南", "南", "西南", "西", "西北", "北" };
-		
+
 		double directionid = Math.round(resultDegree / 45);
 		if (directionid < 0) {
 			directionid = directionid + 8;
 		}
-		
+
 		String compasLoc = coordNames[(int) directionid];
 
 		return compasLoc;
 	}
 
+	public static String getFacing(double resultDegree) {
+		
+		String coordNames[] = { "前", "右前", "右", "右後", "後", "左後", "左", "左前", "前" };
+
+		double directionid = Math.round(resultDegree / 45);
+		if (directionid < 0) {
+			directionid = directionid + 8;
+		}
+
+		String compasLoc = coordNames[(int) directionid];
+
+		return compasLoc;
+	}
 	public String processTime(String message) {
 		String processedMessage = message;
 

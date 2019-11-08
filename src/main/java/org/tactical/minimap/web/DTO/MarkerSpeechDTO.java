@@ -6,12 +6,22 @@ public class MarkerSpeechDTO {
 	Double fromLat;
 	Double fromLng;
 
+	int deg;
+
 	Double toLat;
 	Double toLng;
 
 	List<Long> markerIdList;
 
 	Long timestamp;
+
+	public int getDeg() {
+		return deg;
+	}
+
+	public void setDeg(int deg) {
+		this.deg = deg;
+	}
 
 	public Double getFromLat() {
 		return fromLat;
