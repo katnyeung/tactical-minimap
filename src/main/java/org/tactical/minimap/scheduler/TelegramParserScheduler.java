@@ -171,8 +171,14 @@ public class TelegramParserScheduler {
 							MarkerGeoCoding latlng;
 							
 							logger.info("mk match : {} " , keyMap.containsKey("旺角"));
+							int heavyWeightKeyCount = 0;
+							for(String key : keyMap.keySet()) {
+								if(keyMap.get(key) > 35) {
+									heavyWeightKeyCount++;
+								}
+							}
 							
-							if (keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
+							if (heavyWeightKeyCount > 2 || keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
 								latlng = doGoogle(keyMap);
 							} else {
 								latlng = doGeoDataHK(keyMap);
@@ -333,6 +339,14 @@ public class TelegramParserScheduler {
 
 	private MarkerGeoCoding doGeoDataHK(final HashMap<String, Integer> keyMap) {
 
+		//filter out the key weight < 15
+		for(String key : keyMap.keySet()) {
+			if(keyMap.get(key) < 15) {
+				keyMap.remove(key);
+			}
+		}
+		
+		
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
