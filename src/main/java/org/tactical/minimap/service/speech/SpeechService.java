@@ -174,7 +174,7 @@ public abstract class SpeechService {
 			}
 		}
 
-		return sb.toString().replaceAll("2([^0-9])", "兩$1") + " =distance= " + processedMessage;
+		return sb.toString().replaceAll("([^0-9])2([^0-9])", "$1兩$2") + " =distance= " + processedMessage;
 	}
 
 	public String convertMessage(String message) {
@@ -206,9 +206,10 @@ public abstract class SpeechService {
 		// replace green object, EU , vcity safe, to longer term
 
 		processedMessage = processedMessage.replaceAll("(#)", " ");
-		processedMessage = processedMessage.replaceAll("(eu|EU)", "衝鋒 ");
+		processedMessage = processedMessage.replaceAll("(eu|EU|Eu)", "衝鋒 ");
 		processedMessage = processedMessage.replaceAll("(曱甴| green object|blue object)", "警察 ");
 
+		processedMessage = processedMessage.replaceAll("(safe|clear)", "安全 ");
 		// space the digit
 
 		logger.info("making speech request : {} ", processedMessage);
