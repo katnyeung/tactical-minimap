@@ -11,7 +11,7 @@ import kong.unirest.Unirest;
 @Component
 @Qualifier("LocalSpeechService")
 public class LocalSpeechService extends SpeechService {
-	String url = "http://192.168.0.100:8999/";
+	String url = "http://192.168.0.105:8999/";
 
 	public String getSpeech(String text) {
 		String response = null;
