@@ -54,7 +54,7 @@ public abstract class SpeechService {
 		return slr;
 	}
 
-	public DefaultResult getSpeechByMarkerIdList(List<String> layerKeys, List<Long> markerIdList, double fromLat, double fromLng , int degree) {
+	public DefaultResult getSpeechByMarkerIdList(List<String> layerKeys, List<Long> markerIdList, double fromLat, double fromLng, int degree) {
 		logger.info("getting speech from {} ", markerIdList);
 
 		List<Marker> markerList = markerService.findActiveMarkersByMarkerIds(layerKeys, markerIdList);
@@ -76,11 +76,12 @@ public abstract class SpeechService {
 				double markerToUserDegree = bearing(fromLat, fromLng, marker.getLat(), marker.getLng());
 
 				String direction = getDirection(markerToUserDegree) + "面";
-				
-				if(degree > 0) {
+
+				if (degree > 0) {
 					direction = getFacing((markerToUserDegree - degree) % 360) + "方";
+					logger.info(" marker degree {} , user degree {}, direction msg : {}", markerToUserDegree, degree, direction);
 				}
-				
+
 				if (distance * 1000 > 1000) {
 					distanceMessage = "。距離 你 " + direction + (int) (distance) + " 公里。 ";
 				} else {
@@ -142,7 +143,7 @@ public abstract class SpeechService {
 	}
 
 	public static String getFacing(double resultDegree) {
-		
+
 		String coordNames[] = { "前", "右前", "右", "右後", "後", "左後", "左", "左前", "前" };
 
 		double directionid = Math.round(resultDegree / 45);
@@ -154,6 +155,7 @@ public abstract class SpeechService {
 
 		return compasLoc;
 	}
+
 	public String processTime(String message) {
 		String processedMessage = message;
 
