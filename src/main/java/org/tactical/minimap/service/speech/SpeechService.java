@@ -78,7 +78,7 @@ public abstract class SpeechService {
 				String direction = getDirection(markerToUserDegree) + "面";
 				
 				if(degree > 0) {
-					direction = getFacing(markerToUserDegree - degree) + "方";
+					direction = getFacing((markerToUserDegree - degree) % 360) + "方";
 				}
 				
 				if (distance * 1000 > 1000) {
@@ -143,7 +143,7 @@ public abstract class SpeechService {
 
 	public static String getFacing(double resultDegree) {
 		
-		String coordNames[] = { "前", "左前", "左", "左後", "後", "右後", "右", "右前", "前" };
+		String coordNames[] = { "前", "右前", "右", "右後", "後", "左後", "左", "左前", "前" };
 
 		double directionid = Math.round(resultDegree / 45);
 		if (directionid < 0) {
