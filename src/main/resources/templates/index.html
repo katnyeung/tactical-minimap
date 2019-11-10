@@ -1120,6 +1120,35 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								decorator.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
 								
 								marker.relatedShape = [shape,decorator];
+							} else if(item.shapeType =='polyline_group'){
+								
+								var relatedShapeList = [];
+								var shapeMap = {};
+								
+								item.shapeList.forEach(function(shapePoint) {
+									if(!shapeMap[shapePoint.group]){
+										shapeMap[shapePoint.group] = [];
+									}
+									shapeMap[shapePoint.group].push(shapePoint);	
+								});
+
+								for(key in shapeMap){
+									shapeList = shapeMap[key];							
+									shape = L.polyline([],{color: item.color, weight: 4});
+
+									shapeList.forEach(function(shapePoint){
+										shape.addLatLng(shapePoint);
+									});
+									
+									shape.addTo(map);
+									
+									shape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
+									shape.group = key;
+									
+									relatedShapeList.push(shape);
+								};
+								
+								marker.relatedShape = relatedShapeList;
 							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
 								shape = L.polygon([],{color: item.color, weight: 3});
 								
@@ -1131,7 +1160,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								
 								marker.relatedShape = shape;
 							} else if(item.shapeType == 'heat'){
-								shape = L.heatLayer([],{radius:15,gradient:{0.5: 'white', 1:item.color}});
+								shape = L.heatLayer([],{minOpacity:1,blur:0,max:1,radius:10,gradient:{1:item.color}});
 								
 								item.shapeList.forEach(function(shapePoint) {
 									shape.addLatLng(shapePoint);
@@ -1267,6 +1296,28 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 											shape.addLatLng(shapePoint);
 										});
 
+									} else if(item.shapeType =='polyline_group'){
+										var shapeMap = {};
+										
+										item.shapeList.forEach(function(shapePoint) {
+											if(!shapeMap[shapePoint.group]){
+												shapeMap[shapePoint.group] = [];
+											}
+											shapeMap[shapePoint.group].push(shapePoint);	
+										});
+
+										shape = {};
+										
+										for(key in shapeMap){
+											shapeList = shapeMap[key];							
+											var subShape = L.polyline([]);
+
+											shapeList.forEach(function(shapePoint){
+												subShape.addLatLng(shapePoint);
+											});
+											
+											shape[key] = subShape;
+										};
 									} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
 										shape = L.polygon([]);
 										
@@ -1274,7 +1325,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 											shape.addLatLng(shapePoint);
 										});
 									} else if(item.shapeType == 'heat'){
-										shape = L.heatLayer([],{radius:15,gradient:{0.5: 'white', 1:item.color}});
+										shape = L.heatLayer([],{radius:25,gradient:{1: 'white', 1:item.color}});
 										
 										item.shapeList.forEach(function(shapePoint) {
 											shape.addLatLng(shapePoint);
@@ -1284,13 +1335,22 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									
 									if(Array.isArray(marker[0].relatedShape)){
 										marker[0].relatedShape.forEach(function(relatedShapeItem){
-											if(typeof relatedShapeItem.setLatLngs == "function"){
-												relatedShapeItem.setLatLngs(shape.getLatLngs());
-											}else if(typeof relatedShapeItem.setPaths == "function"){
-												relatedShapeItem.setPaths(shape.getLatLngs());
-											}
+											if(relatedShapeItem.group){
+												if(typeof relatedShapeItem.setLatLngs == "function"){
+													relatedShapeItem.setLatLngs(shape[relatedShapeItem.group].getLatLngs());
+												}else if(typeof relatedShapeItem.setPaths == "function"){
+													relatedShapeItem.setPaths(shape[relatedShapeItem.group].getLatLngs());
+												}
+												relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
+											}else{
+												if(typeof relatedShapeItem.setLatLngs == "function"){
+													relatedShapeItem.setLatLngs(shape.getLatLngs());
+												}else if(typeof relatedShapeItem.setPaths == "function"){
+													relatedShapeItem.setPaths(shape.getLatLngs());
+												}
 
-											relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
+												relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
+											}
 										});
 									}else{
 										marker[0].relatedShape.setLatLngs(shape.getLatLngs());
@@ -1317,6 +1377,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							},
 							success : function(data) {
 								if(data.status == 'success'){
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);
 								}else{
 									var markers = $.grep(markerObjectList, function(e){ return e.markerId == button.data("id") });
 									

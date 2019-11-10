@@ -1,5 +1,6 @@
 package org.tactical.minimap.repository.marker.shape;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,8 @@ import org.tactical.minimap.util.Auditable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -29,6 +32,11 @@ public class ShapeMarkerDetail extends Auditable<String> {
 
 	Double lat;
 	Double lng;
+
+	@JsonProperty("group")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@Column(nullable = true)
+	Integer subGroup;
 
 	public Long getShapeMarkerDetailId() {
 		return shapeMarkerDetailId;
@@ -60,6 +68,14 @@ public class ShapeMarkerDetail extends Auditable<String> {
 
 	public void setLng(Double lng) {
 		this.lng = lng;
+	}
+
+	public Integer getSubGroup() {
+		return subGroup;
+	}
+
+	public void setSubGroup(Integer subGroup) {
+		this.subGroup = subGroup;
 	}
 
 }

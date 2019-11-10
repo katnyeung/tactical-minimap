@@ -42,16 +42,15 @@ public class ShapeMarker extends Marker {
 	@Override
 	public Marker fill(MarkerDTO markerDTO) {
 		try {
-			ShapeMarker marker = new ShapeMarker();
-			marker.setLat(markerDTO.getLat());
-			marker.setLng(markerDTO.getLng());
-			marker.setMessage(markerDTO.getMessage());
-			marker.setExpire(getMarkerExpire());
-			marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
-			marker.setUuid(markerDTO.getUuid());
+			this.setLat(markerDTO.getLat());
+			this.setLng(markerDTO.getLng());
+			this.setMessage(markerDTO.getMessage());
+			this.setExpire(getMarkerExpire());
+			this.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
+			this.setUuid(markerDTO.getUuid());
 
-			marker.setShapeType(markerDTO.getShapeType());
-			marker.setColor(markerDTO.getColor());
+			this.setShapeType(markerDTO.getShapeType());
+			this.setColor(markerDTO.getColor());
 			
 			List<ShapeMarkerDetail> shapeMarkerDetailList = new ArrayList<ShapeMarkerDetail>();
 			ObjectMapper om = new ObjectMapper();
@@ -64,13 +63,21 @@ public class ShapeMarker extends Marker {
 				ShapeMarkerDetail smd = new ShapeMarkerDetail();
 				smd.setLat(shapeMap.get("lat"));
 				smd.setLng(shapeMap.get("lng"));
-				smd.setShapeMarker(marker);
+				
+				if(shapeMap.get("group") != null) {
+					smd.setSubGroup(shapeMap.get("group").intValue());
+				}
+				
+				smd.setShapeMarker(this);
 				shapeMarkerDetailList.add(smd);
 			}
 
-			marker.setShapeMarkerDetailList(shapeMarkerDetailList);
+			this.setShapeMarkerDetailList(shapeMarkerDetailList);
 
-			return marker;
+			this.setHour(markerDTO.getHour());
+			this.setMinute(markerDTO.getMinute());
+			
+			return this;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
