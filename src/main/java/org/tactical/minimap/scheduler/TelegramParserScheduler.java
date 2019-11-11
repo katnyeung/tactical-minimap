@@ -296,8 +296,8 @@ public class TelegramParserScheduler {
 									
 									logger.info("adding marker " + marker.getType());
 
-									double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 10000.0;
-									double randLng = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 10000.0;
+									double randLat = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
+									double randLng = (ThreadLocalRandom.current().nextInt(0, 80 + 1) - 40) / 100000.0;
 									
 									markerDTO.setLat(markerDTO.getLat() + randLat);
 									markerDTO.setLng(markerDTO.getLng()+  randLng);
