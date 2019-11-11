@@ -458,10 +458,10 @@ public class TelegramParserScheduler {
 			// add marker
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
-			//double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
-			double randLng = (ThreadLocalRandom.current().nextInt(0, 10 + 1) - 5) / 1000000.0;
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 20 + 1) - 10) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 20 + 1) - 10) / 100000.0;
 
-			latlng.setLat(jsonObjLatLng.getDouble("lat"));
+			latlng.setLat(jsonObjLatLng.getDouble("lat") + randLat);
 			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);
 
 			return latlng;
@@ -501,11 +501,11 @@ public class TelegramParserScheduler {
 
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
-			//double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-			//double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
-
-			latlng.setLat(dstCoord.y);
-			latlng.setLng(dstCoord.x);
+			double randLat = (ThreadLocalRandom.current().nextInt(0, 20 + 1) - 10) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 20 + 1) - 10) / 100000.0;
+			
+			latlng.setLat(dstCoord.y + randLat);
+			latlng.setLng(dstCoord.x + randLng);
 
 			return latlng;
 		} else {
