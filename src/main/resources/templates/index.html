@@ -792,8 +792,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				isConnected = true;
 			});
 						
-			setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 20000);
-			
+			setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 30000);
+				
 			function updateMarkers(lat, lng) {
 				if(!pause){
 					var markerIdList = [];
@@ -1054,9 +1054,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var imageContent;
 					
 					if(item.controllable){
-						imageContent = '<img src="/images/i/'+item.imagePath+'" width="400px"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+						imageContent = '<div style="overflow-y : scroll"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<img src="/images/i/'+item.imagePath+'" width="400px"/><br/><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<div style="overflow-y : scroll"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);

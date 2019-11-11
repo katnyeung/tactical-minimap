@@ -47,7 +47,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public abstract class Marker extends Auditable<String> {
 	public static final List<Class<? extends Marker>> ClassList = new ArrayList<Class<? extends Marker>>();
 
+	String icon;
+	int iconSize;
+	
 	static {
+		
 		ClassList.add(InfoMarker.class);
 		ClassList.add(RedInfoMarker.class);
 		ClassList.add(YellowInfoMarker.class);
@@ -81,11 +85,21 @@ public abstract class Marker extends Auditable<String> {
 		ClassList.add(ImageMarker.class);
 	}
 
-	@Transient
-	public abstract String getIcon();
+	public String getIcon() {
+		return icon;
+	}
 
-	@Transient
-	public abstract int getIconSize();
+	public int getIconSize() {
+		return iconSize;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public void setIconSize(int iconSize) {
+		this.iconSize = iconSize;
+	}
 
 	@JsonIgnore
 	@Transient

@@ -15,6 +15,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ImageMarker extends Marker {
 
+	String icon = "image.png";
+	int iconSize = 22;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@NotNull
 	String imagePath;
 
@@ -35,16 +48,6 @@ public class ImageMarker extends Marker {
 		this.setMinute(markerDTO.getMinute());
 		this.setImagePath(markerDTO.getImagePath());
 		return this;
-	}
-
-	@Override
-	public String getIcon() {
-		return "image.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 42;
 	}
 
 	@Override

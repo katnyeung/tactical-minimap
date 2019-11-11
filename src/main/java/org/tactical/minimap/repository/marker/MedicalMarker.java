@@ -10,19 +10,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class MedicalMarker extends Marker {
 
+	String icon = "010-first-aid-kit.png";
+	int iconSize = 32;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Override
 	public String getType() {
 		return "medical";
-	}
-
-	@Override
-	public String getIcon() {
-		return "010-first-aid-kit.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 32;
 	}
 	
 	@Override

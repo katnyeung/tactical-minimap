@@ -221,12 +221,10 @@ public class TelegramParserScheduler {
 									Matcher blockMatcher = blockPattern.matcher(message);
 									Matcher groupMatcher = groupPattern.matcher(message);
 									Matcher dangerMatcher = dangerPattern.matcher(message);
-
-									ShapeMarker shapeMarker = processShapeMarker(markerDTO, latlng);
 									
-									if (shapeMarker != null) {
-										marker = shapeMarker;
-									} else if (telegramMessage.getMedia() != null) {
+									String lineColor = "red";
+									
+									if (telegramMessage.getMedia() != null) {
 										marker = ImageMarker.class.newInstance();
 
 										String fileName = telegramMessage.getMedia().replaceAll(".*\\/(.*)$", "$1");
@@ -241,6 +239,7 @@ public class TelegramParserScheduler {
 										marker = DangerMarker.class.newInstance();
 									} else if (groupMatcher.find()) {
 										marker = GroupMarker.class.newInstance();
+										lineColor = "#16aa6d";
 									} else if (waterCarMatcher.find()) {
 										marker = WaterTruckMarker.class.newInstance();
 									} else if (blackFlagMatcher.find()) {
@@ -277,10 +276,25 @@ public class TelegramParserScheduler {
 										}
 										marker = PoliceMarker.class.newInstance();
 										marker.setLevel(level);
+										lineColor = "#ed6312";
 									} else {
 										marker = InfoMarker.class.newInstance();
+										lineColor = "#395aa3";
 									}
 
+									// rephase as shape
+
+									ShapeMarker shapeMarker = processShapeMarker(markerDTO, latlng);
+									
+									if(shapeMarker != null) {
+										shapeMarker.setIcon(marker.getIcon());
+										shapeMarker.setIconSize(marker.getIconSize());
+										
+										markerDTO.setColor(lineColor);
+										logger.info("shape color : {}" , lineColor);
+										marker = shapeMarker;
+									}
+									
 									logger.info("adding marker " + marker.getType());
 
 									markerService.addMarker(layer, markerDTO, marker);
@@ -384,10 +398,10 @@ public class TelegramParserScheduler {
 
 							ProjCoordinate plLatLng = toWGS84(x, y);
 
-							double fromLat = latlng.getLat() - 0.0001;
+							double fromLat = latlng.getLat() - 0.00001;
 							double fromLng = latlng.getLng() - 0.0001;
-							double toLat = latlng.getLat() + 0.0001;
-							double toLng = latlng.getLng() + 0.0001;
+							double toLat = latlng.getLat() + 0.00001;
+							double toLng = latlng.getLng() + 0.00001;
 
 							LinkedHashMap<String, Double> smd = new LinkedHashMap<String, Double>();
 
@@ -455,10 +469,10 @@ public class TelegramParserScheduler {
 			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
 			//double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
-			//double randLng = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
+			double randLng = (ThreadLocalRandom.current().nextInt(0, 10 + 1) - 5) / 1000000.0;
 
 			latlng.setLat(jsonObjLatLng.getDouble("lat"));
-			latlng.setLng(jsonObjLatLng.getDouble("lng"));
+			latlng.setLng(jsonObjLatLng.getDouble("lng") + randLng);
 
 			return latlng;
 		} else {

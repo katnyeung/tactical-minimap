@@ -26,6 +26,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @DiscriminatorValue(value = "shape")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ShapeMarker extends Marker {
+	
+	String icon = "point.png";
+	int iconSize = 36;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Transient
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -107,14 +121,12 @@ public class ShapeMarker extends Marker {
 		return "shape";
 	}
 
-	@Override
-	public String getIcon() {
-		return "016-pin-7.png";
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
-	@Override
-	public int getIconSize() {
-		return 34;
+	public void setIconSize(int iconSize) {
+		this.iconSize = iconSize;
 	}
 
 	@Override

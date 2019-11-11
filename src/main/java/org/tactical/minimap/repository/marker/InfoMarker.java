@@ -10,19 +10,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class InfoMarker extends Marker {
 
+	String icon = "019-pin-4.png";
+	int iconSize = 34;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Override
 	public String getType() {
 		return "info";
-	}
-
-	@Override
-	public String getIcon() {
-		return "019-pin-4.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 34;
 	}
 
 	@Override

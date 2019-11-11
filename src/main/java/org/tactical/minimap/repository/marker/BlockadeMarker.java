@@ -10,19 +10,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class BlockadeMarker extends Marker {
 
+	String icon = "no-stopping.png";
+	int iconSize = 38;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Override
 	public String getType() {
 		return "blockade";
-	}
-
-	@Override
-	public String getIcon() {
-		return "no-stopping.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 38;
 	}
 
 	@Override
@@ -44,12 +47,12 @@ public class BlockadeMarker extends Marker {
 	public int getAddDelay() {
 		return 15;
 	}
-	
+
 	@Override
 	public int getVoteDelay() {
 		return 15;
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "封路";

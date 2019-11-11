@@ -10,19 +10,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class GroupMarker extends Marker {
 
+	String icon = "protection.png";
+	int iconSize = 46;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Override
 	public String getType() {
 		return "group";
-	}
-
-	@Override
-	public String getIcon() {
-		return "protection.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 46;
 	}
 
 	@Override

@@ -14,6 +14,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class TwtichLiveStreamMarker extends Marker {
 
+	String icon = "live.png";
+	int iconSize = 42;
+	
+	@Override
+	public String getIcon() {
+		return this.icon;
+	}
+	
+	@Override
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	
 	@Override
 	public String getType() {
 		return "twitch_livestream";
@@ -33,16 +46,6 @@ public class TwtichLiveStreamMarker extends Marker {
 		} else {
 			return null;
 		}
-	}
-
-	@Override
-	public String getIcon() {
-		return "live.png";
-	}
-
-	@Override
-	public int getIconSize() {
-		return 42;
 	}
 
 	@Override

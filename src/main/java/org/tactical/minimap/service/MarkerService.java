@@ -90,13 +90,27 @@ public class MarkerService {
 			if (markerIdList != null) {
 				if (!markerIdList.contains(marker.getMarkerId())) {
 					// new marker, not in client list
-					mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+					mr = MarkerResult.makeResult(marker.getMarkerId())
+							.status("A")
+							.marker(marker)
+							.cache(mc)
+							.opacity(opacity)
+							.controllable(isControllable);
 				} else {
 					// marker exist in client
 					if (Calendar.getInstance().getTimeInMillis() - marker.getLastupdatedate().getTime() < 10000) {
-						mr = MarkerResult.makeResult(marker.getMarkerId()).status("U").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+						mr = MarkerResult.makeResult(marker.getMarkerId())
+								.status("U")
+								.marker(marker)
+								.cache(mc)
+								.opacity(opacity)
+								.controllable(isControllable);
 					} else {
-						mr = MarkerResult.makeResult(marker.getMarkerId()).status("O").cache(mc).opacity(opacity).controllable(isControllable);
+						mr = MarkerResult.makeResult(marker.getMarkerId())
+								.status("O")
+								.cache(mc)
+								.opacity(opacity)
+								.controllable(isControllable);
 					}
 
 				}
@@ -105,7 +119,12 @@ public class MarkerService {
 				processedList.add(marker.getMarkerId());
 			} else {
 				// request marker first time
-				mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
+				mr = MarkerResult.makeResult(marker.getMarkerId())
+						.status("A")
+						.marker(marker)
+						.cache(mc)
+						.opacity(opacity)
+						.controllable(isControllable);
 			}
 
 			mrList.add(mr);
