@@ -235,6 +235,7 @@ public class TelegramParserScheduler {
 
 										imageService.resizeImage(file, file, ext, 400);
 
+										lineColor = "#395aa3";
 									} else if (dangerMatcher.find()) {
 										marker = DangerMarker.class.newInstance();
 									} else if (groupMatcher.find()) {
@@ -295,8 +296,8 @@ public class TelegramParserScheduler {
 									
 									logger.info("adding marker " + marker.getType());
 
-									double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
-									double randLng = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 100000.0;
+									double randLat = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 10000.0;
+									double randLng = (ThreadLocalRandom.current().nextInt(0, 60 + 1) - 30) / 10000.0;
 									
 									markerDTO.setLat(markerDTO.getLat() + randLat);
 									markerDTO.setLng(markerDTO.getLng()+  randLng);
