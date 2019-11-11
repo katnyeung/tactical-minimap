@@ -1249,7 +1249,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						$('#marker_icon_' + item.markerId).attr('class', updateClass);
 						$('#marker_icon_' + item.markerId).attr('style', updateCSS);
 						
-						if(item.type == 'image'){
+						if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){
 							if(marker[0].getPopup().getContent() != imageContent){
 						        marker[0].openPopup();
 								marker[0].setPopupContent(imageContent);
