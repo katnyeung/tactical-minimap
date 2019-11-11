@@ -91,7 +91,7 @@ public class TelegramParserScheduler {
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
-	Pattern tearGasPattern = Pattern.compile("(催淚)");
+	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|[0-9]tg|[0-9]TG)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
 	Pattern groupPattern = Pattern.compile("(安全|safe|Safe|clear)");
@@ -257,7 +257,6 @@ public class TelegramParserScheduler {
 											try {
 												level = Integer.parseInt(riotPoliceMatcher.group(1));
 												level = level < 10 ? level : 10;
-												logger.info("message level : {} ", level);
 											} catch (NumberFormatException nfe) {
 												logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
 											}
@@ -269,7 +268,6 @@ public class TelegramParserScheduler {
 											try {
 												level = Integer.parseInt(isPoliceMatcher.group(1));
 												level = level < 10 ? level : 10;
-												logger.info("message level : {} ", level);
 											} catch (NumberFormatException nfe) {
 												logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
 											}
@@ -338,7 +336,7 @@ public class TelegramParserScheduler {
 		ProjCoordinate markerXY = toHK1980(latlng.getLat(), latlng.getLng());
 
 		HttpResponse<JsonNode> govMapResponse = Unirest.get("https://www.map.gov.hk/gih-ws2/identify/" + markerXY.x + "/" + markerXY.y + "/9027.977411/WEB").asJson();
-		logger.info("{}", govMapResponse.getBody().toPrettyString());
+
 		if (govMapResponse.getStatus() == 200) {
 			List<LinkedHashMap<String, Double>> shapeList = new LinkedList<LinkedHashMap<String, Double>>();
 
@@ -380,7 +378,6 @@ public class TelegramParserScheduler {
 							.queryString("spatialRel", "esriSpatialRelIntersects")
 							.asJson();
 
-					logger.info("{}", govMapResponse.getBody().toPrettyString());
 					JSONObject polylineResponse = govMapResponse.getBody().getObject();
 					JSONArray polylineObjArray = polylineResponse.getJSONArray("features");
 
@@ -405,20 +402,14 @@ public class TelegramParserScheduler {
 
 							LinkedHashMap<String, Double> smd = new LinkedHashMap<String, Double>();
 
-							logger.info("x {} y {}", plLatLng.x, plLatLng.y);
-
 							if ((fromLat < plLatLng.y && plLatLng.y < toLat) || (fromLng < plLatLng.x && plLatLng.x < toLng)) {
 								smd.put("in", 1.0);
-
-								smd.put("lat", plLatLng.y);
-								smd.put("lng", plLatLng.x);
 							} else {
 								smd.put("in", 0.0);
-
-								smd.put("lat", plLatLng.y);
-								smd.put("lng", plLatLng.x);
 							}
 
+							smd.put("lat", plLatLng.y);
+							smd.put("lng", plLatLng.x);
 							smd.put("group", idGroup + group);
 
 							subShapeList.add(smd);
@@ -440,7 +431,6 @@ public class TelegramParserScheduler {
 				}
 
 				markerDTO.setShapeType("polyline_group");
-				markerDTO.setColor("red");
 				markerDTO.setShapeList(om.writeValueAsString(shapeList));
 
 			}
@@ -531,8 +521,6 @@ public class TelegramParserScheduler {
 
 		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
 
-		logger.info("from geodata x y : {} {} ", x, y);
-
 		ProjCoordinate srcCoord = new ProjCoordinate(x, y);
 		ProjCoordinate dstCoord = new ProjCoordinate();
 
@@ -549,8 +537,6 @@ public class TelegramParserScheduler {
 		CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:2326");
 
 		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
-
-		logger.info("from geodata x y : {} {} ", lat, lng);
 
 		ProjCoordinate srcCoord = new ProjCoordinate(lng, lat);
 		ProjCoordinate dstCoord = new ProjCoordinate();

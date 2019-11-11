@@ -1012,7 +1012,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var scale = (map.getZoom() - 13) / 4;
 					scale = scale > 0.5 ? scale < 1 ? scale : 1 : 0.5;
 					
-					if(item.type == 'image'){
+					if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){
 						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';
 						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; '+ pulseStyle +';border:2px solid #3366AA !important';
 						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';
@@ -1054,9 +1054,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var imageContent;
 					
 					if(item.controllable){
-						imageContent = '<div style="overflow-y : scroll"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
+						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<div style="overflow-y : scroll"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);
@@ -1070,8 +1070,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						marker.setZIndexOffset(0);	
 						
 						marker.setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
-						
-						if(item.type == 'image'){
+						if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){
 							marker.bindPopup(imagePopup, {
 								autoPan: false,
 								keepInView: false,
@@ -1132,8 +1131,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									shapeMap[shapePoint.group].push(shapePoint);	
 								});
 
-								for(key in shapeMap){
-									shapeList = shapeMap[key];							
+								for(var mapKey in shapeMap){
+									shapeList = shapeMap[mapKey];							
 									shape = L.polyline([],{color: item.color, weight: 4});
 
 									shapeList.forEach(function(shapePoint){
@@ -1143,7 +1142,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									shape.addTo(map);
 									
 									shape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});
-									shape.group = key;
+									shape.group = mapKey;
 									
 									relatedShapeList.push(shape);
 								};
@@ -1308,15 +1307,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 										shape = {};
 										
-										for(key in shapeMap){
-											shapeList = shapeMap[key];							
+										for(var mapKey in shapeMap){
+											shapeList = shapeMap[mapKey];							
 											var subShape = L.polyline([]);
 
 											shapeList.forEach(function(shapePoint){
 												subShape.addLatLng(shapePoint);
 											});
 											
-											shape[key] = subShape;
+											shape[mapKey] = subShape;
 										};
 									} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){
 										shape = L.polygon([]);

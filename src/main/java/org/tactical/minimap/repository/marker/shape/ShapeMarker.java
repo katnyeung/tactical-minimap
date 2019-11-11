@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -50,6 +51,9 @@ public class ShapeMarker extends Marker {
 	@NotNull
 	String shapeType;
 
+	@Column(nullable = true)	
+	String imagePath;
+	
 	@NotNull
 	String color;
 	
@@ -88,6 +92,12 @@ public class ShapeMarker extends Marker {
 
 			this.setShapeMarkerDetailList(shapeMarkerDetailList);
 
+			logger.info("setting image : {}", markerDTO.getImagePath());
+			
+			if(markerDTO.getImagePath() != null) {
+				this.setImagePath(markerDTO.getImagePath());
+			}
+			
 			this.setHour(markerDTO.getHour());
 			this.setMinute(markerDTO.getMinute());
 			
@@ -171,4 +181,14 @@ public class ShapeMarker extends Marker {
 	public int getPulseRate() {
 		return 8;
 	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	
 }
