@@ -396,21 +396,8 @@ public class TelegramParserScheduler {
 							if ((fromLat < plLatLng.y && plLatLng.y < toLat) || (fromLng < plLatLng.x && plLatLng.x < toLng)) {
 								smd.put("in", 1.0);
 
-								if (plLatLng.y > toLat) {
-									smd.put("lat", toLat);
-								} else if (plLatLng.y <= fromLat) {
-									smd.put("lat", fromLat);
-								} else {
-									smd.put("lat", plLatLng.y);
-								}
-
-								if (plLatLng.x > toLng) {
-									smd.put("lng", toLng);
-								} else if (plLatLng.x <= fromLng) {
-									smd.put("lng", fromLng);
-								} else {
-									smd.put("lng", plLatLng.x);
-								}
+								smd.put("lat", plLatLng.y);
+								smd.put("lng", plLatLng.x);
 							} else {
 								smd.put("in", 0.0);
 
