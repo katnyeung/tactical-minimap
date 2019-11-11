@@ -187,7 +187,7 @@ public class TelegramParserScheduler {
 							if (heavyWeightKeyCount > 2 || keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
 								latlng = doGoogle(keyMap);
 							} else {
-								latlng = doGoogle(keyMap);
+								latlng = doGeoDataHK(keyMap);
 							}
 
 							if (latlng == null) {
