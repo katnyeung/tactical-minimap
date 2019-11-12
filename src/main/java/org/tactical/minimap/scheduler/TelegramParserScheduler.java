@@ -510,6 +510,13 @@ public class TelegramParserScheduler {
 
 					return latlng;
 				}
+			}else {
+				MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+				latlng.setLat(dstCoord.y);
+				latlng.setLng(dstCoord.x);
+				
+				return latlng;
 			}
 
 		}
