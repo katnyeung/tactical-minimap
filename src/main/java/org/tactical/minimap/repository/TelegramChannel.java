@@ -1,5 +1,6 @@
 package org.tactical.minimap.repository;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,6 +38,15 @@ public class TelegramChannel extends Auditable<String> {
 	@NotNull
 	@Size(max = 1)
 	String status;
+
+	double fromLat;
+	double fromLng;
+
+	double toLat;
+	double toLng;
+
+	@Column(nullable = true)
+	String geoCodeMethod;
 
 	int priority = 0;
 
@@ -102,6 +112,46 @@ public class TelegramChannel extends Auditable<String> {
 
 	public void setPriority(int priority) {
 		this.priority = priority;
+	}
+
+	public double getFromLat() {
+		return fromLat;
+	}
+
+	public void setFromLat(double fromLat) {
+		this.fromLat = fromLat;
+	}
+
+	public double getFromLng() {
+		return fromLng;
+	}
+
+	public void setFromLng(double fromLng) {
+		this.fromLng = fromLng;
+	}
+
+	public double getToLat() {
+		return toLat;
+	}
+
+	public void setToLat(double toLat) {
+		this.toLat = toLat;
+	}
+
+	public double getToLng() {
+		return toLng;
+	}
+
+	public void setToLng(double toLng) {
+		this.toLng = toLng;
+	}
+
+	public String getGeoCodeMethod() {
+		return geoCodeMethod;
+	}
+
+	public void setGeoCodeMethod(String geoCodeMethod) {
+		this.geoCodeMethod = geoCodeMethod;
 	}
 
 }

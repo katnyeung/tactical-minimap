@@ -19,6 +19,10 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.osgeo.proj4j.BasicCoordinateTransform;
+import org.osgeo.proj4j.CRSFactory;
+import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.ProjCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,27 +94,13 @@ public class MarkerService {
 			if (markerIdList != null) {
 				if (!markerIdList.contains(marker.getMarkerId())) {
 					// new marker, not in client list
-					mr = MarkerResult.makeResult(marker.getMarkerId())
-							.status("A")
-							.marker(marker)
-							.cache(mc)
-							.opacity(opacity)
-							.controllable(isControllable);
+					mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
 				} else {
 					// marker exist in client
 					if (Calendar.getInstance().getTimeInMillis() - marker.getLastupdatedate().getTime() < 10000) {
-						mr = MarkerResult.makeResult(marker.getMarkerId())
-								.status("U")
-								.marker(marker)
-								.cache(mc)
-								.opacity(opacity)
-								.controllable(isControllable);
+						mr = MarkerResult.makeResult(marker.getMarkerId()).status("U").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
 					} else {
-						mr = MarkerResult.makeResult(marker.getMarkerId())
-								.status("O")
-								.cache(mc)
-								.opacity(opacity)
-								.controllable(isControllable);
+						mr = MarkerResult.makeResult(marker.getMarkerId()).status("O").cache(mc).opacity(opacity).controllable(isControllable);
 					}
 
 				}
@@ -119,12 +109,7 @@ public class MarkerService {
 				processedList.add(marker.getMarkerId());
 			} else {
 				// request marker first time
-				mr = MarkerResult.makeResult(marker.getMarkerId())
-						.status("A")
-						.marker(marker)
-						.cache(mc)
-						.opacity(opacity)
-						.controllable(isControllable);
+				mr = MarkerResult.makeResult(marker.getMarkerId()).status("A").marker(marker).cache(mc).opacity(opacity).controllable(isControllable);
 			}
 
 			mrList.add(mr);
@@ -416,5 +401,39 @@ public class MarkerService {
 
 	public List<Marker> findActiveMarkersByMarkerIds(List<String> layerKeys, List<Long> markerIdList) {
 		return markerDAO.findActiveMarkersByMarkerIds(layerKeys, markerIdList);
+	}
+
+	public ProjCoordinate toWGS84(double x, double y) {
+
+		CRSFactory factory = new CRSFactory();
+		CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:2326");
+		CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:4326");
+
+		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
+
+		ProjCoordinate srcCoord = new ProjCoordinate(x, y);
+		ProjCoordinate dstCoord = new ProjCoordinate();
+
+		// Writes result into dstCoord
+		transform.transform(srcCoord, dstCoord);
+
+		return dstCoord;
+	}
+
+	public ProjCoordinate toHK1980(double lat, double lng) {
+
+		CRSFactory factory = new CRSFactory();
+		CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:4326");
+		CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:2326");
+
+		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
+
+		ProjCoordinate srcCoord = new ProjCoordinate(lng, lat);
+		ProjCoordinate dstCoord = new ProjCoordinate();
+
+		// Writes result into dstCoord
+		transform.transform(srcCoord, dstCoord);
+
+		return dstCoord;
 	}
 }

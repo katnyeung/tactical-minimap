@@ -15,9 +15,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.osgeo.proj4j.BasicCoordinateTransform;
-import org.osgeo.proj4j.CRSFactory;
-import org.osgeo.proj4j.CoordinateReferenceSystem;
 import org.osgeo.proj4j.ProjCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,18 +173,14 @@ public class TelegramParserScheduler {
 
 							MarkerGeoCoding latlng;
 
-							logger.info("mk match : {} ", keyMap.containsKey("旺角"));
-							int heavyWeightKeyCount = 0;
-							for (String key : keyMap.keySet()) {
-								if (keyMap.get(key) > 35) {
-									heavyWeightKeyCount++;
+							if (tc.getGeoCodeMethod() != null) {
+								if (tc.getGeoCodeMethod().equals("google")) {
+									latlng = doGoogle(keyMap, tc);
+								} else {
+									latlng = doGeoDataHK(keyMap, tc);
 								}
-							}
-
-							if (heavyWeightKeyCount > 2 || keyMap.containsKey("旺角") || keyMap.containsKey("交界")) {
-								latlng = doGoogle(keyMap);
 							} else {
-								latlng = doGeoDataHK(keyMap);
+								latlng = doGeoDataHK(keyMap, tc);
 							}
 
 							if (latlng == null) {
@@ -339,7 +332,7 @@ public class TelegramParserScheduler {
 	private ShapeMarker processShapeMarker(MarkerDTO markerDTO, MarkerGeoCoding latlng) throws InstantiationException, IllegalAccessException, JsonProcessingException {
 		ShapeMarker shapeMarker = null;
 
-		ProjCoordinate markerXY = toHK1980(latlng.getLat(), latlng.getLng());
+		ProjCoordinate markerXY = markerService.toHK1980(latlng.getLat(), latlng.getLng());
 
 		HttpResponse<JsonNode> govMapResponse = Unirest.get("https://www.map.gov.hk/gih-ws2/identify/" + markerXY.x + "/" + markerXY.y + "/9027.977411/WEB").asJson();
 
@@ -399,7 +392,7 @@ public class TelegramParserScheduler {
 							double x = path.getDouble(0);
 							double y = path.getDouble(1);
 
-							ProjCoordinate plLatLng = toWGS84(x, y);
+							ProjCoordinate plLatLng = markerService.toWGS84(x, y);
 
 							double fromLat = latlng.getLat() - 0.00001;
 							double fromLng = latlng.getLng() - 0.0001;
@@ -446,7 +439,7 @@ public class TelegramParserScheduler {
 		return shapeMarker;
 	}
 
-	private MarkerGeoCoding doGoogle(final HashMap<String, Integer> keyMap) {
+	private MarkerGeoCoding doGoogle(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
@@ -473,7 +466,7 @@ public class TelegramParserScheduler {
 		}
 	}
 
-	private MarkerGeoCoding doGeoDataHK(final HashMap<String, Integer> keyMap) {
+	private MarkerGeoCoding doGeoDataHK(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
 
 		// filter out the key weight < 15
 		for (String key : keyMap.keySet()) {
@@ -485,73 +478,45 @@ public class TelegramParserScheduler {
 		final Map<String, Integer> sortedMap = keyMap.entrySet()
 				.stream()
 				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-				.limit(3)
+				.limit(4)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch").queryString("q", String.join(" ", sortedMap.keySet())).asJson();
+		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch")
+				.queryString("q", String.join(" ", sortedMap.keySet())).asJson();
 
 		logger.info("geodata return {} ", response.getBody().toPrettyString());
 
 		JSONArray bodyArray = response.getBody().getArray();
 
-		if (bodyArray.length() > 0) {
-			JSONObject jsonObjectXY = bodyArray.getJSONObject(0);
+		for (Object obj : bodyArray) {
+			JSONObject jsonObjectXY = (JSONObject) obj;
 
 			// Note these are x, y so lng, lat
 			double x = jsonObjectXY.getDouble("x");
 			double y = jsonObjectXY.getDouble("y");
-			ProjCoordinate dstCoord = toWGS84(x, y);
+			ProjCoordinate dstCoord = markerService.toWGS84(x, y);
 
 			logger.info("dest x y {} {} ", dstCoord.x, dstCoord.y);
 
-			MarkerGeoCoding latlng = new MarkerGeoCoding();
-			
-			latlng.setLat(dstCoord.y);
-			latlng.setLng(dstCoord.x);
+			if (tc.getFromLat() > 0 && tc.getFromLng() > 0 && tc.getToLat() > 0 && tc.getToLng() > 0) {
+				if (tc.getFromLat() < dstCoord.y && dstCoord.y < tc.getToLat() && tc.getFromLng() < dstCoord.x && dstCoord.x < tc.getToLng()) {
 
-			return latlng;
-		} else {
-			return null;
+					MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+					latlng.setLat(dstCoord.y);
+					latlng.setLng(dstCoord.x);
+
+					return latlng;
+				}
+			}
+
 		}
-	}
-
-	private ProjCoordinate toWGS84(double x, double y) {
-
-		CRSFactory factory = new CRSFactory();
-		CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:2326");
-		CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:4326");
-
-		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
-
-		ProjCoordinate srcCoord = new ProjCoordinate(x, y);
-		ProjCoordinate dstCoord = new ProjCoordinate();
-
-		// Writes result into dstCoord
-		transform.transform(srcCoord, dstCoord);
-
-		return dstCoord;
-	}
-
-	private ProjCoordinate toHK1980(double lat, double lng) {
-
-		CRSFactory factory = new CRSFactory();
-		CoordinateReferenceSystem srcCrs = factory.createFromName("EPSG:4326");
-		CoordinateReferenceSystem dstCrs = factory.createFromName("EPSG:2326");
-
-		BasicCoordinateTransform transform = new BasicCoordinateTransform(srcCrs, dstCrs);
-
-		ProjCoordinate srcCoord = new ProjCoordinate(lng, lat);
-		ProjCoordinate dstCoord = new ProjCoordinate();
-
-		// Writes result into dstCoord
-		transform.transform(srcCoord, dstCoord);
-
-		return dstCoord;
+		return null;
 	}
 	
-	private MarkerGeoCoding doOGCIO(final HashMap<String, Integer> keyMap) {
+	private MarkerGeoCoding doOGCIO(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
