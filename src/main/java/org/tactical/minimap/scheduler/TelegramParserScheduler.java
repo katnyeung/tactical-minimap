@@ -173,7 +173,7 @@ public class TelegramParserScheduler {
 
 							MarkerGeoCoding latlng;
 
-							if (tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) {
+							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界")) {
 								latlng = doGoogle(keyMap, tc);
 							} else {
 								if (keyMap.containsKey("警署")) {
