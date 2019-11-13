@@ -177,10 +177,10 @@ public class TelegramParserScheduler {
 								if (tc.getGeoCodeMethod().equals("google")) {
 									latlng = doGoogle(keyMap, tc);
 								} else {
-									latlng = doGeoDataHK(keyMap, tc);
+									latlng = doArcgis(keyMap, tc);
 								}
 							} else {
-								latlng = doGeoDataHK(keyMap, tc);
+								latlng = doArcgis(keyMap, tc);
 							}
 
 							if (latlng == null) {
@@ -522,7 +522,68 @@ public class TelegramParserScheduler {
 		}
 		return null;
 	}
-	
+
+	private MarkerGeoCoding doArcgis(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
+
+		// filter out the key weight < 15
+		for (String key : keyMap.keySet()) {
+			if (keyMap.get(key) < 15) {
+				keyMap.remove(key);
+			}
+		}
+
+		final Map<String, Integer> sortedMap = keyMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.limit(4)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		logger.info("keyMap {} ", sortedMap);
+		
+		// get geo location
+		HttpResponse<JsonNode> response = Unirest.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates")
+				.queryString("f","json")
+				.queryString("outFields","matchAddr")
+				.queryString("singleLine", String.join(" ", sortedMap.keySet())).asJson();
+
+		logger.info("arcgis return {} ", response.getBody().toPrettyString());
+
+		JSONObject bodyObject = response.getBody().getObject();
+
+		JSONArray bodyArray = bodyObject.getJSONArray("candidates");
+		
+		for (Object obj : bodyArray) {
+			JSONObject jsonObjectLatLng = (JSONObject) obj;
+
+			// Note these are x, y so lng, lat
+			double lat = jsonObjectLatLng.getJSONObject("location").getDouble("y");
+			double lng = jsonObjectLatLng.getJSONObject("location").getDouble("x");
+
+			logger.info("dest x y {} {} ", lng, lat);
+
+			if (tc.getFromLat() > 0 && tc.getFromLng() > 0 && tc.getToLat() > 0 && tc.getToLng() > 0) {
+				if (tc.getFromLat() < lat && lat < tc.getToLat() && tc.getFromLng() < lng && lng < tc.getToLng()) {
+
+					MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+					latlng.setLat(lat);
+					latlng.setLng(lng);
+
+					return latlng;
+				}
+			} else {
+				MarkerGeoCoding latlng = new MarkerGeoCoding();
+
+				latlng.setLat(lat);
+				latlng.setLng(lng);
+
+				return latlng;
+			}
+
+		}
+		return null;
+	}
+
 	private MarkerGeoCoding doOGCIO(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
