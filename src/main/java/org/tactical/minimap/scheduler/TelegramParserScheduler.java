@@ -228,7 +228,7 @@ public class TelegramParserScheduler {
 
 										imageService.resizeImage(file, file, ext, 400);
 
-										lineColor = "#395aa3";
+										lineColor = "red";
 									} else if (dangerMatcher.find()) {
 										marker = DangerMarker.class.newInstance();
 									} else if (groupMatcher.find()) {

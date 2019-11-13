@@ -78,8 +78,9 @@ public abstract class SpeechService {
 				String direction = getDirection(markerToUserDegree) + "面";
 
 				if (degree > 0) {
-					direction = getFacing((markerToUserDegree - degree) % 360) + "方";
-					logger.info(" marker degree {} , user degree {}, direction msg : {}", markerToUserDegree, degree, direction);
+					if (distance * 1000 < 800) {
+						direction = getFacing((markerToUserDegree - degree) % 360) + "方";
+					}
 				}
 
 				if (distance * 1000 > 1000) {
@@ -88,6 +89,9 @@ public abstract class SpeechService {
 					distanceMessage = "。 距離 你 " + direction + (int) (distance * 1000) + " 米。";
 				}
 
+				
+				
+				
 				message = message.replaceAll("=distance=", distanceMessage);
 			} else {
 				message = message.replaceAll("=distance=", "");
