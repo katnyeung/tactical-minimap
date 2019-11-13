@@ -173,14 +173,14 @@ public class TelegramParserScheduler {
 
 							MarkerGeoCoding latlng;
 
-							if (tc.getGeoCodeMethod() != null) {
-								if (tc.getGeoCodeMethod().equals("google")) {
-									latlng = doGoogle(keyMap, tc);
+							if (tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) {
+								latlng = doGoogle(keyMap, tc);
+							} else {
+								if (keyMap.containsKey("警署")) {
+									latlng = doGeoDataHK(keyMap, tc);
 								} else {
 									latlng = doArcgis(keyMap, tc);
 								}
-							} else {
-								latlng = doArcgis(keyMap, tc);
 							}
 
 							if (latlng == null) {
@@ -531,6 +531,7 @@ public class TelegramParserScheduler {
 				keyMap.remove(key);
 			}
 		}
+		keyMap.put("香港", 200);
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet()
 				.stream()
