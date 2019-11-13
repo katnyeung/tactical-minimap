@@ -176,7 +176,7 @@ public class TelegramParserScheduler {
 							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
 								latlng = doGoogle(keyMap, tc);
 							} else {
-								if (keyMap.containsKey("警署")) {
+								if (keyMap.containsKey("警署") || keyMap.containsKey("港鐵站")) {
 									latlng = doGeoDataHK(keyMap, tc);
 								} else {
 									latlng = doArcgis(keyMap, tc);
