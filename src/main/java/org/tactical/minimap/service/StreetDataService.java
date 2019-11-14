@@ -1,5 +1,7 @@
 package org.tactical.minimap.service;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,17 @@ public class StreetDataService {
 	@Transactional
 	public void save(StreetData streetData) {
 		streetDataDAO.save(streetData);
+	}
+
+	public StreetData findStreetData(String key) {
+
+		List<StreetData> sdList = streetDataDAO.findStreetDataByName(key);
+		
+		if (sdList.size() > 0) {
+			return sdList.get(0);
+		}
+
+		return null;
 	}
 
 }

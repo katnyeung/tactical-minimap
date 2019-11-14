@@ -27,12 +27,16 @@ public class StreetData extends Auditable<String> {
 
 	String streetName;
 
+	String streetAddress;
+
 	String altName;
 
 	String status;
 
 	String streetType;
-	
+
+	String faciType;
+
 	@OneToMany(mappedBy = "streetData", cascade = CascadeType.ALL)
 	List<StreetDataDetail> streetDataDetailList;
 
@@ -88,8 +92,24 @@ public class StreetData extends Auditable<String> {
 		return streetType;
 	}
 
+	public String getFaciType() {
+		return faciType;
+	}
+
+	public void setFaciType(String faciType) {
+		this.faciType = faciType;
+	}
+
 	public void setStreetType(String streetType) {
 		this.streetType = streetType;
+	}
+
+	public String getStreetAddress() {
+		return streetAddress;
+	}
+
+	public void setStreetAddress(String streetAddress) {
+		this.streetAddress = streetAddress;
 	}
 
 	public List<StreetDataDetail> getStreetDataDetailList() {
