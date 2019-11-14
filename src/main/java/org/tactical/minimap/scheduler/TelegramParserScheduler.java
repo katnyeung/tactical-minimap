@@ -179,7 +179,7 @@ public class TelegramParserScheduler {
 								boolean haveStation = false;
 								int totalScore = 0;
 								for (String key : keyMap.keySet()) {
-									if (key.matches("(站|警署)")) {
+									if (key.matches("(站|警署|港鐵)")) {
 										haveStation = true;
 									}
 									totalScore += keyMap.get(key);
