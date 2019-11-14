@@ -140,7 +140,7 @@ public class TelegramParserScheduler {
 
 						telegramMessageService.processData(message, "region", keyMap, 40);
 
-						telegramMessageService.processData(message, "street", keyMap, 30);
+						telegramMessageService.processData(message, "street", keyMap, 50);
 
 						telegramMessageService.processData(message, "district", keyMap, 25);
 
@@ -148,7 +148,7 @@ public class TelegramParserScheduler {
 
 						telegramMessageService.processData(message, "plaza", keyMap, 15);
 
-						telegramMessageService.processData(message, "mtr", keyMap, 15);
+						telegramMessageService.processData(message, "mtr", keyMap, 50);
 
 						telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
@@ -176,7 +176,16 @@ public class TelegramParserScheduler {
 							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
 								latlng = doGoogle(keyMap, tc);
 							} else {
-								if (keyMap.containsKey("警署") || keyMap.containsKey("港鐵站")) {
+								boolean haveStation = false;
+								int totalScore = 0;
+								for (String key : keyMap.keySet()) {
+									if (key.matches("(站|警署)")) {
+										haveStation = true;
+									}
+									totalScore += keyMap.get(key);
+								}
+
+								if (haveStation || totalScore > 100) {
 									latlng = doGeoDataHK(keyMap, tc);
 								} else {
 									latlng = doArcgis(keyMap, tc);
