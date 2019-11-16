@@ -381,10 +381,10 @@ public class TelegramParserScheduler {
 					
 					LinkedHashMap<String, Double> smd = new LinkedHashMap<String, Double>();
 
-					double fromLat = latlng.getLat() - 0.001;
-					double fromLng = latlng.getLng() - 0.001;
-					double toLat = latlng.getLat() + 0.001;
-					double toLng = latlng.getLng() + 0.001;
+					double fromLat = latlng.getLat() - 0.002;
+					double fromLng = latlng.getLng() - 0.002;
+					double toLat = latlng.getLat() + 0.002;
+					double toLng = latlng.getLng() + 0.002;
 
 					if ((fromLat < lat && lat <= toLat) && (fromLng < lng && lng <= toLng)) {
 						logger.info("{} < {} < {} , {} < {} < {}", fromLat, lat, toLat, fromLng, lng, toLng);
