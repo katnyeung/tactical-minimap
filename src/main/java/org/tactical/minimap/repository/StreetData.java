@@ -30,6 +30,8 @@ public class StreetData extends Auditable<String> {
 	String streetAddress;
 
 	String altName;
+	
+	String thirdName;
 
 	String status;
 
@@ -118,6 +120,14 @@ public class StreetData extends Auditable<String> {
 
 	public void setStreetDataDetailList(List<StreetDataDetail> streetDataDetailList) {
 		this.streetDataDetailList = streetDataDetailList;
+	}
+
+	public String getThirdName() {
+		return thirdName;
+	}
+
+	public void setThirdName(String thirdName) {
+		this.thirdName = thirdName;
 	}
 
 	@Override
