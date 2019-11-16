@@ -103,7 +103,7 @@ public class TelegramMessageService {
 
 	}
 
-	public void processData(String message, String category, HashMap<String, Integer> keyMap, final int categoryWeight) throws IOException {
+	public String processData(String message, String category, HashMap<String, Integer> keyMap, final int categoryWeight) throws IOException {
 		List<String> patternList = patternMap.get(category);
 		for (String pattern : patternList) {
 			int weight = categoryWeight;
@@ -133,12 +133,18 @@ public class TelegramMessageService {
 							isExist = true;
 						}
 					}
-					if (!isExist)
+					if (!isExist) {
 						addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
+					}
 					logger.info("{}", keyMap);
 				}
+
+				message = message.replaceAll(processingPattern, "");
 			}
 		}
+		logger.info(" after replace message : {} ", message);
+		
+		return message;
 	}
 
 	private void addPattern(String pattern, Integer weight, HashMap<String, Integer> keyMap, String patternMessage, String replaceToPattern) {

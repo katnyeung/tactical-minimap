@@ -144,21 +144,21 @@ public class TelegramParserScheduler {
 
 						logger.info("processing message {}", message);
 
-						telegramMessageService.processData(message, "region", keyMap, 40);
+						message = telegramMessageService.processData(message, "region", keyMap, 40);
 
-						telegramMessageService.processData(message, "street", keyMap, 50);
+						message = telegramMessageService.processData(message, "street", keyMap, 50);
 
-						telegramMessageService.processData(message, "district", keyMap, 25);
+						message = telegramMessageService.processData(message, "district", keyMap, 25);
 
-						telegramMessageService.processData(message, "building", keyMap, 15);
+						message = telegramMessageService.processData(message, "building", keyMap, 15);
 
-						telegramMessageService.processData(message, "plaza", keyMap, 15);
+						message = telegramMessageService.processData(message, "plaza", keyMap, 15);
 
-						telegramMessageService.processData(message, "mtr", keyMap, 50);
+						message = telegramMessageService.processData(message, "mtr", keyMap, 50);
 
-						telegramMessageService.processData(message, "wildcard", keyMap, 5);
+						message = telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
-						telegramMessageService.processData(message, "additional", keyMap, 10);
+						message = telegramMessageService.processData(message, "additional", keyMap, 10);
 
 						if (keyMap.keySet().size() == 0) {
 							logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
