@@ -181,7 +181,7 @@ public class TelegramParserScheduler {
 
 							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
 
-								keyMap.remove("交界");
+								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
 								
 								latlng = doGoogle(keyMap, tc);
 							} else {
@@ -197,6 +197,12 @@ public class TelegramParserScheduler {
 								if (haveStation || totalScore > 100) {
 									latlng = doGeoDataHK(keyMap, tc);
 								} else {
+
+									// filter out the key weight < 15
+									keyMap.entrySet().removeIf(e -> e.getValue() < 15);
+									
+									keyMap.put("香港", 200);
+									
 									latlng = doArcgis(keyMap, tc);
 								}
 							}
@@ -510,14 +516,6 @@ public class TelegramParserScheduler {
 	}
 
 	private MarkerGeoCoding doArcgis(final HashMap<String, Integer> keyMap, TelegramChannel tc) {
-
-		// filter out the key weight < 15
-		for (String key : keyMap.keySet()) {
-			if (keyMap.get(key) < 15) {
-				keyMap.remove(key);
-			}
-		}
-		keyMap.put("香港", 200);
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet()
 				.stream()
