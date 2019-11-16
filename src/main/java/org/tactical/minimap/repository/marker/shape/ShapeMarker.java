@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ShapeMarker extends Marker {
 	
-	String icon = "point.png";
+	String icon = "016-pin-7.png";
 	int iconSize = 36;
 	
 	@Override
