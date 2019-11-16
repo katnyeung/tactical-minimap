@@ -120,4 +120,10 @@ public class StreetData extends Auditable<String> {
 		this.streetDataDetailList = streetDataDetailList;
 	}
 
+	@Override
+	public String toString() {
+		return "StreetData [streetDataId=" + streetDataId + ", lat=" + lat + ", lng=" + lng + ", streetName=" + streetName + ", streetAddress=" + streetAddress + ", altName=" + altName + ", status=" + status + ", streetType=" + streetType + ", faciType=" + faciType + ", streetDataDetailList="
+				+ streetDataDetailList + "]";
+	}
+
 }

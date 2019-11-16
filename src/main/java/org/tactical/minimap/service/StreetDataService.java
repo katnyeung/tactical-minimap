@@ -22,7 +22,7 @@ public class StreetDataService {
 	public StreetData findStreetData(String key) {
 
 		List<StreetData> sdList = streetDataDAO.findStreetDataByName(key);
-		
+
 		if (sdList.size() > 0) {
 			return sdList.get(0);
 		}
@@ -30,4 +30,9 @@ public class StreetDataService {
 		return null;
 	}
 
+	public List<StreetData> findStreetDataList(String streetType, String key) {
+
+		return streetDataDAO.findStreetDataByStreetTypeAndName(streetType, key);
+
+	}
 }

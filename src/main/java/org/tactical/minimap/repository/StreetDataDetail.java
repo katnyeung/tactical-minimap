@@ -63,4 +63,9 @@ public class StreetDataDetail {
 		this.lng = lng;
 	}
 
+	@Override
+	public String toString() {
+		return "StreetDataDetail [streetDataDetailId=" + streetDataDetailId + ", groupId=" + groupId + ", lat=" + lat + ", lng=" + lng + "]";
+	}
+
 }

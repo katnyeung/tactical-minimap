@@ -888,6 +888,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									}else{
 										item.markerCache = null;
 									}
+									
+									if(result.marker.shapeList){
+										item.shapeList = result.marker.shapeList;	
+									}
 								}
 							});
 	

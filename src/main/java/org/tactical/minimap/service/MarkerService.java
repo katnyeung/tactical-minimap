@@ -240,7 +240,8 @@ public class MarkerService {
 
 		marker.setLat(lat);
 		marker.setLng(lng);
-
+		marker.setCreatedate(Calendar.getInstance().getTime());
+		
 		markerDAO.save(marker);
 	}
 
