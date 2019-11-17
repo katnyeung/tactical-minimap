@@ -184,27 +184,30 @@ public class TelegramParserScheduler {
 								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
 								
 								latlng = doGoogle(keyMap, tc);
+								
 							} else {
-								boolean haveStation = false;
+								
+								boolean haveStreet = false;
 								int totalScore = 0;
 								for (String key : keyMap.keySet()) {
-									if (key.matches("(站|警署|港鐵)")) {
-										haveStation = true;
+									if (key.matches(".*(道|路|街|橋).*")) {
+										haveStreet = true;
 									}
 									totalScore += keyMap.get(key);
 								}
 
-								if (haveStation || totalScore > 100) {
-									latlng = doGeoDataHK(keyMap, tc);
+								if (haveStreet || totalScore < 100) {
+									keyMap.entrySet().removeIf(e -> e.getValue() < 15);
+
+									keyMap.put("香港", 200);
+
+									latlng = doArcgis(keyMap, tc);
 								} else {
 
-									// filter out the key weight < 15
-									keyMap.entrySet().removeIf(e -> e.getValue() < 15);
-									
-									keyMap.put("香港", 200);
-									
-									latlng = doArcgis(keyMap, tc);
+									latlng = doGeoDataHK(keyMap, tc);
+
 								}
+
 							}
 
 							if (latlng == null) {
