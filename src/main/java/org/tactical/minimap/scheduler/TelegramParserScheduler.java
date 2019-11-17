@@ -204,6 +204,8 @@ public class TelegramParserScheduler {
 									latlng = doArcgis(keyMap, tc);
 								} else {
 
+									keyMap.put("香港", 200);
+
 									latlng = doGeoDataHK(keyMap, tc);
 
 								}
