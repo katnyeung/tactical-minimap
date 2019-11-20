@@ -169,49 +169,63 @@ public class TelegramParserScheduler {
 							// save parse result
 							Gson gson = new Gson();
 							telegramMessage.setResult(gson.toJson(keyMap));
+							
 							telegramMessageService.saveTelegramMessage(telegramMessage);
 
+							// get telegram channel setting
 							TelegramChannel tc = telegramMessageService.getChannelByGroupName(telegramMessage.getGroupKey());
 
 							if (tc.getSearchPrefix() != null && !tc.getSearchPrefix().equals("")) {
 								keyMap.put(tc.getSearchPrefix(), 100);
 							}
 
-							MarkerGeoCoding latlng;
-
-							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
-
-								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
-								
-								latlng = doGoogle(keyMap, tc);
-								
-							} else {
-								
-								boolean haveStreet = false;
-								int totalScore = 0;
-								for (String key : keyMap.keySet()) {
-									if (key.matches(".*(道|路|街|橋).*")) {
-										haveStreet = true;
+							MarkerGeoCoding latlng = null;
+							
+							// by pass internet search with only 1 result
+							if(keyMap.size() == 1) {
+								for(String key : keyMap.keySet()) {
+									StreetData sd = streetDataService.findStreetData(key);
+									if(sd != null) {										
+										latlng = MarkerGeoCoding.latlng(sd.getLat(), sd.getLng());
 									}
-									totalScore += keyMap.get(key);
 								}
-
-								if (haveStreet || totalScore < 100) {
-									keyMap.entrySet().removeIf(e -> e.getValue() < 15);
-
-									keyMap.put("香港", 200);
-
-									latlng = doArcgis(keyMap, tc);
-								} else {
-
-									keyMap.put("香港", 200);
-
-									latlng = doGeoDataHK(keyMap, tc);
-
-								}
-
 							}
+														
+							// step 2 if default setting not found or keyMap size > 1 , go internet search
+							if(latlng == null) {
+								if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
 
+									keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
+									
+									latlng = doGoogle(keyMap, tc);
+									
+								} else {
+									
+									boolean haveStreet = false;
+									int totalScore = 0;
+									for (String key : keyMap.keySet()) {
+										if (key.matches(".*(道|路|街|橋).*")) {
+											haveStreet = true;
+										}
+										totalScore += keyMap.get(key);
+									}
+
+									if (haveStreet || totalScore < 100) {
+										keyMap.entrySet().removeIf(e -> e.getValue() < 15);
+
+										keyMap.put("香港", 200);
+
+										latlng = doArcgis(keyMap, tc);
+									} else {
+
+										keyMap.put("香港", 200);
+
+										latlng = doGeoDataHK(keyMap, tc);
+
+									}
+								}
+							}
+							
 							if (latlng == null) {
 
 								logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());

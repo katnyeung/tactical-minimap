@@ -20,4 +20,10 @@ public class MarkerGeoCoding {
 		this.lng = lng;
 	}
 
+	public static MarkerGeoCoding latlng(double lat, double lng) {
+		MarkerGeoCoding latlng = new MarkerGeoCoding();
+		latlng.setLat(lat);
+		latlng.setLng(lng);
+		return latlng;
+	}
 }
