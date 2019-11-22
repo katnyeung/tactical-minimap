@@ -212,9 +212,10 @@ public class TelegramParserScheduler {
 
 									if (haveStreet || totalScore < 100) {
 										keyMap.entrySet().removeIf(e -> e.getValue() < 15);
-
+										keyMap.keySet().forEach(key-> key.replace("東", " E").replace("南", "S").replace("西", " W").replace("北"," N"));
+										
 										keyMap.put("香港", 200);
-
+										
 										latlng = doArcgis(keyMap, tc);
 									} else {
 
