@@ -759,7 +759,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 			
 			locationFilter.on("change", function (e) {
-				console.log(locationFilter.getBounds());
+				console.log(";[" + locationFilter.getBounds().getNorthWest().lat + ',' + locationFilter.getBounds().getNorthWest().lng + ":" + locationFilter.getBounds().getSouthEast().lat + "," + locationFilter.getBounds().getSouthEast().lng + "]" );
 			});
 
 			locationFilter.on("enabled", function () {				 
