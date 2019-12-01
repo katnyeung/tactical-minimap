@@ -89,6 +89,11 @@ public class RouteController {
 		return "redirect:/" + layerKeys + "/12/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
+	@GetMapping(path = "/stat/")
+	public String stat( HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
+		return "stat";
+	}
+	
 	@GetMapping(path = "/l/{layerKeys}/{zoom}/{lat}/{lng}")
 	public String layerXY(@PathVariable("layerKeys") String layerKeys, @PathVariable("zoom") Integer zoom, @PathVariable("lat") Double lat, @PathVariable("lng") Double lng, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 		String uuid = CookieUtil.getUUID(request, response, session);

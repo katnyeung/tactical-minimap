@@ -1,0 +1,63 @@
+<html>
+<head>
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+
+setInterval(updateWordStat(), 1000 * 60 * 30);
+
+function updateWordStat(){
+	// ajax get data
+	$.ajax({
+		type : "GET",
+		url : '/stat/tg24hr/',
+		success : function(data){
+			if(data.status == 'success'){
+				var resultMap = {};
+				var resultList = [];
+				
+				data.listStat.forEach(function(item){
+					if(!resultMap[item.text]){
+						resultMap[item.text] = {};
+						resultMap[item.text].x = [];
+						resultMap[item.text].y = [];
+					}
+					
+					resultMap[item.text].x.push(item.label);
+					resultMap[item.text].y.push(item.weight);
+					resultMap[item.text].name = item.text;
+					resultMap[item.text].mode = 'lines+markers';
+					resultMap[item.text].type = 'scatter';
+				});
+				
+				for(var key in resultMap){
+					resultList.push(resultMap[key]);
+				}
+				
+				var layout = {
+					width: 1500,
+					height: 1500,
+					showlegend : true,
+					paper_bgcolor:'rgba(0,0,0,0)',
+				    plot_bgcolor:'rgba(0,0,0,0)'
+				};
+				
+				Plotly.newPlot('wordStat', resultList, layout);
+			}
+		}
+	});
+
+}
+
+</script>
+
+</head>
+<body>
+<div id="wordStat" ></div>
+</body>
+
+</html>
