@@ -248,7 +248,7 @@ public class TelegramMessageService {
 
 					if (policeMatcher.matches()) {
 						String count = policeMatcher.group(1);
-						String termWord = "警力" + ((region != null && !region.equals("")) ? ":" + region : "");
+						String termWord = "popo" + ((region != null && !region.equals("")) ? ":" + region : "");
 						if (count != null) {
 							redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
 						} else {
