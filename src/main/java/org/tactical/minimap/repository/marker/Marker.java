@@ -40,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
-@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer_Id, lat,lng,status") })
+@Table(name = "marker", indexes = { @Index(name = "latlng", columnList = "layer_id, lat,lng,status") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "marker_type")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })

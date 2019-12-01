@@ -193,5 +193,36 @@ public class RedisService {
 			stringRedisTemplate.opsForSet().remove(key, layerKey);
 		}
 	}
+	
+	public void incrKeyByGroup(String group, String key) {
+		stringRedisTemplate.opsForHash().increment(group, key, (long) 1);
+	}
+	
+	public Object getGroupByKey(String group , String key) {
+		return stringRedisTemplate.opsForHash().get(group, key);
+	}
+	
+	public Set<Object> getHashGroup(String group) {
+		return stringRedisTemplate.opsForHash().keys(group);
+	}
+
+	public String getActiveGroupKey() {
+		if (stringRedisTemplate.opsForList().size(ConstantsUtil.TELEGRAM_STAT_GROUP_KEY) > 0) {
+			return stringRedisTemplate.opsForList().index(ConstantsUtil.TELEGRAM_STAT_GROUP_KEY, 0);
+		} else {
+			return null;
+		}
+	}
+
+	public void addActiveGroupKey(String currentTimeKey) {
+		stringRedisTemplate.opsForList().rightPush(ConstantsUtil.TELEGRAM_STAT_GROUP_KEY, currentTimeKey);
+	}
+
+	public String popActiveGroupKey() {
+		String currentKey = stringRedisTemplate.opsForList().leftPop(ConstantsUtil.TELEGRAM_STAT_GROUP_KEY);
+
+		stringRedisTemplate.delete(currentKey);
+		return currentKey;
+	}
 
 }

@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 
 import org.tactical.minimap.util.Auditable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -39,6 +40,10 @@ public class TelegramChannel extends Auditable<String> {
 	@Size(max = 1)
 	String status;
 
+	@NotNull
+	@Size(max = 1)
+	String chatStatus;
+
 	double fromLat;
 	double fromLng;
 
@@ -49,7 +54,12 @@ public class TelegramChannel extends Auditable<String> {
 	String geoCodeMethod;
 
 	int priority = 0;
-
+	
+	@JsonIgnore
+	@NotNull
+	@Size(max = 1)
+	String channelType;
+	
 	public Long getTelegramChannelId() {
 		return telegramChannelId;
 	}
@@ -152,6 +162,22 @@ public class TelegramChannel extends Auditable<String> {
 
 	public void setGeoCodeMethod(String geoCodeMethod) {
 		this.geoCodeMethod = geoCodeMethod;
+	}
+
+	public String getChannelType() {
+		return channelType;
+	}
+
+	public void setChannelType(String channelType) {
+		this.channelType = channelType;
+	}
+
+	public String getChatStatus() {
+		return chatStatus;
+	}
+
+	public void setChatStatus(String chatStatus) {
+		this.chatStatus = chatStatus;
 	}
 
 }

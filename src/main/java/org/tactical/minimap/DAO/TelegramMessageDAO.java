@@ -11,8 +11,8 @@ import org.tactical.minimap.util.ConstantsUtil;
 
 public interface TelegramMessageDAO extends JpaRepository<TelegramMessage, Long> {
 
-	@Query("SELECT t FROM TelegramMessage t WHERE t.status = '" + ConstantsUtil.TELEGRAM_MESSAGE_PENDING + "' ORDER BY messageDate ASC")
-	public List<TelegramMessage> findPendingTelegramMessage();
+	@Query("SELECT t FROM TelegramMessage t WHERE t.messageType IN :messageTypeList AND t.status = '" + ConstantsUtil.TELEGRAM_MESSAGE_PENDING + "' ORDER BY messageDate ASC")
+	public List<TelegramMessage> findPendingTelegramMessage(@Param("messageTypeList") List<String> messageTypeList);
 
 	@Modifying
 	@Query("UPDATE TelegramMessage t SET t.status = '" + ConstantsUtil.TELEGRAM_MESSAGE_PROCESSED_OK + "' WHERE t.telegramMessageId IN :idList")

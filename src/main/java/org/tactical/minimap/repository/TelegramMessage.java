@@ -57,6 +57,11 @@ public class TelegramMessage extends Auditable<String> {
 	@NotNull
 	Date messagedate;
 
+	@JsonIgnore
+	@NotNull
+	@Size(max = 1)
+	String messageType;
+
 	public Long getTelegramMessageId() {
 		return telegramMessageId;
 	}
@@ -119,6 +124,14 @@ public class TelegramMessage extends Auditable<String> {
 
 	public void setResult(String result) {
 		this.result = result;
+	}
+
+	public String getMessageType() {
+		return messageType;
+	}
+
+	public void setMessageType(String messageType) {
+		this.messageType = messageType;
 	}
 
 }

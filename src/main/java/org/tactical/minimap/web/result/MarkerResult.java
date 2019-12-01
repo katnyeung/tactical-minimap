@@ -13,6 +13,7 @@ public class MarkerResult {
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	Marker marker;
+	
 	@JsonProperty("o")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	double opacity;

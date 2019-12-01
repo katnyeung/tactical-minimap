@@ -40,5 +40,6 @@ public class ConstantsUtil {
 	public static final String MARKER_MESSAGE_QUEUE_KEY = "marker_message_queue";
 	public static final long MARKER_MESSAGE_QUEUE_SIZE = 10;
 	public static final int MARKER_LIST_SIZE = 10;
+	public static final String TELEGRAM_STAT_GROUP_KEY = "telegram_stat";
 
 }

@@ -2,11 +2,17 @@ package org.tactical.minimap.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,11 +23,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.TelegramChannelDAO;
+import org.tactical.minimap.DAO.TelegramChatStatDAO;
 import org.tactical.minimap.DAO.TelegramMessageDAO;
 import org.tactical.minimap.DAO.TelegramMessageRuleDAO;
 import org.tactical.minimap.repository.TelegramChannel;
+import org.tactical.minimap.repository.TelegramChatStat;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.TelegramMessageRule;
+import org.tactical.minimap.util.MarkerGeoCoding;
+import org.tactical.minimap.web.result.StatItem;
+
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
+import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.dictionary.CustomDictionary;
+import com.hankcs.hanlp.seg.Segment;
+import com.hankcs.hanlp.seg.common.Term;
 
 @Service
 public class TelegramMessageService {
@@ -36,6 +53,12 @@ public class TelegramMessageService {
 	@Autowired
 	TelegramChannelDAO telegramChannelDAO;
 
+	@Autowired
+	TelegramChatStatDAO telegramChatStatDAO;
+	
+	@Autowired
+	RedisService redisService;
+	
 	@Value("${PATTERN_FOLDER}")
 	String patternFolder;
 
@@ -156,8 +179,8 @@ public class TelegramMessageService {
 		}
 	}
 
-	public List<TelegramMessage> getPendingTelegramMessage() {
-		return telegramMessageDAO.findPendingTelegramMessage();
+	public List<TelegramMessage> getPendingTelegramMessage(List<String> messageTypeList) {
+		return telegramMessageDAO.findPendingTelegramMessage(messageTypeList);
 	}
 
 	@Transactional(readOnly = false)
@@ -187,5 +210,198 @@ public class TelegramMessageService {
 		} else {
 			return null;
 		}
+	}
+	
+	public void processChatMessage(String chatMessage, String region) {
+		// get active group
+		String group = redisService.getActiveGroupKey();
+		
+		// extract terms to redis
+		for(String patternKey : patternMap.keySet()) {
+			List<String> keyList = patternMap.get(patternKey);
+			for(String key : keyList) {
+				CustomDictionary.add(key);
+			}
+		}
+		
+		Segment segment = HanLP.newSegment();
+		segment.enableCustomDictionaryForcing(true);
+		
+        final char[] charArray = chatMessage.toCharArray();
+        CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
+        {
+            @Override
+            public void hit(int begin, int end, CoreDictionary.Attribute value)
+            {
+                System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
+            }
+        });
+        
+		List<Term> listTerm = segment.seg(chatMessage);
+		for(Term term : listTerm) {
+			logger.info("term {} {}", term.word, term.nature);
+			
+			if(term.nature.toString().matches(".*(?:n|v).*")) {
+				String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
+
+				redisService.incrKeyByGroup(group, termWord);
+			}
+		}
+	}
+
+	@Transactional
+	public void processGroupKey() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+		Calendar curTime = Calendar.getInstance();
+		curTime.set(Calendar.SECOND, 0);
+		curTime.set(Calendar.MINUTE, 0);
+		String currentTimeKey = sdf.format(curTime.getTime());
+
+		String groupKey = redisService.getActiveGroupKey();
+
+		if (groupKey == null) {
+			redisService.addActiveGroupKey(currentTimeKey);
+		} else {
+			try {
+				Date date = sdf.parse(groupKey);
+				Calendar dataTime = Calendar.getInstance();
+				dataTime.setTime(date);
+				dataTime.add(Calendar.HOUR_OF_DAY, 1);
+
+				logger.info("date {} , compareTo {} : {} ", dataTime.getTime().getTime(), curTime.getTime().getTime(), dataTime.getTime().getTime() < curTime.getTime().getTime());
+				if (dataTime.getTime().getTime() < curTime.getTime().getTime()) {
+
+					// store currentValue to DB
+					Set<Object> objectSet = redisService.getHashGroup(groupKey);
+
+					int currentGroup = telegramChatStatDAO.getMaxGroup();
+
+					for (Object obj : objectSet) {
+						String key = (String) obj;
+						String region = null;
+
+						Long value = Long.parseLong((String) redisService.getGroupByKey(groupKey, key));
+
+						if (key.indexOf(":") > 0) {
+							String[] keyGroup = key.split(":");
+							key = keyGroup[0];
+							region = keyGroup[1];
+						}
+
+						TelegramChatStat tcs = new TelegramChatStat();
+						tcs.setCount(value);
+						tcs.setKey(key);
+						tcs.setYear(curTime.get(Calendar.YEAR));
+						tcs.setMonth(curTime.get(Calendar.MONTH) + 1);
+						tcs.setDay(curTime.get(Calendar.DAY_OF_MONTH));
+						tcs.setHour(curTime.get(Calendar.HOUR));
+
+						tcs.setMinute(0);
+
+						tcs.setGroup(currentGroup);
+
+						if (region != null) {
+							tcs.setRegion(region);
+						}
+
+						telegramChatStatDAO.save(tcs);
+					}
+
+					// add new key
+					redisService.addActiveGroupKey(sdf.format(curTime.getTime()));
+
+					// pop the key
+					redisService.popActiveGroupKey();
+
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public Map<String, List<StatItem>> getTelegramLiveStat(List<MarkerGeoCoding> regionList) {
+		Map<String, List<StatItem>> mapStat = new HashMap<String, List<StatItem>>();
+
+		String activeKey = redisService.getActiveGroupKey();
+		if (activeKey != null) {
+			Set<Object> keySet = redisService.getHashGroup(activeKey);
+			for (Object keyObj : keySet) {
+				String key = (String) keyObj;
+				for (MarkerGeoCoding regionCode : regionList) {
+					String region = regionCode.getLabel();
+					if (mapStat.get("total") == null) {
+						mapStat.put("total", new LinkedList<StatItem>());
+					}
+					if (mapStat.get(region) == null) {
+						mapStat.put(region, new LinkedList<StatItem>());
+					}
+
+					if (region != null && !region.equals("")) {
+						if (key.contains(":" + region)) {
+							Long value = Long.parseLong((String) redisService.getGroupByKey(activeKey, key));
+							StatItem si = new StatItem();
+							si.setText(key.replace(":" + region, ""));
+							si.setWeight(value);
+							mapStat.get(region).add(si);
+						}
+					}
+
+				}
+
+				Long value = Long.parseLong((String) redisService.getGroupByKey(activeKey, key));
+				StatItem si = new StatItem();
+				si.setText(key.replaceAll(":.*$", ""));
+				si.setWeight(value);
+
+				mapStat.get("total").add(si);
+			}
+
+			return mapStat;
+		}
+
+		return null;
+	}
+
+	public List<StatItem> getTelegram24hrStat() {
+		List<String> dayBackTimeList = new ArrayList<String>();
+		
+		for(int i = 0 ; i < 48 ; i++) {
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR_OF_DAY, -i);
+			
+			int year = cal.get(Calendar.YEAR);
+			int month = cal.get(Calendar.MONTH) + 1;
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			StringBuilder dayBackItem = new StringBuilder();
+			
+			dayBackItem.append(year);
+			dayBackItem.append(lpad(month));
+			dayBackItem.append(lpad(day));
+			dayBackItem.append(lpad(hour));
+			
+			dayBackTimeList.add(dayBackItem.toString());
+		}
+
+		logger.info("day back list {} ", dayBackTimeList);
+		List<TelegramChatStat> listTgChatStat = telegramChatStatDAO.getStatByDate(dayBackTimeList);
+
+		logger.info("result {} ", listTgChatStat);
+		List<StatItem> listStat = new LinkedList<StatItem>();
+		for (TelegramChatStat tcs : listTgChatStat) {
+			StatItem si = new StatItem();
+			si.setText(tcs.getKey());
+			si.setWeight(tcs.getCount());
+			si.setLabel(lpad(tcs.getMonth()) + "-" + lpad(tcs.getDay()) + " " + lpad(tcs.getHour()));
+			listStat.add(si);
+		}
+
+		return listStat;
+	}
+	
+	private String lpad(int value) {
+		return String.format("%02d", value);
 	}
 }

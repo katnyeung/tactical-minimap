@@ -44,6 +44,11 @@
 <link rel="stylesheet" href="/css/locationfilter.css" />
 <script src="/js/locationfilter.js" charset="utf-8"></script>
 
+<script src="/js/jqcloud.min.js"></script>
+<link rel="stylesheet" href="/css/jqcloud.min.css">
+
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <style>
 .iconMarkup {
 	margin-left: -50px!improtant;
@@ -142,6 +147,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		var colorMap = {'red':'#F5B7B1','blue':'#7FB3D5','green':'#D0ECE7','orange':'#F9E79F','purple':'#E8DAEF'};
 		var validLayers = [[${validLayers}]];
 		var key = [[${key}]];
+		var statRegionList = [[${statRegionList}]];
 		
 		var markerObjectList = [];
 		var markerDataList = [];
@@ -285,6 +291,122 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)
 			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)
 			L.marker([22.30267,114.171363],{icon:station_icon}).bindTooltip("尖沙咀警署").addTo(map)
+
+			statRegionList.forEach(function(statRegion){
+				var wordCloud = L.divIcon({
+					className:'location-icon',
+					iconAnchor: [100, 75],
+					html: '<div class="statRegion rounded" data-region="'+statRegion.label+'"></div>'
+					
+				});
+
+				L.marker([statRegion.lat,statRegion.lng],{icon:wordCloud}).addTo(map)
+			});
+			
+			var wordCloudTotal = L.divIcon({
+				className:'location-icon',
+				iconAnchor: [150, 125],
+				html: '<div class="statRegion" data-region="total"></div>'
+			});
+			
+			L.marker([22.327846824223627,114.01851654052736],{icon:wordCloudTotal}).addTo(map)
+			
+			wordStat = L.divIcon({
+				className:'location-icon',
+				iconAnchor: [200, 125],
+				html: '<div id="wordStat"></div>'
+			});
+
+			L.marker([22.26812860458344,114.01851654052736],{icon:wordStat}).addTo(map)
+			
+			setInterval(updateWordStat(), 1000 * 60 * 30);
+			
+			function updateWordStat(){
+				// ajax get data
+				$.ajax({
+					type : "GET",
+					url : '/stat/tg24hr/',
+					success : function(data){
+						if(data.status == 'success'){
+							var resultMap = {};
+							var resultList = [];
+							
+							data.listStat.forEach(function(item){
+								if(!resultMap[item.text]){
+									resultMap[item.text] = {};
+									resultMap[item.text].x = [];
+									resultMap[item.text].y = [];
+								}
+								
+								resultMap[item.text].x.push(item.label);
+								resultMap[item.text].y.push(item.weight);
+								resultMap[item.text].name = item.text;
+							});
+							
+							for(var key in resultMap){
+								resultList.push(resultMap[key]);
+							}
+							
+							var layout = {
+								width: 500,
+								height: 500,
+								showlegend : false,
+								paper_bgcolor:'rgba(0,0,0,0)',
+							    plot_bgcolor:'rgba(0,0,0,0)'
+							};
+							
+							Plotly.newPlot('wordStat', resultList, layout, { displayModeBar: false,displaylogo: false});
+						}
+					}
+				});
+
+			}
+			
+			function updateWordCloud(){
+				$.ajax({
+					type : "GET",
+					url : '/stat/tgLive/',
+					
+					success : function(data){
+						if(data.status == 'success'){
+							$('.statRegion').each(function(){
+						    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
+
+							});
+						}
+					}
+				});
+			}
+			
+			$.ajax({
+				type : "GET",
+				url : '/stat/tgLive/',
+				
+				success : function(data){
+					if(data.status == 'success'){
+						$('.statRegion').each(function(){
+							if($(this).data("region") === 'total'){
+						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
+					    		  colors: ["#800026", "#a00026", "#331a1c", "#3c4e2a", "#3d8d3c", "#3eb24c", "#3ed976", "#3feda0", "#3f3fcc"],
+					    		  width: 300,
+					    		  height: 250
+					    		});
+
+							}else{
+						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
+					    		  colors: ["#800026", "#a00026", "#331a1c", "#3c4e2a", "#3d8d3c", "#3eb24c", "#3ed976", "#3feda0", "#3f3fcc"],
+					    		  width: 200,
+					    		  height: 150
+					    		});
+
+							}
+
+						});
+						
+						
+					}
+				}
+			});
 			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
@@ -556,9 +678,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					return container;
 				}
 			});
-		    
+			
 		    map.addControl(new fullScreenControl());
-
+		    
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
@@ -817,6 +939,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				data = JSON.parse(data.body);
 				
 				if(data.list) {
+					updateWordCloud();
+					
 					var markerIndex = 0;
 				
 					data.list.forEach(function(result){

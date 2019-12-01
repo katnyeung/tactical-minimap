@@ -33,6 +33,7 @@ import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
+import org.tactical.minimap.service.StreetDataService;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.CookieUtil;
 import org.tactical.minimap.web.DTO.LayerDTO;
@@ -52,6 +53,9 @@ public class RouteController {
 	@Autowired
 	MarkerService markerService;
 
+	@Autowired
+	StreetDataService sdService;
+	
 	@Value("${MAP_FOLDER}")
 	String mapFolder;
 
@@ -122,6 +126,8 @@ public class RouteController {
 		model.addAttribute("validLayers", layerService.getActiveLayers().stream().map(Layer::getLayerKey).collect(Collectors.toList()));
 		model.addAttribute("loggedLayers", loggedLayers);
 
+		model.addAttribute("statRegionList", sdService.getStatRegionList());
+		
 		return "index";
 	}
 
