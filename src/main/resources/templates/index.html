@@ -311,57 +311,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			L.marker([22.327846824223627,114.01851654052736],{icon:wordCloudTotal}).addTo(map)
 			
-			wordStat = L.divIcon({
-				className:'location-icon',
-				iconAnchor: [200, 125],
-				html: '<div id="wordStat"></div>'
-			});
-
-			L.marker([22.26812860458344,114.01851654052736],{icon:wordStat}).addTo(map)
-			
-			setInterval(updateWordStat(), 1000 * 60 * 30);
-			
-			function updateWordStat(){
-				// ajax get data
-				$.ajax({
-					type : "GET",
-					url : '/stat/tg24hr/',
-					success : function(data){
-						if(data.status == 'success'){
-							var resultMap = {};
-							var resultList = [];
-							
-							data.listStat.forEach(function(item){
-								if(!resultMap[item.text]){
-									resultMap[item.text] = {};
-									resultMap[item.text].x = [];
-									resultMap[item.text].y = [];
-								}
-								
-								resultMap[item.text].x.push(item.label);
-								resultMap[item.text].y.push(item.weight);
-								resultMap[item.text].name = item.text;
-							});
-							
-							for(var key in resultMap){
-								resultList.push(resultMap[key]);
-							}
-							
-							var layout = {
-								width: 500,
-								height: 500,
-								showlegend : false,
-								paper_bgcolor:'rgba(0,0,0,0)',
-							    plot_bgcolor:'rgba(0,0,0,0)'
-							};
-							
-							Plotly.newPlot('wordStat', resultList, layout, { displayModeBar: false,displaylogo: false});
-						}
-					}
-				});
-
-			}
-			
 			function updateWordCloud(){
 				$.ajax({
 					type : "GET",

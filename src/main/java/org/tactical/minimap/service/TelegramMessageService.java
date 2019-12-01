@@ -55,10 +55,10 @@ public class TelegramMessageService {
 
 	@Autowired
 	TelegramChatStatDAO telegramChatStatDAO;
-	
+
 	@Autowired
 	RedisService redisService;
-	
+
 	@Value("${PATTERN_FOLDER}")
 	String patternFolder;
 
@@ -166,7 +166,7 @@ public class TelegramMessageService {
 			}
 		}
 		logger.info(" after replace message : {} ", message);
-		
+
 		return message;
 	}
 
@@ -211,42 +211,69 @@ public class TelegramMessageService {
 			return null;
 		}
 	}
-	
+
 	public void processChatMessage(String chatMessage, String region) {
+		Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+
 		// get active group
 		String group = redisService.getActiveGroupKey();
-		
+
 		// extract terms to redis
-		for(String patternKey : patternMap.keySet()) {
+		for (String patternKey : patternMap.keySet()) {
 			List<String> keyList = patternMap.get(patternKey);
-			for(String key : keyList) {
+			for (String key : keyList) {
 				CustomDictionary.add(key);
 			}
 		}
-		
+
 		Segment segment = HanLP.newSegment();
 		segment.enableCustomDictionaryForcing(true);
-		
-        final char[] charArray = chatMessage.toCharArray();
-        CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-        {
-            @Override
-            public void hit(int begin, int end, CoreDictionary.Attribute value)
-            {
-                System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
-            }
-        });
-        
-		List<Term> listTerm = segment.seg(chatMessage);
-		for(Term term : listTerm) {
-			logger.info("term {} {}", term.word, term.nature);
-			
-			if(term.nature.toString().matches(".*(?:n|v).*")) {
-				String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
 
-				redisService.incrKeyByGroup(group, termWord);
+		final char[] charArray = chatMessage.toCharArray();
+		CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
+			@Override
+			public void hit(int begin, int end, CoreDictionary.Attribute value) {
+				System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
+			}
+		});
+
+		List<Term> listTerm = segment.seg(chatMessage);
+		
+		for (Term term : listTerm) {
+			logger.info("term {} {}", term.word, term.nature);
+
+			if (term.nature.toString().matches(".*(?:n).*")) {
+				if (!existExcludeWord(term.word)) {
+					Matcher policeMatcher = policeMarkerPattern.matcher(term.word);
+
+					if (policeMatcher.matches()) {
+						String count = policeMatcher.group(1);
+						String termWord = "警力" + ((region != null && !region.equals("")) ? ":" + region : "");
+						if (count != null) {
+							redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
+						} else {
+							redisService.incrKeyByGroup(group, termWord);
+						}
+						
+					} else {
+						String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
+
+						redisService.incrKeyByGroup(group, termWord);
+					}
+
+				}
+
 			}
 		}
+	}
+
+	private boolean existExcludeWord(String word) {
+
+		if (word.matches(".*#.*")) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Transactional
@@ -366,22 +393,22 @@ public class TelegramMessageService {
 
 	public List<StatItem> getTelegram24hrStat() {
 		List<String> dayBackTimeList = new ArrayList<String>();
-		
-		for(int i = 0 ; i < 48 ; i++) {
+
+		for (int i = 0; i < 48; i++) {
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.HOUR_OF_DAY, -i);
-			
+
 			int year = cal.get(Calendar.YEAR);
 			int month = cal.get(Calendar.MONTH) + 1;
 			int day = cal.get(Calendar.DAY_OF_MONTH);
 			int hour = cal.get(Calendar.HOUR_OF_DAY);
 			StringBuilder dayBackItem = new StringBuilder();
-			
+
 			dayBackItem.append(year);
 			dayBackItem.append(lpad(month));
 			dayBackItem.append(lpad(day));
 			dayBackItem.append(lpad(hour));
-			
+
 			dayBackTimeList.add(dayBackItem.toString());
 		}
 
@@ -400,7 +427,7 @@ public class TelegramMessageService {
 
 		return listStat;
 	}
-	
+
 	private String lpad(int value) {
 		return String.format("%02d", value);
 	}

@@ -198,6 +198,10 @@ public class RedisService {
 		stringRedisTemplate.opsForHash().increment(group, key, (long) 1);
 	}
 	
+	public void incrKeyByGroup(String group, String key, long value) {
+		stringRedisTemplate.opsForHash().increment(group, key, value);
+	}
+	
 	public Object getGroupByKey(String group , String key) {
 		return stringRedisTemplate.opsForHash().get(group, key);
 	}
