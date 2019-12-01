@@ -295,7 +295,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			statRegionList.forEach(function(statRegion){
 				var wordCloud = L.divIcon({
 					className:'location-icon',
-					iconAnchor: [100, 75],
+					iconAnchor: [125, 100],
 					html: '<div class="statRegion rounded" data-region="'+statRegion.label+'"></div>'
 					
 				});
@@ -309,7 +309,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				html: '<div class="statRegion" data-region="total"></div>'
 			});
 			
-			L.marker([22.327846824223627,114.01851654052736],{icon:wordCloudTotal}).addTo(map)
+			L.marker([22.27893059841188,114.26948547363283],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
 				$.ajax({
@@ -344,8 +344,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							}else{
 						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
 					    		  colors: ["#800026", "#a00026", "#331a1c", "#3c4e2a", "#3d8d3c", "#3eb24c", "#3ed976", "#3feda0", "#3f3fcc"],
-					    		  width: 200,
-					    		  height: 150
+					    		  width: 250,
+					    		  height: 200
 					    		});
 
 							}
