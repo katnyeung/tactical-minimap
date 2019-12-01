@@ -133,7 +133,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
     font-size:11px;
     font-family: 微軟正黑體;
 }
-
+.statRegion {
+    font-family: 微軟正黑體;
+    text-shadow: 1px 1px #C0C0C0;
+}
 </style>
 </head>
 <body>
@@ -309,7 +312,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				html: '<div class="statRegion" data-region="total"></div>'
 			});
 			
-			L.marker([22.29354373265189,114.32750701904298],{icon:wordCloudTotal}).addTo(map)
+			L.marker([22.246839881973777,114.34261322021486],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
 				$.ajax({
@@ -1110,7 +1113,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() >= 20){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
-						if(markerCount < item.markerIndex + 15){
+						if(markerCount < item.markerIndex + 5){
 							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
 						}else{
 							updateMessage = '';			
