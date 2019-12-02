@@ -41,6 +41,8 @@ public class NewsScheduler {
 
 		Elements newsHeadlines = doc.select(".inner");
 		for (Element headline : newsHeadlines) {
+			String textMessage = headline.text();
+			textMessage = textMessage.replaceAll("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} HKT [0-9]{1,2}:[0-9]{1,2}", "");
 
 			String date = headline.select(".date").text();
 			Matcher timeMatcher = timePattern.matcher(date);
@@ -59,8 +61,8 @@ public class NewsScheduler {
 				curTime.set(Calendar.HOUR_OF_DAY, hour);
 				curTime.set(Calendar.MINUTE, minute);
 				curTime.set(Calendar.SECOND, 0);
-				
-				Long id = curTime.getTimeInMillis();
+
+				Long id = curTime.getTimeInMillis() / 1000;
 
 				List<TelegramMessage> tgList = telegramMessageService.findMessageByIdAndGroup(id, "rthk");
 				if (tgList.size() > 0) {
@@ -71,7 +73,7 @@ public class NewsScheduler {
 					message.setGroupKey("rthk");
 					message.setId(id);
 
-					message.setMessage(lpad(hour) + "" + lpad(minute) + " " + headline.text());
+					message.setMessage(lpad(hour) + "" + lpad(minute) + " " + textMessage);
 
 					message.setStatus("P");
 					message.setMessageType("S");
@@ -83,7 +85,7 @@ public class NewsScheduler {
 			}
 		}
 	}
-	
+
 	@Async
 	@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
@@ -144,7 +146,7 @@ public class NewsScheduler {
 			}
 		}
 	}
-	
+
 	private String lpad(int value) {
 		return String.format("%02d", value);
 	}
