@@ -16,9 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.service.TelegramMessageService;
 
+@Component
 public class NewsScheduler {
 
 	public final Logger logger = LoggerFactory.getLogger(getClass());
