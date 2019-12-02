@@ -310,7 +310,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				html: '<div class="statRegion" data-region="total"></div>'
 			});
 			
-			L.marker([22.22936164623007,114.34123992919923],{icon:wordCloudTotal}).addTo(map)
+			L.marker([22.245251041541813,114.07791137695314],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
 				$.ajax({
@@ -337,7 +337,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						$('.statRegion').each(function(){
 							if($(this).data("region") === 'total'){
 						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-								  colors: ["#19858C", "#194B8C", "#198C59","#4A61B5", "#694AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
+								  colors: ["#19858C", "#194B8C", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
 					    		  width: 300,
 					    		  height: 250,
 					    		  fontSize: {
@@ -348,7 +348,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 							}else{
 						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-								  colors: ["#19858C", "#194B8C", "#198C59","#4A61B5", "#694AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
+								  colors: ["#19858C", "#194B8C", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
 					    		  width: 250,
 					    		  height: 200,
 					    		  fontSize: {
