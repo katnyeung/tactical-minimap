@@ -7,6 +7,7 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script>
+var count = [[${count}]];
 
 setInterval(updateWordStat(), 1000 * 60 * 30);
 
@@ -15,6 +16,9 @@ function updateWordStat(){
 	$.ajax({
 		type : "GET",
 		url : '/stat/tg24hr/',
+		data : {
+			'count' : count
+		},
 		success : function(data){
 			if(data.status == 'success'){
 				var resultMap = {};
@@ -25,14 +29,18 @@ function updateWordStat(){
 						resultMap[item.text] = {};
 						resultMap[item.text].x = [];
 						resultMap[item.text].y = [];
+						resultMap[item.text].text = [];
 					}
 					
 					console.log(item.label);
 					resultMap[item.text].x.push(item.label);
+					resultMap[item.text].text.push(item.text);
 					resultMap[item.text].y.push(item.weight);
 					resultMap[item.text].name = item.text;
-					resultMap[item.text].mode = 'lines+markers';
-					resultMap[item.text].type = 'scatter';
+					resultMap[item.text].mode = 'text';
+					resultMap[item.text].type = 'bar';
+					resultMap[item.text].hoverinfo = 'none';
+					resultMap[item.text].textposition = 'auto';
 				});
 				
 				for(var key in resultMap){
@@ -42,7 +50,8 @@ function updateWordStat(){
 				var layout = {
 					width: 1500,
 					height: 1500,
-					showlegend : true,
+					showlegend : false,
+					  barmode: 'relative',
 					paper_bgcolor:'rgba(0,0,0,0)',
 				    plot_bgcolor:'rgba(0,0,0,0)'
 				};

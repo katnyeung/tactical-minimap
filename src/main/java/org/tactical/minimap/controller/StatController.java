@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.service.StreetDataService;
@@ -31,7 +32,7 @@ public class StatController {
 
 	@Autowired
 	StreetDataService sdService;
-	
+
 	@GetMapping("/tgLive/")
 	public DefaultResult telegramLiveStat() {
 
@@ -45,9 +46,9 @@ public class StatController {
 	}
 
 	@GetMapping("/tg24hr/")
-	public DefaultResult update() {
+	public DefaultResult update(@RequestParam("count") Long count) {
 
-		List<StatItem> listStat = tgService.getTelegram24hrStat();
+		List<StatItem> listStat = tgService.getTelegram24hrStat(count);
 
 		DefaultResult dr = StatResult.success(listStat);
 

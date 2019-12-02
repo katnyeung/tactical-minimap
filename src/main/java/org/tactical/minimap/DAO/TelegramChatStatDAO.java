@@ -12,7 +12,7 @@ public interface TelegramChatStatDAO extends JpaRepository<TelegramChatStat, Lon
 	@Query(value = "SELECT ifnull(MAX(tcs.group),0) + 1 FROM telegram_chat_stat tcs", nativeQuery = true)
 	int getMaxGroup();
 
-	@Query("FROM TelegramChatStat tcs WHERE tcs.count > 1 AND CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) IN :dayBackTimeList ORDER BY CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) ASC")
-	List<TelegramChatStat> getStatByDate(@Param("dayBackTimeList") List<String> dayBackTimeList);
+	@Query("FROM TelegramChatStat tcs WHERE tcs.count > :count AND CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) IN :dayBackTimeList ORDER BY CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) ASC")
+	List<TelegramChatStat> getStatByDate(@Param("dayBackTimeList") List<String> dayBackTimeList, @Param("count") Long count);
 
 }

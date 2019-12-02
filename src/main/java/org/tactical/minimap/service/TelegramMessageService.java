@@ -396,7 +396,7 @@ public class TelegramMessageService {
 		return null;
 	}
 
-	public List<StatItem> getTelegram24hrStat() {
+	public List<StatItem> getTelegram24hrStat(Long count) {
 		List<String> dayBackTimeList = new ArrayList<String>();
 
 		for (int i = 0; i < 12; i++) {
@@ -418,7 +418,7 @@ public class TelegramMessageService {
 		}
 
 		logger.info("day back list {} ", dayBackTimeList);
-		List<TelegramChatStat> listTgChatStat = telegramChatStatDAO.getStatByDate(dayBackTimeList);
+		List<TelegramChatStat> listTgChatStat = telegramChatStatDAO.getStatByDate(dayBackTimeList, count);
 
 		logger.info("result {} ", listTgChatStat);
 		List<StatItem> listStat = new LinkedList<StatItem>();
