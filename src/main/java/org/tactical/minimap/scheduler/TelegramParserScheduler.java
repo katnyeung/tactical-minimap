@@ -251,7 +251,7 @@ public class TelegramParserScheduler {
 								}
 
 								if (haveStreet || totalScore < 100) {
-									keyMap.entrySet().removeIf(e -> e.getValue() < 15);
+									keyMap.entrySet().removeIf(e -> e.getValue() < 25);
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
 									
