@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -291,7 +292,9 @@ public class TelegramMessageService {
 		} else {
 			try {
 				Date date = sdf.parse(groupKey);
-				Calendar dataTime = Calendar.getInstance();
+				TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+				Calendar dataTime = Calendar.getInstance(tz1);
+				
 				dataTime.setTime(date);
 				dataTime.add(Calendar.HOUR_OF_DAY, 1);
 
@@ -421,7 +424,7 @@ public class TelegramMessageService {
 			StatItem si = new StatItem();
 			si.setText(tcs.getKey());
 			si.setWeight(tcs.getCount());
-			si.setLabel(lpad(tcs.getMonth()) + "-" + lpad(tcs.getDay()) + " " + lpad(tcs.getHour()));
+			si.setLabel(tcs.getYear() + "-" + lpad(tcs.getMonth()) + "-" + lpad(tcs.getDay()) + " " + lpad(tcs.getHour()) + ":" + lpad(tcs.getMinute()) + ":00");
 			listStat.add(si);
 		}
 

@@ -27,6 +27,7 @@ function updateWordStat(){
 						resultMap[item.text].y = [];
 					}
 					
+					console.log(item.label);
 					resultMap[item.text].x.push(item.label);
 					resultMap[item.text].y.push(item.weight);
 					resultMap[item.text].name = item.text;

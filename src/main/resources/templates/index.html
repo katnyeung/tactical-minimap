@@ -337,16 +337,24 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						$('.statRegion').each(function(){
 							if($(this).data("region") === 'total'){
 						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-					    		  colors: ["#4A61B5", "#694AB5", "#4A96B5", "#99a5d5", "#AA99D5", "#99C3D5", "#7bb59c", "#7BB1B5", "#7BB57F"],
+								  colors: ["#19858C", "#194B8C", "#198C59","#4A61B5", "#694AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
 					    		  width: 300,
-					    		  height: 250
+					    		  height: 250,
+					    		  fontSize: {
+					    			    from: 0.2,
+					    			    to: 0.06
+					    			  }
 					    		});
 
 							}else{
 						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-								  colors: ["#4A61B5", "#694AB5", "#4A96B5", "#99a5d5", "#AA99D5", "#99C3D5", "#7bb59c", "#7BB1B5", "#7BB57F"],
+								  colors: ["#19858C", "#194B8C", "#198C59","#4A61B5", "#694AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
 					    		  width: 250,
-					    		  height: 200
+					    		  height: 200,
+					    		  fontSize: {
+					    			    from: 0.16,
+					    			    to: 0.04
+					    			  }
 					    		});
 
 							}
