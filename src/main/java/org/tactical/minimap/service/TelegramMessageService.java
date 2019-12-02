@@ -239,7 +239,7 @@ public class TelegramMessageService {
 		});
 
 		List<Term> listTerm = segment.seg(chatMessage);
-		
+
 		for (Term term : listTerm) {
 			logger.info("term {} {}", term.word, term.nature);
 
@@ -255,7 +255,7 @@ public class TelegramMessageService {
 						} else {
 							redisService.incrKeyByGroup(group, termWord);
 						}
-						
+
 					} else {
 						String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
 
@@ -269,7 +269,9 @@ public class TelegramMessageService {
 	}
 
 	private boolean existExcludeWord(String word) {
-
+		if (word.length() <= 1) {
+			return true;
+		}
 		if (word.matches(".*#.*")) {
 			return true;
 		}
