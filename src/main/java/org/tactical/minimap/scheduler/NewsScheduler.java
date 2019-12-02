@@ -30,6 +30,62 @@ public class NewsScheduler {
 
 	@Async
 	@Scheduled(fixedRate = 180000)
+	public void rthkParser() throws IOException {
+
+		Pattern timePattern = Pattern.compile(".*([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) HKT ([0-9]{1,2}):([0-9]{1,2}).*");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		Calendar curTime = Calendar.getInstance(tz1);
+
+		Document doc = Jsoup.connect("http://programme.rthk.hk/channel/radio/trafficnews/index.php").get();
+		logger.info("{}", doc.title());
+
+		Elements newsHeadlines = doc.select(".inner");
+		for (Element headline : newsHeadlines) {
+
+			String date = headline.select(".date").text();
+			Matcher timeMatcher = timePattern.matcher(date);
+			if (timeMatcher.matches()) {
+				int year = Integer.parseInt(timeMatcher.group(1));
+				int month = Integer.parseInt(timeMatcher.group(2));
+				int day = Integer.parseInt(timeMatcher.group(3));
+
+				int hour = Integer.parseInt(timeMatcher.group(4));
+				int minute = Integer.parseInt(timeMatcher.group(5));
+
+				curTime.set(Calendar.YEAR, year);
+				curTime.set(Calendar.MONTH, month - 1);
+				curTime.set(Calendar.DAY_OF_MONTH, day);
+
+				curTime.set(Calendar.HOUR_OF_DAY, hour);
+				curTime.set(Calendar.MINUTE, minute);
+				curTime.set(Calendar.SECOND, 0);
+				
+				Long id = curTime.getTimeInMillis();
+
+				List<TelegramMessage> tgList = telegramMessageService.findMessageByIdAndGroup(id, "rthk");
+				if (tgList.size() > 0) {
+
+				} else {
+
+					TelegramMessage message = new TelegramMessage();
+					message.setGroupKey("rthk");
+					message.setId(id);
+
+					message.setMessage(lpad(hour) + "" + lpad(minute) + " " + headline.text());
+
+					message.setStatus("P");
+					message.setMessageType("S");
+					message.setMessagedate(curTime.getTime());
+					logger.info("{}", message);
+
+					telegramMessageService.saveTelegramMessage(message);
+				}
+			}
+		}
+	}
+	
+	@Async
+	@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
 
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
@@ -67,7 +123,7 @@ public class NewsScheduler {
 						message.setGroupKey("881903");
 						message.setId(id);
 						if (hour > 0 && minute > 0) {
-							message.setMessage(hour + "" + minute + " " + newsDetail.text());
+							message.setMessage(lpad(hour) + "" + lpad(minute) + " " + newsDetail.text());
 						} else {
 							message.setMessage(curTime.get(Calendar.HOUR_OF_DAY) + "" + curTime.get(Calendar.MINUTE) + newsDetail.text());
 						}
@@ -87,5 +143,9 @@ public class NewsScheduler {
 				}
 			}
 		}
+	}
+	
+	private String lpad(int value) {
+		return String.format("%02d", value);
 	}
 }
