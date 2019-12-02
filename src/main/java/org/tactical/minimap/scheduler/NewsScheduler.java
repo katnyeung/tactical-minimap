@@ -29,7 +29,7 @@ public class NewsScheduler {
 	TelegramMessageService telegramMessageService;
 
 	@Async
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
 
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
