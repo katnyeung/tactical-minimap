@@ -398,9 +398,10 @@ public class TelegramMessageService {
 
 	public List<StatItem> getTelegram24hrStat(Long count) {
 		List<String> dayBackTimeList = new ArrayList<String>();
-
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		
 		for (int i = 0; i < 12; i++) {
-			Calendar cal = Calendar.getInstance();
+			Calendar cal = Calendar.getInstance(tz1);
 			cal.add(Calendar.HOUR_OF_DAY, -i);
 
 			int year = cal.get(Calendar.YEAR);
