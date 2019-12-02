@@ -282,7 +282,8 @@ public class TelegramMessageService {
 	@Transactional
 	public void processGroupKey() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-		Calendar curTime = Calendar.getInstance();
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		Calendar curTime = Calendar.getInstance(tz1);
 		curTime.set(Calendar.SECOND, 0);
 		curTime.set(Calendar.MINUTE, 0);
 		String currentTimeKey = sdf.format(curTime.getTime());
@@ -294,7 +295,6 @@ public class TelegramMessageService {
 		} else {
 			try {
 				Date date = sdf.parse(groupKey);
-				TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
 				Calendar dataTime = Calendar.getInstance(tz1);
 				
 				dataTime.setTime(date);
