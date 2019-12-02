@@ -397,7 +397,7 @@ public class TelegramMessageService {
 	public List<StatItem> getTelegram24hrStat() {
 		List<String> dayBackTimeList = new ArrayList<String>();
 
-		for (int i = 0; i < 48; i++) {
+		for (int i = 0; i < 12; i++) {
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.HOUR_OF_DAY, -i);
 
