@@ -54,7 +54,7 @@ public class NewsScheduler {
 				}
 				if (matcher.matches()) {
 					long id = Long.parseLong(matcher.group(1));
-					logger.info("id : {} ", id);
+					// logger.info("id : {} ", id);
 					List<TelegramMessage> tgList = telegramMessageService.findMessageByIdAndGroup(id, "881903");
 					if (tgList.size() > 0) {
 
