@@ -89,9 +89,10 @@ public class RouteController {
 		return "redirect:/" + layerKeys + "/12/" + ConstantsUtil.DEFAULT_LAT + "/" + ConstantsUtil.DEFAULT_LNG;
 	}
 
-	@GetMapping(path = "/statreport/{count}/")
-	public String stat(@PathVariable("count") Long count, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
+	@GetMapping(path = "/stat/{hour}/{count}")
+	public String stat(@PathVariable("hour") Long hour, @PathVariable("count") Long count, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
 
+		model.addAttribute("hour", hour);
 		model.addAttribute("count", count);
 		return "stat";
 	}

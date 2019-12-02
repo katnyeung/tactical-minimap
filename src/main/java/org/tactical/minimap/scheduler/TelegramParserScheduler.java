@@ -287,12 +287,17 @@ public class TelegramParserScheduler {
 							notOkIdList.add(telegramMessage.getTelegramMessageId());
 
 						} else {
-							Layer layer = layerService.getLayerByKey("scout");
+							String layerString = "scout";
+							if(tc.getLayer() != null) {
+								layerString = tc.getLayer();
+							}
+							
+							Layer layer = layerService.getLayerByKey(layerString);
 
 							MarkerDTO markerDTO = new MarkerDTO();
 							markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
 							markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
-							markerDTO.setLayer("scout");
+							markerDTO.setLayer(layer.getLayerKey());
 							markerDTO.setMessage(telegramMessage.getMessage() + "\n#" + telegramMessage.getGroupKey());
 							markerDTO.setUuid("TELEGRAM_BOT");
 

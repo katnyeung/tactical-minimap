@@ -59,6 +59,9 @@ public class TelegramChannel extends Auditable<String> {
 	@NotNull
 	@Size(max = 1)
 	String channelType;
+
+	@Column(nullable = true)
+	String layer;
 	
 	public Long getTelegramChannelId() {
 		return telegramChannelId;
@@ -178,6 +181,14 @@ public class TelegramChannel extends Auditable<String> {
 
 	public void setChatStatus(String chatStatus) {
 		this.chatStatus = chatStatus;
+	}
+
+	public String getLayer() {
+		return layer;
+	}
+
+	public void setLayer(String layer) {
+		this.layer = layer;
 	}
 
 }

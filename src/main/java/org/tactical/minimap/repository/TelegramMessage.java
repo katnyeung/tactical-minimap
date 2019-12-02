@@ -134,4 +134,9 @@ public class TelegramMessage extends Auditable<String> {
 		this.messageType = messageType;
 	}
 
+	@Override
+	public String toString() {
+		return "TelegramMessage [telegramMessageId=" + telegramMessageId + ", id=" + id + ", message=" + message + ", media=" + media + ", result=" + result + ", status=" + status + ", groupKey=" + groupKey + ", messagedate=" + messagedate + ", messageType=" + messageType + "]";
+	}
+
 }

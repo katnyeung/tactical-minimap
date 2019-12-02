@@ -21,4 +21,7 @@ public interface TelegramMessageDAO extends JpaRepository<TelegramMessage, Long>
 	@Modifying
 	@Query("UPDATE TelegramMessage t SET t.status = '" + ConstantsUtil.TELEGRAM_MESSAGE_PROCESSED_NOT_OK + "' WHERE t.telegramMessageId IN :idList")
 	public void updateProcessNotOK(@Param("idList") List<Long> idList);
+
+	@Query("SELECT t FROM TelegramMessage t WHERE t.id = :id AND t.groupKey = :group ORDER BY messageDate ASC")
+	public List<TelegramMessage> findMessageByIdAndGroup(Long id, String group);
 }

@@ -46,9 +46,9 @@ public class StatController {
 	}
 
 	@GetMapping("/tg24hr/")
-	public DefaultResult update(@RequestParam("count") Long count) {
+	public DefaultResult update(@RequestParam("hour") Long hour, @RequestParam("count") Long count) {
 
-		List<StatItem> listStat = tgService.getTelegram24hrStat(count);
+		List<StatItem> listStat = tgService.getTelegram24hrStat(hour, count);
 
 		DefaultResult dr = StatResult.success(listStat);
 

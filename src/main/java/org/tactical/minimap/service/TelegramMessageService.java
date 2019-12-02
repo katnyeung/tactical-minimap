@@ -184,6 +184,10 @@ public class TelegramMessageService {
 		return telegramMessageDAO.findPendingTelegramMessage(messageTypeList);
 	}
 
+	public List<TelegramMessage> findMessageByIdAndGroup(Long id, String group) {
+		return telegramMessageDAO.findMessageByIdAndGroup(id, group);
+	}
+
 	@Transactional(readOnly = false)
 	public void updateTelegramMessageOK(List<Long> idList) {
 		telegramMessageDAO.updateProcessOK(idList);
@@ -406,24 +410,24 @@ public class TelegramMessageService {
 		return null;
 	}
 
-	public List<StatItem> getTelegram24hrStat(Long count) {
+	public List<StatItem> getTelegram24hrStat(Long hour, Long count) {
 		List<String> dayBackTimeList = new ArrayList<String>();
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
 		
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < hour; i++) {
 			Calendar cal = Calendar.getInstance(tz1);
 			cal.add(Calendar.HOUR_OF_DAY, -i);
 
 			int year = cal.get(Calendar.YEAR);
 			int month = cal.get(Calendar.MONTH) + 1;
 			int day = cal.get(Calendar.DAY_OF_MONTH);
-			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			int dayhour = cal.get(Calendar.HOUR_OF_DAY);
 			StringBuilder dayBackItem = new StringBuilder();
 
 			dayBackItem.append(year);
 			dayBackItem.append(lpad(month));
 			dayBackItem.append(lpad(day));
-			dayBackItem.append(lpad(hour));
+			dayBackItem.append(lpad(dayhour));
 
 			dayBackTimeList.add(dayBackItem.toString());
 		}
