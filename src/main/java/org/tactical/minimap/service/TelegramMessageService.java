@@ -214,61 +214,71 @@ public class TelegramMessageService {
 	}
 
 	public void processChatMessage(String chatMessage, String region) {
-		Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+		if (!excludeMessage(chatMessage)) {
 
-		// get active group
-		String group = redisService.getActiveGroupKey();
+			Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
 
-		// extract terms to redis
-		for (String patternKey : patternMap.keySet()) {
-			List<String> keyList = patternMap.get(patternKey);
-			for (String key : keyList) {
-				CustomDictionary.add(key);
+			// get active group
+			String group = redisService.getActiveGroupKey();
+
+			// extract terms to redis
+			for (String patternKey : patternMap.keySet()) {
+				List<String> keyList = patternMap.get(patternKey);
+				for (String key : keyList) {
+					CustomDictionary.add(key);
+				}
 			}
-		}
 
-		Segment segment = HanLP.newSegment();
-		segment.enableCustomDictionaryForcing(true);
+			Segment segment = HanLP.newSegment();
+			segment.enableCustomDictionaryForcing(true);
 
-		final char[] charArray = chatMessage.toCharArray();
-		CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
-			@Override
-			public void hit(int begin, int end, CoreDictionary.Attribute value) {
-				System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
-			}
-		});
+			final char[] charArray = chatMessage.toCharArray();
+			CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
+				@Override
+				public void hit(int begin, int end, CoreDictionary.Attribute value) {
+					System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
+				}
+			});
 
-		List<Term> listTerm = segment.seg(chatMessage);
+			List<Term> listTerm = segment.seg(chatMessage);
 
-		for (Term term : listTerm) {
-			logger.info("term {} {}", term.word, term.nature);
+			for (Term term : listTerm) {
+				logger.info("term {} {}", term.word, term.nature);
 
-			if (term.nature.toString().matches(".*(?:n).*")) {
-				if (!existExcludeWord(term.word)) {
-					Matcher policeMatcher = policeMarkerPattern.matcher(term.word);
+				if (term.nature.toString().matches(".*(?:n).*")) {
+					if (!excludeWord(term.word)) {
+						Matcher policeMatcher = policeMarkerPattern.matcher(term.word);
 
-					if (policeMatcher.matches()) {
-						String count = policeMatcher.group(1);
-						String termWord = "popo" + ((region != null && !region.equals("")) ? ":" + region : "");
-						if (count != null) {
-							redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
+						if (policeMatcher.matches()) {
+							String count = policeMatcher.group(1);
+							String termWord = "popo" + ((region != null && !region.equals("")) ? ":" + region : "");
+							if (count != null) {
+								redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
+							} else {
+								redisService.incrKeyByGroup(group, termWord);
+							}
+
 						} else {
+							String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
+
 							redisService.incrKeyByGroup(group, termWord);
 						}
 
-					} else {
-						String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
-
-						redisService.incrKeyByGroup(group, termWord);
 					}
-
 				}
-
 			}
 		}
 	}
 
-	private boolean existExcludeWord(String word) {
+	private boolean excludeMessage(String message) {
+		if(message.matches(".*http.*")) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	private boolean excludeWord(String word) {
 		if (word.length() <= 1) {
 			return true;
 		}
