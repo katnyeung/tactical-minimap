@@ -133,7 +133,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 }
 .statRegion {
     font-family: 微軟正黑體;
-    text-shadow: 1px 1px #C0C0C0;
+    text-shadow: 1px 1px #CCCCCC;
+	-webkit-text-stroke: 1px;
 }
 </style>
 </head>
@@ -313,19 +314,26 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			L.marker([22.245251041541813,114.07791137695314],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
-				$.ajax({
-					type : "GET",
-					url : '/stat/tgLive/',
-					
-					success : function(data){
-						if(data.status == 'success'){
-							$('.statRegion').each(function(){
-						    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
+				if(map.getZoom() >= 14){
+					$.ajax({
+						type : "GET",
+						url : '/stat/tgLive/',
+						
+						success : function(data){
+							if(data.status == 'success'){
+								$('.statRegion').each(function(){
+							    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
 
-							});
+								});
+							}
 						}
-					}
-				});
+					});
+				}else{
+					$('.statRegion').each(function(){
+				    	$(this).html('');
+					});
+				}
+
 			}
 			
 			$.ajax({
@@ -673,6 +681,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 				processMarker(markerDataList);
 
+				updateWordCloud();
 			});
 			
 			clickRegister($("#btnInfoMarker"), 'info');

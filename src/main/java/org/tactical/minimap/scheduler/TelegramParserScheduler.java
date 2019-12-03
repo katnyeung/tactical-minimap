@@ -42,6 +42,7 @@ import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.repository.marker.PoliceMarker;
 import org.tactical.minimap.repository.marker.RiotPoliceMarker;
 import org.tactical.minimap.repository.marker.TearGasMarker;
+import org.tactical.minimap.repository.marker.WarningMarker;
 import org.tactical.minimap.repository.marker.WaterTruckMarker;
 import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarker;
@@ -99,9 +100,9 @@ public class TelegramParserScheduler {
 	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
-	Pattern groupPattern = Pattern.compile("([^不]安全|safe|Safe|clear|冇狗)");
+	Pattern groupPattern = Pattern.compile("([^不]安全|safe|Safe|clear|冇狗|清理)");
 	Pattern dangerPattern = Pattern.compile("(制服|拉左|被捕)");
-
+	Pattern warningPattern = Pattern.compile("(交通意外|意外)");
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路)");
 
 	@Async
@@ -317,7 +318,8 @@ public class TelegramParserScheduler {
 								Matcher blockMatcher = blockPattern.matcher(message);
 								Matcher groupMatcher = groupPattern.matcher(message);
 								Matcher dangerMatcher = dangerPattern.matcher(message);
-
+								Matcher warningMatcher = warningPattern.matcher(message);
+								
 								String lineColor = "red";
 
 								if (telegramMessage.getMedia() != null) {
@@ -332,6 +334,8 @@ public class TelegramParserScheduler {
 									imageService.resizeImage(file, file, ext, 400);
 
 									lineColor = "red";
+								} else if (warningMatcher.find()) {
+									marker = WarningMarker.class.newInstance();
 								} else if (dangerMatcher.find()) {
 									marker = DangerMarker.class.newInstance();
 								} else if (groupMatcher.find()) {
