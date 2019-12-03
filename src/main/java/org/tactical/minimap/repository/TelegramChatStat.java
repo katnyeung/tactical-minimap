@@ -21,6 +21,7 @@ public class TelegramChatStat extends Auditable<String> {
 	int year;
 	int month;
 	int day;
+	int weekday;
 
 	int hour;
 	int minute;
@@ -63,6 +64,14 @@ public class TelegramChatStat extends Auditable<String> {
 
 	public void setDay(int day) {
 		this.day = day;
+	}
+
+	public int getWeekday() {
+		return weekday;
+	}
+
+	public void setWeekday(int weekday) {
+		this.weekday = weekday;
 	}
 
 	public int getHour() {

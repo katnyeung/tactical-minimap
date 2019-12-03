@@ -340,6 +340,8 @@ public class TelegramMessageService {
 						tcs.setYear(curTime.get(Calendar.YEAR));
 						tcs.setMonth(curTime.get(Calendar.MONTH) + 1);
 						tcs.setDay(curTime.get(Calendar.DAY_OF_MONTH));
+						tcs.setWeekday(curTime.get(Calendar.DAY_OF_WEEK));
+						
 						tcs.setHour(curTime.get(Calendar.HOUR_OF_DAY));
 
 						tcs.setMinute(0);
