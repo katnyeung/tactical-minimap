@@ -311,29 +311,22 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				html: '<div class="statRegion" data-region="total"></div>'
 			});
 			
-			L.marker([22.245251041541813,114.07791137695314],{icon:wordCloudTotal}).addTo(map)
+			L.marker([22.25605480105108,114.08254623413087],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
-				if(map.getZoom() >= 13){
-					$.ajax({
-						type : "GET",
-						url : '/stat/tgLive/',
-						
-						success : function(data){
-							if(data.status == 'success'){
-								$('.statRegion').each(function(){
-							    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
+				$.ajax({
+					type : "GET",
+					url : '/stat/tgLive/',
+					
+					success : function(data){
+						if(data.status == 'success'){
+							$('.statRegion').each(function(){
+						    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
 
-								});
-							}
+							});
 						}
-					});
-				}else{
-					$('.statRegion').each(function(){
-				    	$(this).html('');
-					});
-				}
-
+					}
+				});
 			}
 			
 			$.ajax({
@@ -680,8 +673,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
 
 				processMarker(markerDataList);
-
-				updateWordCloud();
 			});
 			
 			clickRegister($("#btnInfoMarker"), 'info');

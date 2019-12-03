@@ -275,7 +275,7 @@ public class TelegramMessageService {
 	}
 
 	private boolean excludeMessage(String message) {
-		if(message.matches(".*http.*")) {
+		if(message.contains("http")) {
 			return true;
 		}
 
