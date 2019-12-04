@@ -255,7 +255,9 @@ public class TelegramMessageService {
 
 						if (policeMatcher.matches()) {
 							String count = policeMatcher.group(1);
-							String termWord = "popo" + ((region != null && !region.equals("")) ? ":" + region : "");
+							String subKey = policeMatcher.group(2);
+							String termWord = subKey + ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
+							
 							if (count != null) {
 								redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
 							} else {
@@ -263,7 +265,11 @@ public class TelegramMessageService {
 							}
 
 						} else {
-							String termWord = term.word + ((region != null && !region.equals("")) ? ":" + region : "");
+							String termWord = term.word;
+							if(term.nature.toString().equals("nz")){
+								termWord = termWord + ":street";
+							}
+							termWord += ((region != null && !region.equals("")) ? ":" + region : "");
 
 							redisService.incrKeyByGroup(group, termWord);
 						}
@@ -324,19 +330,28 @@ public class TelegramMessageService {
 
 					for (Object obj : objectSet) {
 						String key = (String) obj;
+						String subKey = null;
 						String region = null;
 
 						Long value = Long.parseLong((String) redisService.getGroupByKey(groupKey, key));
 
 						if (key.indexOf(":") > 0) {
 							String[] keyGroup = key.split(":");
-							key = keyGroup[0];
-							region = keyGroup[1];
+							if(keyGroup.length > 2) {
+								key = keyGroup[0];
+								subKey = keyGroup[1];
+								region = keyGroup[2];
+							}else {
+								key = keyGroup[0];
+								region = keyGroup[1];
+							}
 						}
 
 						TelegramChatStat tcs = new TelegramChatStat();
 						tcs.setCount(value);
 						tcs.setKey(key);
+						tcs.setSubKey(subKey);
+						
 						tcs.setYear(curTime.get(Calendar.YEAR));
 						tcs.setMonth(curTime.get(Calendar.MONTH) + 1);
 						tcs.setDay(curTime.get(Calendar.DAY_OF_MONTH));
@@ -390,7 +405,20 @@ public class TelegramMessageService {
 						if (key.contains(":" + region)) {
 							Long value = Long.parseLong((String) redisService.getGroupByKey(activeKey, key));
 							StatItem si = new StatItem();
-							si.setText(key.replace(":" + region, ""));
+							String replacedKey = key.replace(":" + region, "");
+							
+							if(replacedKey.contains(":")) {
+								String replacedKeyArray[] = replacedKey.split(":");
+								
+								if(replacedKeyArray[1].equals("popo")) {
+									si.setText("popo");
+								}else {
+									si.setText(replacedKeyArray[0]);
+								}
+							}else {
+								si.setText(replacedKey);
+							}
+							
 							si.setWeight(value);
 							mapStat.get(region).add(si);
 						}

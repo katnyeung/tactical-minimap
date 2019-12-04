@@ -27,10 +27,12 @@ public class TelegramChatStat extends Auditable<String> {
 	int minute;
 
 	String key;
+	String subKey;
+	
 	Long count;
 
 	int group;
-
+	
 	@Column(nullable = true)
 	String region;
 
@@ -96,6 +98,14 @@ public class TelegramChatStat extends Auditable<String> {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public String getSubKey() {
+		return subKey;
+	}
+
+	public void setSubKey(String subKey) {
+		this.subKey = subKey;
 	}
 
 	public Long getCount() {
