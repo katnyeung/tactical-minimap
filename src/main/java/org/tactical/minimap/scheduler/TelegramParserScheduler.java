@@ -334,13 +334,13 @@ public class TelegramParserScheduler {
 									imageService.resizeImage(file, file, ext, 400);
 
 									lineColor = "red";
-								} else if (warningMatcher.find()) {
-									marker = WarningMarker.class.newInstance();
 								} else if (dangerMatcher.find()) {
 									marker = DangerMarker.class.newInstance();
 								} else if (groupMatcher.find()) {
 									marker = GroupMarker.class.newInstance();
 									lineColor = "#16aa6d";
+								} else if (warningMatcher.find()) {
+									marker = WarningMarker.class.newInstance();
 								} else if (waterCarMatcher.find()) {
 									marker = WaterTruckMarker.class.newInstance();
 								} else if (blackFlagMatcher.find()) {

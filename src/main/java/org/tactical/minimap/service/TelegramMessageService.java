@@ -240,7 +240,7 @@ public class TelegramMessageService {
 			CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
 				@Override
 				public void hit(int begin, int end, CoreDictionary.Attribute value) {
-					System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
+					//System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
 				}
 			});
 
