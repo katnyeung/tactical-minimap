@@ -93,12 +93,12 @@ public class TelegramParserScheduler {
 	// time pattern
 	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
 	// marker pattern
-	Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+	Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|私家車)");
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
 	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)");
-	Pattern riotPolicePattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白)*?\\s*?(防暴|速龍)");
+	Pattern riotPolicePattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?\\s*?(防暴|速龍|鋭武)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
 	Pattern groupPattern = Pattern.compile("([^不]安全|safe|Safe|clear|冇狗|清理)");
 	Pattern dangerPattern = Pattern.compile("(制服|拉左|被捕)");
@@ -201,7 +201,7 @@ public class TelegramParserScheduler {
 
 					message = telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
-					message = telegramMessageService.processData(message, "additional", keyMap, 10);
+					message = telegramMessageService.processData(message, "additional", keyMap, 25);
 
 					if (keyMap.keySet().size() == 0) {
 						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
@@ -354,25 +354,41 @@ public class TelegramParserScheduler {
 								} else if (tearGasMatcher.find()) {
 									marker = TearGasMarker.class.newInstance();
 								} else if (riotPoliceMatcher.find()) {
-									if (riotPoliceMatcher.groupCount() > 1) {
-										try {
-											level = Integer.parseInt(riotPoliceMatcher.group(1));
-											level = level < 10 ? level : 10;
-										} catch (NumberFormatException nfe) {
-											logger.info("process level error, group count {}", riotPoliceMatcher.groupCount());
+									
+									if(riotPoliceMatcher.groupCount() > 1) {
+										riotPoliceMatcher.reset();
+										int totalPolice = 0;
+										
+										while(riotPoliceMatcher.find()) {
+											if(riotPoliceMatcher.group(1) != null && !riotPoliceMatcher.group(1).equals("")) {
+												totalPolice += Integer.parseInt(riotPoliceMatcher.group(1));
+											} else {
+												totalPolice++;
+											}
 										}
+										
+										level = totalPolice < 10 ? totalPolice : 10;
 									}
 									marker = RiotPoliceMarker.class.newInstance();
 									marker.setLevel(level);
 								} else if (isPoliceMatcher.find()) {
-									if (isPoliceMatcher.groupCount() > 1) {
-										try {
-											level = Integer.parseInt(isPoliceMatcher.group(1));
-											level = level < 10 ? level : 10;
-										} catch (NumberFormatException nfe) {
-											logger.info("process level error, group count {}", isPoliceMatcher.groupCount());
+									if(isPoliceMatcher.groupCount() > 1) {
+										isPoliceMatcher.reset();
+										int totalPolice = 0;
+
+										while (isPoliceMatcher.find()) {
+
+											logger.info("Police : {} " , isPoliceMatcher.group(1));
+											if (isPoliceMatcher.group(1) != null && !isPoliceMatcher.group(1).equals("")) {
+												totalPolice += Integer.parseInt(isPoliceMatcher.group(1));
+											} else {
+												totalPolice++;
+											}
 										}
+
+										level = totalPolice < 10 ? totalPolice : 10;
 									}
+									
 									marker = PoliceMarker.class.newInstance();
 									marker.setLevel(level);
 									lineColor = "#ed6312";
@@ -383,7 +399,7 @@ public class TelegramParserScheduler {
 
 								// rephase as shape
 
-								ShapeMarker shapeMarker = processShapeMarker(keyMap, markerDTO, latlng);
+								ShapeMarker shapeMarker = processShapeMarker(keyMap, markerDTO, latlng, level);
 
 								if (shapeMarker != null) {
 									shapeMarker.setIcon(marker.getIcon());
@@ -428,7 +444,7 @@ public class TelegramParserScheduler {
 		return latlng;
 	}
 
-	private ShapeMarker processShapeMarker(Map<String, Integer> keyMap, MarkerDTO markerDTO, MarkerGeoCoding latlng) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+	private ShapeMarker processShapeMarker(Map<String, Integer> keyMap, MarkerDTO markerDTO, MarkerGeoCoding latlng, int level) throws InstantiationException, IllegalAccessException, JsonProcessingException {
 		ShapeMarker shapeMarker = null;
 
 		ObjectMapper om = new ObjectMapper();
@@ -497,6 +513,7 @@ public class TelegramParserScheduler {
 		
 		if(anyShapeHit) {
 			shapeMarker = ShapeMarker.class.newInstance();
+			shapeMarker.setLevel(level);
 		}
 		
 		return shapeMarker;

@@ -33,7 +33,7 @@ public class NewsScheduler {
 	public void rthkParser() throws IOException {
 
 		Pattern timePattern = Pattern.compile(".*([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) HKT ([0-9]{1,2}):([0-9]{1,2}).*");
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar curTime = Calendar.getInstance(tz1);
 
 		Document doc = Jsoup.connect("http://programme.rthk.hk/channel/radio/trafficnews/index.php").get();
@@ -90,7 +90,7 @@ public class NewsScheduler {
 	@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
 
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar curTime = Calendar.getInstance(tz1);
 		Pattern linkPattern = Pattern.compile("newsdetail.aspx\\?ItemId=(\\d*)&csid=461_1600");
 		Pattern timePattern = Pattern.compile(".*\\(([0-9]{1,2}):([0-9]{1,2}).*\\)");

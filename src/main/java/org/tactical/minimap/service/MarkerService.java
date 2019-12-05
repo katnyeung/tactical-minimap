@@ -160,7 +160,7 @@ public class MarkerService {
 	public Marker addMarker(Layer layer, MarkerDTO markerDTO, Marker marker) {
 		logger.info("Adding Marker : " + marker.getClass().getName());
 
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar cal1 = Calendar.getInstance(tz1);
 
 		int hour = cal1.get(Calendar.HOUR_OF_DAY);

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
@@ -220,8 +221,30 @@ public class TelegramMessageService {
 	public void processChatMessage(String chatMessage, String region) {
 		if (!excludeMessage(chatMessage)) {
 
-			Pattern policeMarkerPattern = Pattern.compile("([0-9][0-9])*?(?:隻|名|個|綠|白|架)*?(?:閃燈)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬)");
+			Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|水炮|水砲|銳武|私家車|鋭武)");
+			Matcher policeMatcher = policeMarkerPattern.matcher(chatMessage);
+			Map<String, Long> policeCountMap = new HashMap<String, Long>();
 
+			while (policeMatcher.find()) {
+				logger.info("group count {}", policeMatcher.groupCount());
+				logger.info("{}", policeMatcher.group());
+				
+				if(policeMatcher.groupCount() > 1) {
+					Long count = (long)1;
+					
+					if(policeMatcher.group(1) != null && !policeMatcher.group(1).equals("")) {
+						 Long.parseLong(policeMatcher.group(1));
+					}
+					
+					String subKey = policeMatcher.group(2);
+					String termWord = subKey + ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
+					
+					policeCountMap.put(termWord, count);
+				}else {
+
+				}
+			}
+			
 			// get active group
 			String group = redisService.getActiveGroupKey();
 
@@ -251,28 +274,22 @@ public class TelegramMessageService {
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
-						Matcher policeMatcher = policeMarkerPattern.matcher(term.word);
-
-						if (policeMatcher.matches()) {
-							String count = policeMatcher.group(1);
-							String subKey = policeMatcher.group(2);
-							String termWord = subKey + ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
-							
-							if (count != null) {
-								redisService.incrKeyByGroup(group, termWord, Long.parseLong(count));
-							} else {
-								redisService.incrKeyByGroup(group, termWord);
+						String termWord = term.word;
+						
+						if (policeCountMap.size() > 0) {
+							for (Entry<String, Long> entry : policeCountMap.entrySet()) {
+								redisService.incrKeyByGroup(group, entry.getKey(), entry.getValue());
 							}
-
 						} else {
-							String termWord = term.word;
-							if(term.nature.toString().equals("nz")){
-								termWord = termWord + ":street";
-							}
-							termWord += ((region != null && !region.equals("")) ? ":" + region : "");
-
 							redisService.incrKeyByGroup(group, termWord);
 						}
+
+						if (term.nature.toString().equals("nz")) {
+							termWord = termWord + ":street";
+						}
+						termWord += ((region != null && !region.equals("")) ? ":" + region : "");
+
+						redisService.incrKeyByGroup(group, termWord);
 
 					}
 				}
@@ -302,8 +319,9 @@ public class TelegramMessageService {
 	@Transactional
 	public void processGroupKey() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar curTime = Calendar.getInstance(tz1);
+		
 		curTime.set(Calendar.SECOND, 0);
 		curTime.set(Calendar.MINUTE, 0);
 		String currentTimeKey = sdf.format(curTime.getTime());
@@ -442,7 +460,7 @@ public class TelegramMessageService {
 
 	public List<StatItem> getTelegram24hrStat(Long hour, Long count) {
 		List<String> dayBackTimeList = new ArrayList<String>();
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		
 		for (int i = 0; i < hour; i++) {
 			Calendar cal = Calendar.getInstance(tz1);

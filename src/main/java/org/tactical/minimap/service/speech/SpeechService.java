@@ -173,7 +173,7 @@ public abstract class SpeechService {
 				int hour = Integer.parseInt(matcher.group(1));
 				int minute = Integer.parseInt(matcher.group(2));
 
-				TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+				TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 				Calendar cal1 = Calendar.getInstance(tz1);
 
 				int currentHour = cal1.get(Calendar.HOUR_OF_DAY);
