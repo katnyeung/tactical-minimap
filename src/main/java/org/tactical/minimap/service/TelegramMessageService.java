@@ -408,6 +408,8 @@ public class TelegramMessageService {
 		String activeKey = redisService.getActiveGroupKey();
 		if (activeKey != null) {
 			Set<Object> keySet = redisService.getHashGroup(activeKey);
+			Map<String, Long> popoCountMap = new HashMap<String, Long>();
+			
 			for (Object keyObj : keySet) {
 				String key = (String) keyObj;
 				for (MarkerGeoCoding regionCode : regionList) {
@@ -429,29 +431,39 @@ public class TelegramMessageService {
 								String replacedKeyArray[] = replacedKey.split(":");
 								
 								if(replacedKeyArray[1].equals("popo")) {
-									si.setText("popo");
+									if(popoCountMap.get(region) == null) {
+										popoCountMap.put(region, (long)0);	
+									}else {
+										popoCountMap.put(region, popoCountMap.get(region) + 1);
+									}
 								}else {
 									si.setText(replacedKeyArray[0]);
+									si.setWeight(value);
+									mapStat.get(region).add(si);
+									mapStat.get("total").add(si);
 								}
 							}else {
 								si.setText(replacedKey);
+								si.setWeight(value);
+								mapStat.get(region).add(si);
+								mapStat.get("total").add(si);
 							}
 							
-							si.setWeight(value);
-							mapStat.get(region).add(si);
 						}
 					}
-
 				}
-
-				Long value = Long.parseLong((String) redisService.getGroupByKey(activeKey, key));
-				StatItem si = new StatItem();
-				si.setText(key.replaceAll(":.*$", ""));
-				si.setWeight(value);
-
-				mapStat.get("total").add(si);
+				
 			}
 
+			for(Entry<String, Long> popoCount : popoCountMap.entrySet()) {
+				logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
+				StatItem si = new StatItem();
+				si.setText("popo");
+				si.setWeight(popoCount.getValue());
+				mapStat.get(popoCount.getKey()).add(si);
+				mapStat.get("total").add(si);
+			}
+			
 			return mapStat;
 		}
 

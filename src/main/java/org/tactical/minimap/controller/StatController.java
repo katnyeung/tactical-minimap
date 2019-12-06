@@ -42,7 +42,7 @@ public class StatController {
 
 		DefaultResult dr = StatMapResult.success(regionMap);
 
-		return dr;
+		return dr;	
 	}
 
 	@GetMapping("/tg24hr/")
