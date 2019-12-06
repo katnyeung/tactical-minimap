@@ -314,19 +314,24 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			L.marker([22.277500970654415,114.08168792724611],{icon:wordCloudTotal}).addTo(map)
 			
 			function updateWordCloud(){
-				$.ajax({
-					type : "GET",
-					url : '/stat/tgLive/',
-					
-					success : function(data){
-						if(data.status == 'success'){
-							$('.statRegion').each(function(){
-						    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
-
-							});
+				if(map.getZoom() >= 13){
+					$.ajax({
+						type : "GET",
+						url : '/stat/tgLive/',
+						
+						success : function(data){
+							if(data.status == 'success'){
+								$('.statRegion').each(function(){
+							    	$(this).jQCloud('update', data.mapStat[$(this).data("region")]);
+								});
+							}
 						}
-					}
-				});
+					});
+				}else{
+					$('.statRegion').each(function(){
+				    	$(this).html('');
+					});
+				}
 			}
 			
 			$.ajax({
@@ -671,7 +676,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 			map.on('dragend zoomend', function(e) {
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
-
+				
+				updateWordCloud();
 				processMarker(markerDataList);
 			});
 			
