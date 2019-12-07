@@ -226,25 +226,25 @@ public class TelegramMessageService {
 			Map<String, Long> policeCountMap = new HashMap<String, Long>();
 
 			while (policeMatcher.find()) {
-				//logger.info("group count {}", policeMatcher.groupCount());
-				//logger.info("{}", policeMatcher.group());
-				
-				if(policeMatcher.groupCount() > 1) {
-					Long count = (long)1;
-					
-					if(policeMatcher.group(1) != null && !policeMatcher.group(1).equals("")) {
-						 Long.parseLong(policeMatcher.group(1));
+				// logger.info("group count {}", policeMatcher.groupCount());
+				// logger.info("{}", policeMatcher.group());
+
+				if (policeMatcher.groupCount() > 1) {
+					Long count = (long) 1;
+
+					if (policeMatcher.group(1) != null && !policeMatcher.group(1).equals("")) {
+						Long.parseLong(policeMatcher.group(1));
 					}
-					
+
 					String subKey = policeMatcher.group(2);
 					String termWord = subKey + ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
-					
+
 					policeCountMap.put(termWord, count);
-				}else {
+				} else {
 
 				}
 			}
-			
+
 			// get active group
 			String group = redisService.getActiveGroupKey();
 
@@ -263,34 +263,33 @@ public class TelegramMessageService {
 			CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
 				@Override
 				public void hit(int begin, int end, CoreDictionary.Attribute value) {
-					//System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
+					// System.out.printf("[%d:%d]=%s %s\n", begin, end, new String(charArray, begin, end - begin), value);
 				}
 			});
 
 			List<Term> listTerm = segment.seg(chatMessage);
 
 			for (Term term : listTerm) {
-				//logger.info("term {} {}", term.word, term.nature);
+				// logger.info("term {} {}", term.word, term.nature);
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
 						String termWord = term.word;
-						
+
 						if (policeCountMap.size() > 0) {
 							for (Entry<String, Long> entry : policeCountMap.entrySet()) {
 								redisService.incrKeyByGroup(group, entry.getKey(), entry.getValue());
 							}
 						} else {
+
+							if (term.nature.toString().equals("nz")) {
+								termWord = termWord + ":street";
+							}
+							termWord += ((region != null && !region.equals("")) ? ":" + region : "");
+
 							redisService.incrKeyByGroup(group, termWord);
+
 						}
-
-						if (term.nature.toString().equals("nz")) {
-							termWord = termWord + ":street";
-						}
-						termWord += ((region != null && !region.equals("")) ? ":" + region : "");
-
-						redisService.incrKeyByGroup(group, termWord);
-
 					}
 				}
 			}
@@ -298,13 +297,13 @@ public class TelegramMessageService {
 	}
 
 	private boolean excludeMessage(String message) {
-		if(message.contains("http")) {
+		if (message.contains("http")) {
 			return true;
 		}
 
 		return false;
 	}
-	
+
 	private boolean excludeWord(String word) {
 		if (word.length() <= 1) {
 			return true;
@@ -321,7 +320,7 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar curTime = Calendar.getInstance(tz1);
-		
+
 		curTime.set(Calendar.SECOND, 0);
 		curTime.set(Calendar.MINUTE, 0);
 		String currentTimeKey = sdf.format(curTime.getTime());
@@ -334,7 +333,7 @@ public class TelegramMessageService {
 			try {
 				Date date = sdf.parse(groupKey);
 				Calendar dataTime = Calendar.getInstance(tz1);
-				
+
 				dataTime.setTime(date);
 				dataTime.add(Calendar.HOUR_OF_DAY, 1);
 
@@ -355,11 +354,11 @@ public class TelegramMessageService {
 
 						if (key.indexOf(":") > 0) {
 							String[] keyGroup = key.split(":");
-							if(keyGroup.length > 2) {
+							if (keyGroup.length > 2) {
 								key = keyGroup[0];
 								subKey = keyGroup[1];
 								region = keyGroup[2];
-							}else {
+							} else {
 								key = keyGroup[0];
 								region = keyGroup[1];
 							}
@@ -369,12 +368,12 @@ public class TelegramMessageService {
 						tcs.setCount(value);
 						tcs.setKey(key);
 						tcs.setSubKey(subKey);
-						
+
 						tcs.setYear(curTime.get(Calendar.YEAR));
 						tcs.setMonth(curTime.get(Calendar.MONTH) + 1);
 						tcs.setDay(curTime.get(Calendar.DAY_OF_MONTH));
 						tcs.setWeekday(curTime.get(Calendar.DAY_OF_WEEK));
-						
+
 						tcs.setHour(curTime.get(Calendar.HOUR_OF_DAY));
 
 						tcs.setMinute(0);
@@ -409,7 +408,7 @@ public class TelegramMessageService {
 		if (activeKey != null) {
 			Set<Object> keySet = redisService.getHashGroup(activeKey);
 			Map<String, Long> popoCountMap = new HashMap<String, Long>();
-			
+
 			for (Object keyObj : keySet) {
 				String key = (String) keyObj;
 				for (MarkerGeoCoding regionCode : regionList) {
@@ -426,44 +425,44 @@ public class TelegramMessageService {
 							Long value = Long.parseLong((String) redisService.getGroupByKey(activeKey, key));
 							StatItem si = new StatItem();
 							String replacedKey = key.replace(":" + region, "");
-							
-							if(replacedKey.contains(":")) {
+
+							if (replacedKey.contains(":")) {
 								String replacedKeyArray[] = replacedKey.split(":");
-								
-								if(replacedKeyArray[1].equals("popo")) {
-									if(popoCountMap.get(region) == null) {
-										popoCountMap.put(region, (long)0);	
-									}else {
+
+								if (replacedKeyArray[1].equals("popo")) {
+									if (popoCountMap.get(region) == null) {
+										popoCountMap.put(region, (long) 0);
+									} else {
 										popoCountMap.put(region, popoCountMap.get(region) + 1);
 									}
-								}else {
+								} else {
 									si.setText(replacedKeyArray[0]);
 									si.setWeight(value);
 									mapStat.get(region).add(si);
 									mapStat.get("total").add(si);
 								}
-							}else {
+							} else {
 								si.setText(replacedKey);
 								si.setWeight(value);
 								mapStat.get(region).add(si);
 								mapStat.get("total").add(si);
 							}
-							
+
 						}
 					}
 				}
-				
+
 			}
 
-			for(Entry<String, Long> popoCount : popoCountMap.entrySet()) {
-				//logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
+			for (Entry<String, Long> popoCount : popoCountMap.entrySet()) {
+				// logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
 				StatItem si = new StatItem();
 				si.setText("popo");
 				si.setWeight(popoCount.getValue());
 				mapStat.get(popoCount.getKey()).add(si);
 				mapStat.get("total").add(si);
 			}
-			
+
 			return mapStat;
 		}
 
@@ -473,7 +472,7 @@ public class TelegramMessageService {
 	public List<StatItem> getTelegram24hrStat(Long hour, Long count) {
 		List<String> dayBackTimeList = new ArrayList<String>();
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
-		
+
 		for (int i = 0; i < hour; i++) {
 			Calendar cal = Calendar.getInstance(tz1);
 			cal.add(Calendar.HOUR_OF_DAY, -i);
