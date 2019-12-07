@@ -226,8 +226,8 @@ public class TelegramMessageService {
 			Map<String, Long> policeCountMap = new HashMap<String, Long>();
 
 			while (policeMatcher.find()) {
-				logger.info("group count {}", policeMatcher.groupCount());
-				logger.info("{}", policeMatcher.group());
+				//logger.info("group count {}", policeMatcher.groupCount());
+				//logger.info("{}", policeMatcher.group());
 				
 				if(policeMatcher.groupCount() > 1) {
 					Long count = (long)1;
@@ -270,7 +270,7 @@ public class TelegramMessageService {
 			List<Term> listTerm = segment.seg(chatMessage);
 
 			for (Term term : listTerm) {
-				logger.info("term {} {}", term.word, term.nature);
+				//logger.info("term {} {}", term.word, term.nature);
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
@@ -309,7 +309,7 @@ public class TelegramMessageService {
 		if (word.length() <= 1) {
 			return true;
 		}
-		if (word.matches(".*#.*")) {
+		if (word.matches(".*(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|水炮|水砲|銳武|私家車|鋭武|#).*")) {
 			return true;
 		}
 
@@ -456,7 +456,7 @@ public class TelegramMessageService {
 			}
 
 			for(Entry<String, Long> popoCount : popoCountMap.entrySet()) {
-				logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
+				//logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
 				StatItem si = new StatItem();
 				si.setText("popo");
 				si.setWeight(popoCount.getValue());
