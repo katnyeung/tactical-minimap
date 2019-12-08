@@ -455,11 +455,13 @@ public class TelegramMessageService {
 
 			for (Entry<String, Long> popoCount : popoCountMap.entrySet()) {
 				// logger.info("{} {}" , popoCount.getKey() , popoCount.getValue());
-				StatItem si = new StatItem();
-				si.setText("popo");
-				si.setWeight(popoCount.getValue());
-				mapStat.get(popoCount.getKey()).add(si);
-				groupTotalStatItem(mapStat.get("total"), si);
+				if (mapStat.get(popoCount.getKey()).size() > 0) {
+					StatItem si = new StatItem();
+					si.setText("popo");
+					si.setWeight(popoCount.getValue());
+					mapStat.get(popoCount.getKey()).add(si);
+					groupTotalStatItem(mapStat.get("total"), si);
+				}
 			}
 			return mapStat;
 		}
