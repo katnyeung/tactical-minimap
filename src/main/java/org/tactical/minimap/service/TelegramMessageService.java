@@ -439,19 +439,18 @@ public class TelegramMessageService {
 									si.setText(replacedKeyArray[0]);
 									si.setWeight(value);
 									mapStat.get(region).add(si);
-									mapStat.get("total").add(si);
+									groupTotalStatItem(mapStat.get("total"), si);
 								}
 							} else {
 								si.setText(replacedKey);
 								si.setWeight(value);
 								mapStat.get(region).add(si);
-								mapStat.get("total").add(si);
+								groupTotalStatItem(mapStat.get("total"), si);
 							}
 
 						}
 					}
 				}
-
 			}
 
 			for (Entry<String, Long> popoCount : popoCountMap.entrySet()) {
@@ -460,13 +459,25 @@ public class TelegramMessageService {
 				si.setText("popo");
 				si.setWeight(popoCount.getValue());
 				mapStat.get(popoCount.getKey()).add(si);
-				mapStat.get("total").add(si);
+				groupTotalStatItem(mapStat.get("total"), si);
 			}
-
 			return mapStat;
 		}
 
 		return null;
+	}
+
+	public void groupTotalStatItem(List<StatItem> totalMapStat, StatItem si) {
+		boolean isUpdate = false;
+		for (StatItem totalSI : totalMapStat) {
+			if (totalSI.getText().equals(si.getText())) {
+				totalSI.setWeight(si.getWeight() + si.getWeight());
+				isUpdate = true;
+			}
+		}
+		if (!isUpdate) {
+			totalMapStat.add(si);
+		}
 	}
 
 	public List<StatItem> getTelegram24hrStat(Long hour, Long count) {

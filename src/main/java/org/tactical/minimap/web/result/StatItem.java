@@ -35,4 +35,9 @@ public class StatItem {
 		this.label = label;
 	}
 
+	@Override
+	public String toString() {
+		return "StatItem [text=" + text + ", weight=" + weight + ", label=" + label + "]";
+	}
+
 }
