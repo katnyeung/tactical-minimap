@@ -270,7 +270,7 @@ public class TelegramMessageService {
 			List<Term> listTerm = segment.seg(chatMessage);
 
 			for (Term term : listTerm) {
-				// logger.info("term {} {}", term.word, term.nature);
+				logger.info("term {} {} {} ", term.word, term.nature , region);
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
@@ -281,15 +281,16 @@ public class TelegramMessageService {
 								redisService.incrKeyByGroup(group, entry.getKey(), entry.getValue());
 							}
 						} else {
-
-							if (term.nature.toString().equals("nz")) {
-								termWord = termWord + ":street";
-							}
-							termWord += ((region != null && !region.equals("")) ? ":" + region : "");
-
 							redisService.incrKeyByGroup(group, termWord);
-
 						}
+
+						if (term.nature.toString().equals("nz")) {
+							termWord = termWord + ":street";
+						}
+						termWord += ((region != null && !region.equals("")) ? ":" + region : "");
+
+						redisService.incrKeyByGroup(group, termWord);
+
 					}
 				}
 			}
