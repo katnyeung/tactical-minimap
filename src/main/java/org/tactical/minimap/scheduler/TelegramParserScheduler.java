@@ -247,6 +247,7 @@ public class TelegramParserScheduler {
 								for (String key : keyMap.keySet()) {
 									if (key.matches(".*(道|路|街|橋)$")) {
 										haveStreet = true;
+										keyMap.put(key, keyMap.get(key) - 50);
 									}
 									totalScore += keyMap.get(key);
 								}
