@@ -191,11 +191,11 @@ public class TelegramParserScheduler {
 
 					message = telegramMessageService.processData(message, "street", keyMap, 50);
 
+					message = telegramMessageService.processData(message, "plaza", keyMap, 15);
+					
 					message = telegramMessageService.processData(message, "building", keyMap, 15);
 					
 					message = telegramMessageService.processData(message, "district", keyMap, 25);
-
-					message = telegramMessageService.processData(message, "plaza", keyMap, 15);
 
 					message = telegramMessageService.processData(message, "mtr", keyMap, 50);
 
