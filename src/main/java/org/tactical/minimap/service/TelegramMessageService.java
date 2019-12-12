@@ -128,7 +128,7 @@ public class TelegramMessageService {
 
 	}
 
-	public String processData(String message, String category, HashMap<String, Integer> keyMap, final int categoryWeight) throws IOException {
+	public String processData(String message, String category, Map<String, Integer> keyMap, final int categoryWeight) throws IOException {
 		List<String> patternList = patternMap.get(category);
 		for (String pattern : patternList) {
 			int weight = categoryWeight;
@@ -172,7 +172,7 @@ public class TelegramMessageService {
 		return message;
 	}
 
-	private void addPattern(String pattern, Integer weight, HashMap<String, Integer> keyMap, String patternMessage, String replaceToPattern) {
+	private void addPattern(String pattern, Integer weight, Map<String, Integer> keyMap, String patternMessage, String replaceToPattern) {
 		if (replaceToPattern != null) {
 			String newPattern = patternMessage.replaceAll(pattern, replaceToPattern);
 			keyMap.put(newPattern, weight);
@@ -226,9 +226,7 @@ public class TelegramMessageService {
 			Map<String, Long> policeCountMap = new HashMap<String, Long>();
 
 			while (policeMatcher.find()) {
-				// logger.info("group count {}", policeMatcher.groupCount());
-				// logger.info("{}", policeMatcher.group());
-
+				
 				if (policeMatcher.groupCount() > 1) {
 					Long count = (long) 1;
 
@@ -268,9 +266,10 @@ public class TelegramMessageService {
 			});
 
 			List<Term> listTerm = segment.seg(chatMessage);
-
+			
+			logger.info("processing terms {} {} ", listTerm , region);
 			for (Term term : listTerm) {
-				logger.info("term {} {} {} ", term.word, term.nature , region);
+				//
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
@@ -361,7 +360,7 @@ public class TelegramMessageService {
 								region = keyGroup[2];
 							} else {
 								key = keyGroup[0];
-								region = keyGroup[1];
+								subKey = keyGroup[1];
 							}
 						}
 

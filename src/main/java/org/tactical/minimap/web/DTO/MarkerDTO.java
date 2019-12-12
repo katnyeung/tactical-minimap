@@ -11,6 +11,8 @@ public class MarkerDTO {
 
 	String uuid;
 
+	Long telegramMessageId;
+	
 	String layer;
 
 	Long markerId;
@@ -139,6 +141,14 @@ public class MarkerDTO {
 
 	public void setMarkerIdList(List<Long> markerIdList) {
 		this.markerIdList = markerIdList;
+	}
+
+	public Long getTelegramMessageId() {
+		return telegramMessageId;
+	}
+
+	public void setTelegramMessageId(Long telegramMessageId) {
+		this.telegramMessageId = telegramMessageId;
 	}
 
 }

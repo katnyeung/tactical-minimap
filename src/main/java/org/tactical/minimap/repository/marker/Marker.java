@@ -172,6 +172,9 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@NotNull
 	private String uuid;
+	
+	@Column(nullable = true)
+	private Long telegramMessageId;
 
 	@JsonInclude(Include.NON_NULL)
 	@Column(nullable = true)
@@ -348,6 +351,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setMinute(Integer minute) {
 		this.minute = minute;
+	}
+
+	public Long getTelegramMessageId() {
+		return telegramMessageId;
+	}
+
+	public void setTelegramMessageId(Long telegramMessageId) {
+		this.telegramMessageId = telegramMessageId;
 	}
 
 }

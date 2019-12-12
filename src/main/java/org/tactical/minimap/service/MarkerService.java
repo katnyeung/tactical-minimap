@@ -191,6 +191,11 @@ public class MarkerService {
 		marker = marker.fill(markerDTO);
 
 		if (marker != null) {
+			
+			if(markerDTO.getTelegramMessageId() != null) {
+				marker.setTelegramMessageId(markerDTO.getTelegramMessageId());
+			}
+			
 			marker.setLayer(layer);
 
 			if (layer.getPassword() != null && !layer.getPassword().equals("")) {
