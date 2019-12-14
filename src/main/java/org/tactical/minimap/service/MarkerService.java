@@ -179,7 +179,7 @@ public class MarkerService {
 			}
 		}
 
-		// only within 120 minutes, if marker
+		// only within 120 minutes, else assign current time
 		if (Math.abs((patternHour * 60 + patternMinute) - (hour * 60 + minute)) <= 120) {
 			markerDTO.setHour(patternHour);
 			markerDTO.setMinute(patternMinute);

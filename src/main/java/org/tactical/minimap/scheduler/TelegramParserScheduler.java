@@ -111,12 +111,12 @@ public class TelegramParserScheduler {
 		telegramMessageService.initialConfig();
 
 		Unirest.config().verifySsl(false);
-		
+
 		// get message S for street C for chat
 		List<String> messageTypeList = new ArrayList<String>();
 		messageTypeList.add("S");
 		messageTypeList.add("C");
-		
+
 		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage(messageTypeList);
 		if (telegramMessageList.size() > 0)
 			logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
@@ -126,12 +126,12 @@ public class TelegramParserScheduler {
 
 		for (TelegramMessage telegramMessage : telegramMessageList) {
 			MarkerGeoCoding latlng = null;
-				
+
 			if (telegramMessage.getMessageType().equals("S")) {
 				latlng = processLocationMessage(telegramMessage, okIdList, notOkIdList);
 			}
 
-			if(telegramMessage.getMessageType().equals("S") || telegramMessage.getMessageType().equals("C")) {
+			if (telegramMessage.getMessageType().equals("S") || telegramMessage.getMessageType().equals("C")) {
 				processChatMessage(telegramMessage, latlng);
 			}
 		}
@@ -148,12 +148,12 @@ public class TelegramParserScheduler {
 
 	private void processChatMessage(TelegramMessage telegramMessage, MarkerGeoCoding latlng) throws FileNotFoundException {
 		String region = streetDataService.getRegionByLatlng(latlng);
-		
-		//store the group key to DB when the time after an other
+
+		// store the group key to DB when the time after an other
 		telegramMessageService.processGroupKey();
-				
+
 		telegramMessageService.processChatMessage(telegramMessage.getMessage(), region);
-		
+
 		telegramMessage.setStatus("O");
 		telegramMessageService.saveTelegramMessage(telegramMessage);
 	}
@@ -164,7 +164,7 @@ public class TelegramParserScheduler {
 		Map<String, Integer> keyMap = new HashMap<String, Integer>();
 
 		MarkerGeoCoding latlng = null;
-		
+
 		if (message.length() > 150) {
 			logger.info("message characters length > 150. mark to fail " + telegramMessage.getTelegramMessageId());
 			notOkIdList.add(telegramMessage.getTelegramMessageId());
@@ -192,9 +192,9 @@ public class TelegramParserScheduler {
 					message = telegramMessageService.processData(message, "street", keyMap, 50);
 
 					message = telegramMessageService.processData(message, "plaza", keyMap, 15);
-					
+
 					message = telegramMessageService.processData(message, "building", keyMap, 15);
-					
+
 					message = telegramMessageService.processData(message, "district", keyMap, 25);
 
 					message = telegramMessageService.processData(message, "mtr", keyMap, 50);
@@ -228,42 +228,48 @@ public class TelegramParserScheduler {
 
 						// step 2 if default setting not found or keyMap size > 1 , go internet search
 						if (latlng == null) {
-							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路")) {
+							int streetCount = 0;
+							
+							for (String key : keyMap.keySet()) {
+								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|站)$")) {
+									streetCount++;
+									keyMap.put(key, keyMap.get(key) - 50);
+								}
+							}
+							
+							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) 
+									|| keyMap.containsKey("交界") 
+									|| keyMap.containsKey("太和路")
+									|| streetCount > 1
+								) {
 
 								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
 
 								latlng = doGoogle(keyMap, tc);
 
 							} else {
-
-								boolean haveStreet = false;
-								for (String key : keyMap.keySet()) {
-									if (key.matches(".*(道|路|街|橋|站)$")) {
-										haveStreet = true;
-										keyMap.put(key, keyMap.get(key) - 50);
-									}
-								}
-
-								if (haveStreet) {
+								
+								if (streetCount > 0) {
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
-									
-									while(iter.hasNext()) {
+
+									while (iter.hasNext()) {
 										String key = iter.next();
-										if(key.matches(".*(東|南|西|北)$")){
+										if (key.matches(".*(東|南|西|北)$")) {
 											logger.info("{}", key);
 											Integer value = keyMap.get(key);
 											iter.remove();
-											key =  key.replaceAll("東", " E").replaceAll("南", "S").replaceAll("西", " W").replaceAll("北", " N");
-											
+											key = key.replaceAll("東", " E").replaceAll("南", "S").replaceAll("西", " W").replaceAll("北", " N");
+
 											tempKeyMap.put(key, value);
 										}
 									}
-									
+
 									keyMap.putAll(tempKeyMap);
 									keyMap.put("香港", 200);
 
 									latlng = doArcgis(keyMap, tc);
+									
 								} else {
 
 									latlng = doGeoDataHK(keyMap, tc);
@@ -272,8 +278,6 @@ public class TelegramParserScheduler {
 							}
 						}
 
-
-						
 						if (latlng == null) {
 
 							logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
@@ -283,11 +287,11 @@ public class TelegramParserScheduler {
 							// save parse result
 							Gson gson = new Gson();
 							telegramMessage.setResult("{\"label\":\"" + latlng.getLabel() + "\",\"data\":" + gson.toJson(keyMap) + "}");
-							
+
 							telegramMessageService.saveTelegramMessage(telegramMessage);
-							
+
 							try {
-								
+
 								convertGeoLocateToMarker(latlng, tc, telegramMessage, keyMap);
 
 								okIdList.add(telegramMessage.getTelegramMessageId());
@@ -313,7 +317,7 @@ public class TelegramParserScheduler {
 				notOkIdList.add(telegramMessage.getTelegramMessageId());
 			}
 		}
-		
+
 		return latlng;
 	}
 
@@ -335,7 +339,7 @@ public class TelegramParserScheduler {
 		markerDTO.setMessage(message + "\n#" + groupKey);
 		markerDTO.setUuid("TELEGRAM_BOT");
 		markerDTO.setTelegramMessageId(tm.getTelegramMessageId());
-		
+
 		// analyst target icon
 
 		int level = 1;
@@ -404,9 +408,9 @@ public class TelegramParserScheduler {
 			}
 			marker = RiotPoliceMarker.class.newInstance();
 			marker.setLevel(level);
-			
+
 		} else if (isPoliceMatcher.find()) {
-			
+
 			if (isPoliceMatcher.groupCount() > 1) {
 				isPoliceMatcher.reset();
 				int totalPolice = 0;
@@ -427,12 +431,12 @@ public class TelegramParserScheduler {
 			marker = PoliceMarker.class.newInstance();
 			marker.setLevel(level);
 			lineColor = "#ed6312";
-			
+
 		} else {
-			
+
 			marker = InfoMarker.class.newInstance();
 			lineColor = "#395aa3";
-			
+
 		}
 
 		// rephase as shape
@@ -455,7 +459,7 @@ public class TelegramParserScheduler {
 
 		markerDTO.setLat(markerDTO.getLat() + randLat);
 		markerDTO.setLng(markerDTO.getLng() + randLng);
-		
+
 		markerService.addMarker(layer, markerDTO, marker);
 	}
 
@@ -463,82 +467,68 @@ public class TelegramParserScheduler {
 		ShapeMarker shapeMarker = null;
 
 		ObjectMapper om = new ObjectMapper();
-		
+
 		List<LinkedHashMap<String, Double>> shapeList = new LinkedList<LinkedHashMap<String, Double>>();
 
 		boolean anyShapeHit = false;
-		
+
 		for (String key : keyMap.keySet()) {
 
 			List<StreetData> sdList = streetDataService.findStreetDataList("ST", key);
 
 			for (StreetData sd : sdList) {
-				
+
 				List<LinkedHashMap<String, Double>> subShapeList = new LinkedList<LinkedHashMap<String, Double>>();
-				
-				//logger.info("sd : {} " , sd);
+
 				List<StreetDataDetail> sddList = sd.getStreetDataDetailList();
-				
+
 				for (StreetDataDetail sdd : sddList) {
 
 					double lat = sdd.getLat();
 					double lng = sdd.getLng();
-					
+
 					LinkedHashMap<String, Double> smd = new LinkedHashMap<String, Double>();
 
-					double fromLat = latlng.getLat() - 0.002;
-					double fromLng = latlng.getLng() - 0.002;
-					double toLat = latlng.getLat() + 0.002;
-					double toLng = latlng.getLng() + 0.002;
+					double fromLat = latlng.getLat() - 0.0025;
+					double fromLng = latlng.getLng() - 0.0025;
+					double toLat = latlng.getLat() + 0.0025;
+					double toLng = latlng.getLng() + 0.0025;
 
 					if ((fromLat < lat && lat <= toLat) && (fromLng < lng && lng <= toLng)) {
 						logger.info("{} < {} < {} , {} < {} < {}", fromLat, lat, toLat, fromLng, lng, toLng);
 
-
 						smd.put("lat", lat);
 						smd.put("lng", lng);
-						
 						smd.put("group", Double.parseDouble(sdd.getGroupId()));
-						
-						subShapeList.add(smd);
-						
-						smd.put("in", 1.0);
-					} else {
-						smd.put("in", 0.0);
-					}
 
+						subShapeList.add(smd);
+
+					} 
 				}
-				
-				boolean anyPointInRange = false;
-				for (LinkedHashMap<String, Double> subShape : subShapeList) {
-					if (subShape.get("in") > 0) {
-						anyPointInRange = true;
-					}
-				}
-				if (anyPointInRange) {
+
+				if (subShapeList.size() > 0) {
+					
 					shapeList.addAll(subShapeList);
 					anyShapeHit = true;
 				}
 			}
 
 		}
-		
+
 		markerDTO.setShapeType("polyline_group");
 		markerDTO.setShapeList(om.writeValueAsString(shapeList));
-		
-		if(anyShapeHit) {
+
+		if (anyShapeHit) {
 			shapeMarker = ShapeMarker.class.newInstance();
 			shapeMarker.setLevel(level);
 		}
-		
+
 		return shapeMarker;
 	}
-				
-				
 
 
 	private MarkerGeoCoding doGoogle(final Map<String, Integer> keyMap, TelegramChannel tc) {
-		
+
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
@@ -568,17 +558,11 @@ public class TelegramParserScheduler {
 			}
 		}
 
-		final Map<String, Integer> sortedMap = keyMap.entrySet()
-				.stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-				.limit(4)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch")
-				.queryString("q", String.join(" ", sortedMap.keySet())).asJson();
-
+		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch").queryString("q", String.join(" ", sortedMap.keySet())).asJson();
 
 		JSONArray bodyArray = response.getBody().getArray();
 
@@ -597,9 +581,9 @@ public class TelegramParserScheduler {
 
 					return latlng;
 				}
-			}else {
+			} else {
 				MarkerGeoCoding latlng = MarkerGeoCoding.latlng(dstCoord.y, dstCoord.x, "geodatahk");
-				
+
 				return latlng;
 			}
 
@@ -609,24 +593,17 @@ public class TelegramParserScheduler {
 
 	private MarkerGeoCoding doArcgis(final Map<String, Integer> keyMap, TelegramChannel tc) {
 
-		final Map<String, Integer> sortedMap = keyMap.entrySet()
-				.stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-				.limit(4)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
-		
+
 		// get geo location
-		HttpResponse<JsonNode> response = Unirest.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates")
-				.queryString("f","json")
-				.queryString("outFields","matchAddr")
-				.queryString("singleLine", String.join(" ", sortedMap.keySet())).asJson();
+		HttpResponse<JsonNode> response = Unirest.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates").queryString("f", "json").queryString("outFields", "matchAddr").queryString("singleLine", String.join(" ", sortedMap.keySet())).asJson();
 
 		JSONObject bodyObject = response.getBody().getObject();
 
 		JSONArray bodyArray = bodyObject.getJSONArray("candidates");
-		
+
 		for (Object obj : bodyArray) {
 			JSONObject jsonObjectLatLng = (JSONObject) obj;
 
@@ -637,12 +614,12 @@ public class TelegramParserScheduler {
 			if (tc.getFromLat() > 0 && tc.getFromLng() > 0 && tc.getToLat() > 0 && tc.getToLng() > 0) {
 				if (tc.getFromLat() < lat && lat < tc.getToLat() && tc.getFromLng() < lng && lng < tc.getToLng()) {
 
-					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat,lng, "arcgis");
+					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat, lng, "arcgis");
 
 					return latlng;
 				}
 			} else {
-				MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat,lng, "arcgis");
+				MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat, lng, "arcgis");
 
 				return latlng;
 			}
@@ -669,7 +646,7 @@ public class TelegramParserScheduler {
 			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 
-			MarkerGeoCoding latlng = MarkerGeoCoding.latlng(jsonObjLatLng.getDouble("Latitude") + randLat, jsonObjLatLng.getDouble("Longitude") + randLng , "ogcio");
+			MarkerGeoCoding latlng = MarkerGeoCoding.latlng(jsonObjLatLng.getDouble("Latitude") + randLat, jsonObjLatLng.getDouble("Longitude") + randLng, "ogcio");
 
 			return latlng;
 		} else {
