@@ -331,7 +331,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						}
 					}
 				});
-
 			}
 			
 			$.ajax({
@@ -362,15 +361,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					    			    to: 0.08
 					    			  }
 					    		});
-
 							}
-
 						});
-						
-						
 					}
 				}
 			});
+			
+			setInterval(function(){updateWordCloud()}, 30000);
+
 			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
@@ -680,8 +678,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map.on('zoomend', function(e) {
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
-				
-				updateWordCloud();
 				processMarker(markerDataList);
 			});
 			
@@ -906,9 +902,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			function processMarkerData(data){
 				data = JSON.parse(data.body);
 				
-				if(data.list) {
-					updateWordCloud();
-					
+				if(data.list) {					
 					var markerIndex = 0;
 				
 					data.list.forEach(function(result){

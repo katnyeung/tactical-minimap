@@ -237,16 +237,14 @@ public class TelegramParserScheduler {
 							} else {
 
 								boolean haveStreet = false;
-								int totalScore = 0;
 								for (String key : keyMap.keySet()) {
 									if (key.matches(".*(道|路|街|橋|站)$")) {
 										haveStreet = true;
 										keyMap.put(key, keyMap.get(key) - 50);
 									}
-									totalScore += keyMap.get(key);
 								}
 
-								if (haveStreet || totalScore < 100) {
+								if (haveStreet) {
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
 									
@@ -267,8 +265,6 @@ public class TelegramParserScheduler {
 
 									latlng = doArcgis(keyMap, tc);
 								} else {
-
-									keyMap.put("香港", 200);
 
 									latlng = doGeoDataHK(keyMap, tc);
 
