@@ -167,8 +167,6 @@ public class TelegramMessageService {
 				message = message.replaceAll(processingPattern, "");
 			}
 		}
-		logger.info(" after replace message : {} ", message);
-
 		return message;
 	}
 

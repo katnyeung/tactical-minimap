@@ -35,10 +35,11 @@ public class MarkerGeoCoding {
 		this.label = label;
 	}
 
-	public static MarkerGeoCoding latlng(double lat, double lng) {
+	public static MarkerGeoCoding latlng(double lat, double lng, String label) {
 		MarkerGeoCoding latlng = new MarkerGeoCoding();
 		latlng.setLat(lat);
 		latlng.setLng(lng);
+		latlng.setLabel(label);
 		return latlng;
 	}
 }

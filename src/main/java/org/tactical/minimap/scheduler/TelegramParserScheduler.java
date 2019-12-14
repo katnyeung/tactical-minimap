@@ -209,12 +209,6 @@ public class TelegramParserScheduler {
 
 					} else {
 
-						// save parse result
-						Gson gson = new Gson();
-						telegramMessage.setResult(gson.toJson(keyMap));
-
-						telegramMessageService.saveTelegramMessage(telegramMessage);
-
 						// get telegram channel setting
 						TelegramChannel tc = telegramMessageService.getChannelByGroupName(telegramMessage.getGroupKey());
 
@@ -227,7 +221,7 @@ public class TelegramParserScheduler {
 							for (String key : keyMap.keySet()) {
 								StreetData sd = streetDataService.findStreetData(key);
 								if (sd != null) {
-									latlng = MarkerGeoCoding.latlng(sd.getLat(), sd.getLng());
+									latlng = MarkerGeoCoding.latlng(sd.getLat(), sd.getLng(), "local");
 								}
 							}
 						}
@@ -253,7 +247,6 @@ public class TelegramParserScheduler {
 								}
 
 								if (haveStreet || totalScore < 100) {
-									keyMap.entrySet().removeIf(e -> e.getValue() < 25);
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
 									
@@ -283,13 +276,20 @@ public class TelegramParserScheduler {
 							}
 						}
 
+
+						
 						if (latlng == null) {
 
 							logger.info("MarkerGeoCoding not return ok. mark to fail " + telegramMessage.getTelegramMessageId());
 							notOkIdList.add(telegramMessage.getTelegramMessageId());
 
 						} else {
-
+							// save parse result
+							Gson gson = new Gson();
+							telegramMessage.setResult("{\"label\":\"" + latlng.getLabel() + "\",\"data\":" + gson.toJson(keyMap) + "}");
+							
+							telegramMessageService.saveTelegramMessage(telegramMessage);
+							
 							try {
 								
 								convertGeoLocateToMarker(latlng, tc, telegramMessage, keyMap);
@@ -551,16 +551,11 @@ public class TelegramParserScheduler {
 
 		JSONObject body = response.getBody().getObject();
 
-		logger.info("google return {} ", response.getBody().toPrettyString());
-
 		if (body.get("status").equals("OK")) {
 			JSONObject jsonObjLatLng = body.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
 
 			// add marker
-			MarkerGeoCoding latlng = new MarkerGeoCoding();
-
-			latlng.setLat(jsonObjLatLng.getDouble("lat"));
-			latlng.setLng(jsonObjLatLng.getDouble("lng"));
+			MarkerGeoCoding latlng = MarkerGeoCoding.latlng(jsonObjLatLng.getDouble("lat"), jsonObjLatLng.getDouble("lng"), "google");
 
 			return latlng;
 		} else {
@@ -588,7 +583,6 @@ public class TelegramParserScheduler {
 		HttpResponse<JsonNode> response = Unirest.get("https://geodata.gov.hk/gs/api/v1.0.0/locationSearch")
 				.queryString("q", String.join(" ", sortedMap.keySet())).asJson();
 
-		//logger.info("geodata return {} ", response.getBody().toPrettyString());
 
 		JSONArray bodyArray = response.getBody().getArray();
 
@@ -600,23 +594,15 @@ public class TelegramParserScheduler {
 			double y = jsonObjectXY.getDouble("y");
 			ProjCoordinate dstCoord = markerService.toWGS84(x, y);
 
-			//logger.info("dest x y {} {} ", dstCoord.x, dstCoord.y);
-
 			if (tc.getFromLat() > 0 && tc.getFromLng() > 0 && tc.getToLat() > 0 && tc.getToLng() > 0) {
 				if (tc.getFromLat() < dstCoord.y && dstCoord.y < tc.getToLat() && tc.getFromLng() < dstCoord.x && dstCoord.x < tc.getToLng()) {
 
-					MarkerGeoCoding latlng = new MarkerGeoCoding();
-
-					latlng.setLat(dstCoord.y);
-					latlng.setLng(dstCoord.x);
+					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(dstCoord.y, dstCoord.x, "geodatahk");
 
 					return latlng;
 				}
 			}else {
-				MarkerGeoCoding latlng = new MarkerGeoCoding();
-
-				latlng.setLat(dstCoord.y);
-				latlng.setLng(dstCoord.x);
+				MarkerGeoCoding latlng = MarkerGeoCoding.latlng(dstCoord.y, dstCoord.x, "geodatahk");
 				
 				return latlng;
 			}
@@ -641,8 +627,6 @@ public class TelegramParserScheduler {
 				.queryString("outFields","matchAddr")
 				.queryString("singleLine", String.join(" ", sortedMap.keySet())).asJson();
 
-		logger.info("arcgis return {} ", response.getBody().toPrettyString());
-
 		JSONObject bodyObject = response.getBody().getObject();
 
 		JSONArray bodyArray = bodyObject.getJSONArray("candidates");
@@ -654,23 +638,15 @@ public class TelegramParserScheduler {
 			double lat = jsonObjectLatLng.getJSONObject("location").getDouble("y");
 			double lng = jsonObjectLatLng.getJSONObject("location").getDouble("x");
 
-			logger.info("dest x y {} {} ", lng, lat);
-
 			if (tc.getFromLat() > 0 && tc.getFromLng() > 0 && tc.getToLat() > 0 && tc.getToLng() > 0) {
 				if (tc.getFromLat() < lat && lat < tc.getToLat() && tc.getFromLng() < lng && lng < tc.getToLng()) {
 
-					MarkerGeoCoding latlng = new MarkerGeoCoding();
-
-					latlng.setLat(lat);
-					latlng.setLng(lng);
+					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat,lng, "arcgis");
 
 					return latlng;
 				}
 			} else {
-				MarkerGeoCoding latlng = new MarkerGeoCoding();
-
-				latlng.setLat(lat);
-				latlng.setLng(lng);
+				MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat,lng, "arcgis");
 
 				return latlng;
 			}
@@ -689,19 +665,15 @@ public class TelegramParserScheduler {
 
 		JSONObject body = response.getBody().getObject();
 
-		logger.info("ogcio return {} ", response.getBody().toPrettyString());
-
 		if (body.getJSONArray("SuggestedAddress") != null) {
 			JSONObject jsonObjLatLng = body.getJSONArray("SuggestedAddress").getJSONObject(0).getJSONObject("Address").getJSONObject("PremisesAddress").getJSONArray("GeospatialInformation").getJSONObject(0);
 
 			// add marker
-			MarkerGeoCoding latlng = new MarkerGeoCoding();
 
 			double randLat = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 			double randLng = (ThreadLocalRandom.current().nextInt(0, 8 + 1) - 4) / 10000.0;
 
-			latlng.setLat(jsonObjLatLng.getDouble("Latitude") + randLat);
-			latlng.setLng(jsonObjLatLng.getDouble("Longitude") + randLng);
+			MarkerGeoCoding latlng = MarkerGeoCoding.latlng(jsonObjLatLng.getDouble("Latitude") + randLat, jsonObjLatLng.getDouble("Longitude") + randLng , "ogcio");
 
 			return latlng;
 		} else {

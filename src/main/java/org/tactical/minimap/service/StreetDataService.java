@@ -83,34 +83,6 @@ public class StreetDataService {
 		return region;
 	}
 
-	public MarkerGeoCoding getLatlngByRegion(String region) throws FileNotFoundException {
-		MarkerGeoCoding latlng = null;
-
-		File file = new File(mapFolder + "/pattern_data/v2/region_stat");
-		try {
-			Scanner scanner = new Scanner(file);
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				Matcher matcher = pattern.matcher(line);
-				if (matcher.find()) {
-					String index = matcher.group(1);
-					double lat = Double.parseDouble(matcher.group(2));
-					double lng = Double.parseDouble(matcher.group(3));
-
-					if (index.equals(region)) {
-						latlng = MarkerGeoCoding.latlng(lat, lng);
-					}
-
-				}
-
-			}
-			scanner.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return latlng;
-	}
 
 	public List<MarkerGeoCoding> getStatRegionList() {
 		List<MarkerGeoCoding> latlngList = new LinkedList<MarkerGeoCoding>();
@@ -129,8 +101,7 @@ public class StreetDataService {
 					double lat = Double.parseDouble(matcher.group(2));
 					double lng = Double.parseDouble(matcher.group(3));
 
-					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat, lng);
-					latlng.setLabel(index);
+					MarkerGeoCoding latlng = MarkerGeoCoding.latlng(lat, lng , index);
 
 					latlngList.add(latlng);
 				}
