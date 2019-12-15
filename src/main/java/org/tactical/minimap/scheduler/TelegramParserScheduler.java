@@ -201,7 +201,7 @@ public class TelegramParserScheduler {
 
 					message = telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
-					message = telegramMessageService.processData(message, "additional", keyMap, 25);
+					message = telegramMessageService.processData(message, "additional", keyMap, 15);
 
 					if (keyMap.keySet().size() == 0) {
 						logger.info("cannot hit any street pattern. mark to fail " + telegramMessage.getTelegramMessageId());
