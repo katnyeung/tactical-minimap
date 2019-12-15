@@ -40,7 +40,7 @@ public class DangerMarker extends Marker {
 	
 	@Override
 	public long getMarkerExpire() {
-		return 45;
+		return 100;
 	}
 
 	@Override
