@@ -103,7 +103,7 @@ public class TelegramParserScheduler {
 	Pattern groupPattern = Pattern.compile("((?<!小心|不)安全|safe|Safe|clear|冇狗|(?<!仍未)清理)");
 	Pattern dangerPattern = Pattern.compile("(制服|拉左|被捕)");
 	Pattern warningPattern = Pattern.compile("(交通意外|意外|壞車)");
-	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路|受阻|封閉)");
+	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路|受阻|封閉|慢車)");
 
 	@Async
 	@Scheduled(fixedRate = 10000)
@@ -231,7 +231,7 @@ public class TelegramParserScheduler {
 							int streetCount = 0;
 							
 							for (String key : keyMap.keySet()) {
-								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|站)$")) {
+								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|站|隧道)$")) {
 									streetCount++;
 									keyMap.put(key, keyMap.get(key) - 50);
 								}
