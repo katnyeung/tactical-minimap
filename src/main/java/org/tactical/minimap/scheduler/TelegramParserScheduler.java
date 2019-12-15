@@ -249,7 +249,7 @@ public class TelegramParserScheduler {
 
 							} else {
 								
-								if (streetCount > 0) {
+								if (streetCount > 0 && !keyMap.containsKey("朗豪坊")) {
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
 
