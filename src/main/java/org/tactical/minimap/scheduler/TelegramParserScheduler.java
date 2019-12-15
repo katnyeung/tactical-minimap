@@ -231,7 +231,7 @@ public class TelegramParserScheduler {
 							int streetCount = 0;
 							
 							for (String key : keyMap.keySet()) {
-								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|站|隧道)$")) {
+								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|隧道)$")) {
 									streetCount++;
 									keyMap.put(key, keyMap.get(key) - 50);
 								}
