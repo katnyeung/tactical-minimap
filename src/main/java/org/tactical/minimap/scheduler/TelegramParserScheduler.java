@@ -502,12 +502,10 @@ public class TelegramParserScheduler {
 						smd.put("group", Double.parseDouble(sdd.getGroupId()));
 
 						subShapeList.add(smd);
-
 					} 
 				}
 
 				if (subShapeList.size() > 0) {
-					
 					shapeList.addAll(subShapeList);
 					anyShapeHit = true;
 				}
@@ -525,7 +523,6 @@ public class TelegramParserScheduler {
 
 		return shapeMarker;
 	}
-
 
 	private MarkerGeoCoding doGoogle(final Map<String, Integer> keyMap, TelegramChannel tc) {
 

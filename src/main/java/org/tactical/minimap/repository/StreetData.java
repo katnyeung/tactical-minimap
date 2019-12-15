@@ -1,5 +1,6 @@
 package org.tactical.minimap.repository;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -8,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import org.tactical.minimap.util.Auditable;
 
@@ -40,7 +42,8 @@ public class StreetData extends Auditable<String> {
 	String faciType;
 
 	@OneToMany(mappedBy = "streetData", cascade = CascadeType.ALL)
-	List<StreetDataDetail> streetDataDetailList;
+    @OrderBy("groupId ASC")
+	List<StreetDataDetail> streetDataDetailList = new LinkedList<StreetDataDetail>();
 
 	public Long getStreetDataId() {
 		return streetDataId;
