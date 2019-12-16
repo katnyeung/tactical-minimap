@@ -1215,7 +1215,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 								for(var mapKey in shapeMap){
 									shapeList = shapeMap[mapKey];							
-									shape = L.polyline([],{color: item.color, weight: 4});
+									shape = L.polyline([],{color: item.color, weight: 5});
 
 									shapeList.forEach(function(shapePoint){
 										shape.addLatLng(shapePoint);
