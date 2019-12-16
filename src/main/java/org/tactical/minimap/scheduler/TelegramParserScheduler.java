@@ -549,11 +549,7 @@ public class TelegramParserScheduler {
 	private MarkerGeoCoding doGeoDataHK(final Map<String, Integer> keyMap, TelegramChannel tc) {
 
 		// filter out the key weight < 15
-		for (String key : keyMap.keySet()) {
-			if (keyMap.get(key) < 15) {
-				keyMap.remove(key);
-			}
-		}
+		keyMap.entrySet().removeIf(e -> e.getValue() < 15);
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 

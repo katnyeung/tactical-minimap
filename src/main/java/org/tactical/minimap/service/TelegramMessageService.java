@@ -1,5 +1,7 @@
 package org.tactical.minimap.service;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -129,6 +131,13 @@ public class TelegramMessageService {
 	}
 
 	public String processData(String message, String category, Map<String, Integer> keyMap, final int categoryWeight) throws IOException {
+		Pattern postDirectionPattern = Pattern.compile("(方向)");
+		Matcher postDirectionMatcher = postDirectionPattern.matcher(message);
+		int directionStartAt = 0; 
+		if(postDirectionMatcher.find()) {
+			directionStartAt = postDirectionMatcher.start();
+		}
+		
 		List<String> patternList = patternMap.get(category);
 		for (String pattern : patternList) {
 			int weight = categoryWeight;
@@ -147,6 +156,14 @@ public class TelegramMessageService {
 			if (addressMatcher.find()) {
 				double weightMultipler = (((message.length() * 1.0) - addressMatcher.start()) / message.length()) * 30;
 				weight += weightMultipler;
+
+				if (directionStartAt > 0) {
+					logger.debug("direction match {} -> {} at {} ", directionStartAt, addressMatcher.group(0), addressMatcher.end());
+					if (directionStartAt == addressMatcher.end()) {
+						// direction put to tail
+						weight -= 50;
+					}
+				}
 
 				if (keyMap.keySet().size() == 0) {
 					addPattern(processingPattern, weight, keyMap, addressMatcher.group(0), replaceToPattern);
