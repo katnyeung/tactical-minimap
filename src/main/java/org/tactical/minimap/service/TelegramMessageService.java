@@ -133,9 +133,16 @@ public class TelegramMessageService {
 	public String processData(String message, String category, Map<String, Integer> keyMap, final int categoryWeight) throws IOException {
 		Pattern postDirectionPattern = Pattern.compile("(方向)");
 		Matcher postDirectionMatcher = postDirectionPattern.matcher(message);
-		int directionStartAt = 0; 
+		int postDirectionStartAt = 0; 
 		if(postDirectionMatcher.find()) {
-			directionStartAt = postDirectionMatcher.start();
+			postDirectionStartAt = postDirectionMatcher.start();
+		}
+		
+		Pattern preDirectionPattern = Pattern.compile("(去|龍尾：)");
+		Matcher preDirectionMatcher = preDirectionPattern.matcher(message);
+		int preDirectionEndAt = 0; 
+		if(preDirectionMatcher.find()) {
+			preDirectionEndAt = preDirectionMatcher.end();
 		}
 		
 		List<String> patternList = patternMap.get(category);
@@ -157,9 +164,17 @@ public class TelegramMessageService {
 				double weightMultipler = (((message.length() * 1.0) - addressMatcher.start()) / message.length()) * 30;
 				weight += weightMultipler;
 
-				if (directionStartAt > 0) {
-					logger.debug("direction match {} -> {} at {} ", directionStartAt, addressMatcher.group(0), addressMatcher.end());
-					if (directionStartAt == addressMatcher.end()) {
+				if (postDirectionStartAt > 0) {
+					logger.debug("post direction match {} -> {} at {} ", postDirectionStartAt, addressMatcher.group(0), addressMatcher.end());
+					if (postDirectionStartAt == addressMatcher.end()) {
+						// direction put to tail
+						weight -= 50;
+					}
+				}
+				
+				if (preDirectionEndAt > 0) {
+					logger.debug("pre direction match {} -> {} at {} ", preDirectionEndAt, addressMatcher.group(0), addressMatcher.start());
+					if (preDirectionEndAt == addressMatcher.start()) {
 						// direction put to tail
 						weight -= 50;
 					}
