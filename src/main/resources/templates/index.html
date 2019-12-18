@@ -243,24 +243,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				});
 			});
 			
-			var CartoDB_PositronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>',
-				subdomains: 'abcd',
-				maxZoom: 19
-			});
-			
-			var Stamen_TonerLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
-				attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-				subdomains: 'abcd',
-				minZoom: 0,
-				maxZoom: 20,
-				ext: 'png'
-			});
-			
-			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(CartoDB_PositronNoLabels);
+			var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
 
- 			map.addLayer(Stamen_TonerLabels);
- 			
+			    opacity: 0.6,
+				attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>'
+			});
+			
+			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(Esri_WorldTopoMap);
+
 			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
 			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
 			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
@@ -1121,7 +1111,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
 
-					if(map.getZoom() >= 20){
+					if(map.getZoom() >= 17){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerCount < item.markerIndex + 5){
