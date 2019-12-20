@@ -244,13 +244,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 			var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-
 			    opacity: 0.6,
+			    maxNativeZoom: 18,
+			    maxZoom: 20,
 				attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>'
 			});
 			
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(Esri_WorldTopoMap);
 
+			
 			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
 			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
 			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
@@ -305,59 +307,70 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			L.marker([22.277500970654415,114.08168792724611],{icon:wordCloudTotal}).addTo(map)
 			
+			var lastUpdateCloudTimestamp = Date.now() / 1000;
+			var wordCloudData;
+			
 			function updateWordCloud(){
-				$.ajax({
-					type : "GET",
-					url : '/stat/tgLive/',
-					
-					success : function(data){
-						if(data.status == 'success'){
-							$('.statRegion').each(function(){
-								if(data.mapStat[$(this).data("region")].length > 0 || $(this).data("region") === "total"){
-								    $(this).jQCloud('update', data.mapStat[$(this).data("region")]);
-								}else{
-									$(this).html('');
-								}
-							});
+
+				if(wordCloudData === undefined || lastUpdateCloudTimestamp + 30000 < (Date.now() / 1000)){
+					$.ajax({
+						type : "GET",
+						url : '/stat/tgLive/',
+						
+						success : function(data){
+							if(data.status == 'success'){
+								wordCloudData = data;
+								
+								$('.statRegion').each(function(){
+									if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){
+									    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);
+									}else{
+										$(this).html('');
+									}
+								});
+							}
 						}
-					}
-				});
+					});
+				}
+				
+				if(wordCloudData){
+					$('.statRegion').each(function(){
+						if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){
+						    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);
+						}else{
+							$(this).html('');
+						}
+					});
+				}
 			}
 			
-			$.ajax({
-				type : "GET",
-				url : '/stat/tgLive/',
-				
-				success : function(data){
-					if(data.status == 'success'){
-						$('.statRegion').each(function(){
-							if($(this).data("region") === 'total'){
-						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-								  colors: ["#19858C", "#194B8C", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
-					    		  width: 300,
-					    		  height: 250,
-					    		  fontSize: {
-					    			    from: 0.16,
-					    			    to: 0.05
-					    			  }
-					    		});
-
-							}else{
-						    	$(this).jQCloud(data.mapStat[$(this).data("region")], {
-								  colors: ["#19858C", "#194B8C", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
-					    		  width: 250,
-					    		  height: 200,
-					    		  fontSize: {
-					    			    from: 0.12,
-					    			    to: 0.08
-					    			  }
-					    		});
-							}
-						});
-					}
+			$('.statRegion').each(function(){
+				if($(this).data("region") === 'total'){
+			    	$(this).jQCloud(null, {
+					  colors: ["#850014", "#1b2b57", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
+		    		  width: 300,
+		    		  height: 250,
+		    		  autoResize:true,
+		    		  fontSize: {
+		    			    from: 0.16,
+		    			    to: 0.05
+		    			  }
+		    		});
+				}else{
+			    	$(this).jQCloud(null, {
+					  colors: ["#850014", "#1b2b57", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],
+		    		  width: 250,
+		    		  height: 200,
+		    		  autoResize:true,
+		    		  fontSize: {
+		    			    from: 0.12,
+		    			    to: 0.08
+		    			  }
+		    		});
 				}
 			});
 			
+			updateWordCloud();
 			setInterval(function(){updateWordCloud()}, 30000);
 
 			
@@ -669,8 +682,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map.on('zoomend', function(e) {
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
+				updateWordCloud();
 				processMarker(markerDataList);
 			});
+
 			
 			clickRegister($("#btnInfoMarker"), 'info');
 			clickRegister($("#btnRedInfoMarker"), 'redinfo');
@@ -1072,13 +1087,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							} else if(diffMinute < 15){
 								iconBorderColor = '#f9061e';
 							} else if(diffMinute < 30){
-								iconBorderColor = '#f96806';
+								iconBorderColor = '#ff6e75';
 							} else if(diffMinute < 60){
-								iconBorderColor = '#ffee00';
+								iconBorderColor = '#ff8f8f';
 							} else if(diffMinute < 90){
-								iconBorderColor = '#90ff00';
+								iconBorderColor = '#ffcecc';
 							} else if(diffMinute < 120){
-								iconBorderColor = '#fffef1';
+								iconBorderColor = '#ffeceb';
 							}
 						}
 					}
@@ -1111,7 +1126,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
 
-					if(map.getZoom() >= 17){
+					if(map.getZoom() >= 18){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
 					}else{
 						if(markerCount < item.markerIndex + 5){
