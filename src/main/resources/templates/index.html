@@ -47,6 +47,10 @@
 <script src="/js/jqcloud.min.js"></script>
 <link rel="stylesheet" href="/css/jqcloud.min.css">
 
+
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
 <style>
 .iconMarkup {
 	margin-left: -50px!improtant;
@@ -373,7 +377,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			updateWordCloud();
 			setInterval(function(){updateWordCloud()}, 30000);
 
-			
 			map.addControl( new L.Control.Search({
 				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
 				jsonpParam: 'json_callback',
@@ -646,6 +649,105 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 		    map.addControl(new fullScreenControl());
+		    
+			var heatStatControl =  L.Control.extend({
+				options: {
+					position: 'topright'
+				},
+				
+				onAdd: function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'heatStatControl';
+					container.innerHTML = '<div id="heatStat"></div>';
+					container.style = 'border:0px; padding:0px; margin:0px;';
+
+					return container;
+				}
+			});
+			
+		    map.addControl(new heatStatControl());
+		    
+		    setInterval(updateWordStat(), 1000 * 60 * 30);
+
+		    function updateWordStat(){
+		    	// ajax get data
+		    	$.ajax({
+		    		type : "GET",
+		    		url : '/stat/streetLive/',
+		    		success : function(data){
+		    			if(data.status == 'success'){
+		    				var resultMap = {};
+		    				var resultList = [];
+		    				
+		    				resultMap['popo'] = {
+		    					type: 'bar',
+		    					hoverinfo:'none',
+		    					orientation:'h',
+		    					x : [],
+		    					y : [],
+		    					text : []
+		    				}
+		    				
+		    				resultMap['hit'] = {
+		    					type: 'bar',
+		    					hoverinfo:'none',
+		    					orientation:'h',
+		    					x : [],
+		    					y : [],
+		    					text : []
+		    				}
+			    				
+		    				for (var key in data.data) {
+		    					console.log(key + "," + data.data[key].hit);
+		    					resultMap['hit'].y.push(key);
+		    					resultMap['hit'].x.push(data.data[key].hit);
+		    					
+		    					if(data.data[key].popo){
+			    					resultMap['popo'].y.push(key);
+			    					resultMap['popo'].x.push(data.data[key].popo);
+		    					}
+		    					
+		    				}
+		    				
+
+		    				
+		    				for(var key in resultMap){
+		    					resultList.push(resultMap[key]);
+		    				}
+		    				
+		    				var layout = {
+		    					width: 200,
+		    					height: 300,
+		    					margin: {
+		    					    l: 0,
+		    					    r: 60,
+		    					    b: 0,
+		    					    t: 0,
+		    					    pad: 0
+		    					  },
+		    					showlegend : false,
+		    					paper_bgcolor:'rgba(0,0,0,0)',
+		    				    plot_bgcolor:'rgba(0,0,0,0)',
+		    				    barmode: 'group',
+		    				    xanchor : 'right',
+	    				    	  xaxis: {
+	    				    	    side: 'top',
+	    				    	    autorange: "reversed"
+	    				    	  },
+	    				    	  yaxis: {
+	    				    	    side: 'right',
+	    				    	  }
+		    				};
+		    				
+		    				Plotly.newPlot('heatStat', resultList, layout,{displayModeBar: false});
+		    			}
+		    		}
+		    	});
+
+		    }
+
+		    
+		    
 		    
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
@@ -1025,7 +1127,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var marker = $.grep(markerObjectList, function(e){ return e.markerId == item.markerId; });
 					
 					var upDownButton = '';
-					var counter = '';
 					var message = '';
 					var deleteBtn = '';
 					var content = '';
@@ -1060,9 +1161,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					
 					if (item.markerCache != null) {
 						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + (item.markerCache.u ? item.markerCache.u : '' )  + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + (item.markerCache.d ? item.markerCache.d : '')  + '</a>' + deleteBtn + '</mark></div>';
-						
-						counter = '<div style="width:150px;padding-left:8px;margin-top:-4px"><mark class="rounded" style="font-size:14px;background-color:' + colorMap[layerMap[item.layer.layerKey]] + '"><i class="far fa-clock pr-1" style="width: 11%"></i>' + ("" + item.createdate).formatDate() + '</mark></div>';
-						
+
 						if(item.markerCache.pulse > 0){
 							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';
 							pulseClass = 'pulse';
@@ -1127,10 +1226,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
 
 					if(map.getZoom() >= 18){
-						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark><br/>' + counter + upDownButton + copyButton;
+						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark>' + upDownButton + copyButton;
 					}else{
-						if(markerCount < item.markerIndex + 5){
-							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff).substr(0, 30) +  '</mark><br/>';
+						if(markerCount < item.markerIndex + 8){
+							var messageText = item.message.substr(0, messageCutOff);
+							
+							if(messageText.length > 25){
+								messageText = messageText.substr(0,15) + '...' + messageText.substr(-10);
+							}
+							
+							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + messageText + '</mark><br/>';
+							
 						}else{
 							updateMessage = '';			
 						}

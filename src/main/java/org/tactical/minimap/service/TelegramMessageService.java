@@ -1,7 +1,5 @@
 package org.tactical.minimap.service;
 
-import static org.hamcrest.CoreMatchers.startsWith;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -264,8 +262,8 @@ public class TelegramMessageService {
 						Long.parseLong(policeMatcher.group(1));
 					}
 
-					String subKey = policeMatcher.group(2);
-					String termWord = subKey + ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
+					//String subKey = policeMatcher.group(2);
+					String termWord = ":popo" + ((region != null && !region.equals("")) ? ":" + region : "");
 
 					policeCountMap.put(termWord, count);
 				} else {
@@ -298,8 +296,15 @@ public class TelegramMessageService {
 			List<Term> listTerm = segment.seg(chatMessage);
 			
 			logger.info("processing terms {} {} ", listTerm , region);
+			//find street
+			String termStreet = null;
 			for (Term term : listTerm) {
-				//
+				if (term.nature.toString().equals("nz")) {
+					termStreet = term.word;
+				}
+			}
+			
+			for (Term term : listTerm) {
 
 				if (term.nature.toString().matches(".*(?:n).*")) {
 					if (!excludeWord(term.word)) {
@@ -307,10 +312,12 @@ public class TelegramMessageService {
 
 						if (policeCountMap.size() > 0) {
 							for (Entry<String, Long> entry : policeCountMap.entrySet()) {
-								redisService.incrKeyByGroup(group, entry.getKey(), entry.getValue());
+								if (termStreet != null) {
+									redisService.incrKeyByGroup(group, termStreet + entry.getKey(), entry.getValue());
+								} else {
+									redisService.incrKeyByGroup(group, "*" + entry.getKey(), entry.getValue());
+								}
 							}
-						} else {
-							redisService.incrKeyByGroup(group, termWord);
 						}
 
 						if (term.nature.toString().equals("nz")) {
@@ -550,6 +557,106 @@ public class TelegramMessageService {
 		return listStat;
 	}
 
+
+	public Map<String, HashMap<String, Integer>>  getStreetLiveStat() {
+		Pattern patternStreet = Pattern.compile("(.*):street:?(.*)");
+		Pattern patternRegionOnly = Pattern.compile("(.*):(.*)");
+		Pattern patternPopo = Pattern.compile("(.*):popo:?(.*)");
+
+		Map<String, HashMap<String, Integer>> streetStat = new HashMap<String, HashMap<String, Integer>>();
+
+		String activeKey = redisService.getActiveGroupKey();
+
+		if (activeKey != null) {
+			Set<Object> keySet = redisService.getHashGroup(activeKey);
+
+			for (Object keyObj : keySet) {
+				Matcher matcherStreet = patternStreet.matcher((String) keyObj);
+				Matcher matcherRegionOnly = patternRegionOnly.matcher((String) keyObj);
+
+				 new HashMap<String, Integer>();
+
+				if (matcherStreet.find()) {
+					// key is street
+					HashMap<String, Integer> streetDetailMap = new HashMap<String, Integer>();
+
+					for (Object subKeyObj : keySet) {
+						String subKey = (String) subKeyObj;
+						Matcher popoMatcher = patternPopo.matcher(subKey);
+
+						increaseKeyValue(streetDetailMap, "popo");
+						if (popoMatcher.find()) {
+							
+							increaseKeyValue(streetDetailMap, "popo");
+							
+							String region = popoMatcher.group(2);
+							if (region != null) {
+								// get regionMap
+								HashMap<String, Integer> regionDetailMap = streetStat.get(region);
+								
+								if(regionDetailMap == null) {
+									regionDetailMap = new HashMap<String, Integer>();
+								}
+
+								increaseKeyValue(regionDetailMap, "popo");
+								
+								streetStat.put(region, regionDetailMap);
+							}
+						}
+					}
+
+					increaseKeyValue(streetDetailMap, "hit");
+
+					streetStat.put(matcherStreet.group(1), streetDetailMap);
+
+					String region = matcherStreet.group(2);
+					if (region != null && !region.equals("")) {
+						// get regionMap
+						HashMap<String, Integer> regionDetailMap = streetStat.get(region);
+						
+						if(regionDetailMap == null) {
+							regionDetailMap = new HashMap<String, Integer>();
+						}
+						
+						increaseKeyValue(regionDetailMap, "hit");
+						
+						streetStat.put(region, regionDetailMap);
+					}
+
+				} else if (matcherRegionOnly.find()) {
+
+					String region = matcherRegionOnly.group(2);
+					if (region != null && !region.equals("")) {
+						// get regionMap
+						HashMap<String, Integer> regionDetailMap = streetStat.get(region);
+						
+						if(regionDetailMap == null) {
+							regionDetailMap = new HashMap<String, Integer>();
+						}
+						
+						increaseKeyValue(regionDetailMap, "hit");
+						
+						streetStat.put(region, regionDetailMap);
+					}
+				}
+
+			}
+
+			return streetStat;
+		}
+
+		return null;
+	}
+	
+	private void increaseKeyValue(HashMap<String, Integer> map , String key) {
+		if (map.get(key) != null) {
+			map.put(key, map.get(key) + 1);
+		} else {
+			map.put(key, 1);
+		}
+		
+	}
+	
 	private String lpad(int value) {
 		return String.format("%02d", value);
 	}
