@@ -584,7 +584,6 @@ public class TelegramMessageService {
 						String subKey = (String) subKeyObj;
 						Matcher popoMatcher = patternPopo.matcher(subKey);
 
-						increaseKeyValue(streetDetailMap, "popo");
 						if (popoMatcher.find()) {
 							
 							increaseKeyValue(streetDetailMap, "popo");
