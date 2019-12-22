@@ -70,7 +70,9 @@ public class StatController {
 			int total = zeroIfNull(inputEntry.getValue().get("popo"));
 			total += zeroIfNull(inputEntry.getValue().get("hit"));
 			
-			totalMap.put(inputEntry.getKey(), total);
+			if(total > 1) {
+				totalMap.put(inputEntry.getKey(), total);
+			}
 		}
 		
 		totalMap = totalMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(
