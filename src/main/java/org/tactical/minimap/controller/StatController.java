@@ -64,13 +64,16 @@ public class StatController {
 		// create list of hashMap
 		Map<String, Integer> totalMap = new HashMap<String, Integer>();
 		Map<String, HashMap<String, Integer>> sortedMap = new LinkedHashMap<String, HashMap<String, Integer>>();
-                int count = 0; 	
+		
+        int count = 0; 	
+        
 		for(Entry<String, HashMap<String, Integer>> inputEntry : input.entrySet()) {
 						
 			int total = zeroIfNull(inputEntry.getValue().get("popo"));
 			total += zeroIfNull(inputEntry.getValue().get("hit"));
 			
-			if(total > 20 && count++ > (input.keySet().size() - 10)) {
+			logger.info("{} {} " , input.keySet().size() , count);
+			if(count++ > (input.keySet().size() - 10)) {
 				totalMap.put(inputEntry.getKey(), total);
 			}
 		}
