@@ -667,7 +667,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    map.addControl(new heatStatControl());
 		    
-		    setInterval(updateWordStat(), 1000 * 60 * 30);
+		    setInterval(updateWordStat(), 1000 * 60);
 
 		    function updateWordStat(){
 		    	// ajax get data
@@ -683,6 +683,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					type: 'bar',
 		    					hoverinfo:'none',
 		    					orientation:'h',
+								textposition: 'auto',
 		    					x : [],
 		    					y : [],
 		    					text : []
@@ -692,6 +693,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					type: 'bar',
 		    					hoverinfo:'none',
 		    					orientation:'h',
+								textposition: 'auto',
 		    					x : [],
 		    					y : [],
 		    					text : []
@@ -701,10 +703,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					console.log(key + "," + data.data[key].hit);
 		    					resultMap['hit'].y.push(key);
 		    					resultMap['hit'].x.push(data.data[key].hit);
+		    					resultMap['hit'].text.push('' + data.data[key].hit);
 		    					
 		    					if(data.data[key].popo){
 			    					resultMap['popo'].y.push(key);
 			    					resultMap['popo'].x.push(data.data[key].popo);
+			    					resultMap['popo'].y.push('p/' + data.data[key].hit);
 		    					}
 		    					
 		    				}
@@ -726,10 +730,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									pad: 0
 								},
 		    					showlegend : false,
+								textposition: 'auto',
 		    					paper_bgcolor:'rgba(0,0,0,0)',
 		    				    plot_bgcolor:'rgba(0,0,0,0)',
 		    				    barmode: 'group',
-		    				    xanchor : 'right',
 								xaxis: {
 									side: 'top',
 									autorange: "reversed",
