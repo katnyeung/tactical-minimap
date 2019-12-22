@@ -70,7 +70,7 @@ public class StatController {
 			int total = zeroIfNull(inputEntry.getValue().get("popo"));
 			total += zeroIfNull(inputEntry.getValue().get("hit"));
 			
-			if(total > 20 && count++ > (input.entrySet().length() - 10)) {
+			if(total > 20 && count++ > (input.keySet().size() - 10)) {
 				totalMap.put(inputEntry.getKey(), total);
 			}
 		}
