@@ -667,17 +667,20 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    map.addControl(new heatStatControl());
 		    
-		    setInterval(updateWordStat(), 1000 * 60);
+		    updateWordStat()
+		    setInterval(function(){updateWordStat()}, 1000 * 60);
 
 		    function updateWordStat(){
 		    	// ajax get data
+		    	var resultList = [];
+		    	var redraw = false;
 		    	$.ajax({
 		    		type : "GET",
 		    		url : '/stat/streetLive/',
 		    		success : function(data){
 		    			if(data.status == 'success'){
 		    				var resultMap = {};
-		    				var resultList = [];
+		    				resultList = [];
 		    				
 		    				resultMap['hit'] = {
 		    					type: 'bar',
@@ -724,17 +727,18 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									side: 'right',
 								}
 		    				};
-		    				
-		    				Plotly.newPlot('heatStat', resultList, layout,{displayModeBar: false});
+		    				if(!redraw){
+		    					redraw = true;
+			    				Plotly.newPlot('heatStat', resultList, layout, {displayModeBar: false});
+		    				}else{
+		    					Plotly.redraw('heatStat');
+		    				}
 		    			}
 		    		}
 		    	});
 
 		    }
 
-		    
-		    
-		    
 		    $('.layerLoginForm').submit(function(e){
 		    	e.preventDefault();
 				$.ajax({
