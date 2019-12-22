@@ -72,7 +72,6 @@ public class StatController {
 			int total = zeroIfNull(inputEntry.getValue().get("popo"));
 			total += zeroIfNull(inputEntry.getValue().get("hit"));
 			
-			logger.info("{} {} " , input.keySet().size() , count);
 			if(count++ > (input.keySet().size() - 10)) {
 				totalMap.put(inputEntry.getKey(), total);
 			}
