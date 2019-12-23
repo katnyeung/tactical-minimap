@@ -586,21 +586,29 @@ public class TelegramMessageService {
 
 						if (popoMatcher.find()) {
 							
-							increaseKeyValue(streetDetailMap, "popo");
+							String street = popoMatcher.group(1);
 							
-							String region = popoMatcher.group(2);
-							if (region != null) {
-								// get regionMap
-								HashMap<String, Integer> regionDetailMap = streetStat.get(region);
+							if(street.equals(matcherStreet.group(1))) {
 								
-								if(regionDetailMap == null) {
-									regionDetailMap = new HashMap<String, Integer>();
-								}
+								increaseKeyValue(streetDetailMap, "popo");
+								
+								String region = popoMatcher.group(2);
+								if (region != null) {
+									// get regionMap
+									HashMap<String, Integer> regionDetailMap = streetStat.get(region);
+									
+									if(regionDetailMap == null) {
+										regionDetailMap = new HashMap<String, Integer>();
+									}
 
-								increaseKeyValue(regionDetailMap, "popo");
+									increaseKeyValue(regionDetailMap, "popo");
+									
+									streetStat.put(region, regionDetailMap);
+								}
 								
-								streetStat.put(region, regionDetailMap);
 							}
+							
+
 						}
 					}
 
