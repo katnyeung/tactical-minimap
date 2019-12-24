@@ -172,7 +172,8 @@ public abstract class Marker extends Auditable<String> {
 	@JsonIgnore
 	@NotNull
 	private String uuid;
-	
+
+	@JsonIgnore
 	@Column(nullable = true)
 	private Long telegramMessageId;
 

@@ -229,26 +229,22 @@ public class TelegramParserScheduler {
 						// step 2 if default setting not found or keyMap size > 1 , go internet search
 						if (latlng == null) {
 							int streetCount = 0;
-							
+
 							for (String key : keyMap.keySet()) {
 								if (key.matches(".*(道|道西|道東|道南|道北|路|街|橋|隧道)$")) {
 									streetCount++;
 									keyMap.put(key, keyMap.get(key) - 50);
 								}
 							}
-							
-							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) 
-									|| keyMap.containsKey("交界") 
-									|| keyMap.containsKey("太和路")
-									|| streetCount > 1
-								) {
+
+							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路") || streetCount > 1) {
 
 								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
 
 								latlng = doGoogle(keyMap, tc);
 
 							} else {
-								
+
 								if (streetCount > 0 && !keyMap.containsKey("朗豪坊")) {
 									Iterator<String> iter = keyMap.keySet().iterator();
 									HashMap<String, Integer> tempKeyMap = new HashMap<String, Integer>();
@@ -269,7 +265,7 @@ public class TelegramParserScheduler {
 									keyMap.put("香港", 200);
 
 									latlng = doArcgis(keyMap, tc);
-									
+
 								} else {
 
 									latlng = doGeoDataHK(keyMap, tc);
@@ -502,7 +498,7 @@ public class TelegramParserScheduler {
 						smd.put("group", Double.parseDouble(sdd.getGroupId()));
 
 						subShapeList.add(smd);
-					} 
+					}
 				}
 
 				if (subShapeList.size() > 0) {
@@ -510,7 +506,6 @@ public class TelegramParserScheduler {
 					anyShapeHit = true;
 				}
 			}
-
 		}
 
 		markerDTO.setShapeType("polyline_group");

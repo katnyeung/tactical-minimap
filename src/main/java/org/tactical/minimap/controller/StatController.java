@@ -65,16 +65,12 @@ public class StatController {
 		Map<String, Integer> totalMap = new HashMap<String, Integer>();
 		Map<String, HashMap<String, Integer>> sortedMap = new LinkedHashMap<String, HashMap<String, Integer>>();
 		
-        int count = 0; 	
-        
 		for(Entry<String, HashMap<String, Integer>> inputEntry : input.entrySet()) {
 						
 			int total = zeroIfNull(inputEntry.getValue().get("popo"));
 			total += zeroIfNull(inputEntry.getValue().get("hit"));
-			
-			if(count++ > (input.keySet().size() - 10)) {
-				totalMap.put(inputEntry.getKey(), total);
-			}
+
+			totalMap.put(inputEntry.getKey(), total);
 		}
 		
 		totalMap = totalMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(
@@ -83,9 +79,13 @@ public class StatController {
                 (x,y)-> {throw new AssertionError();},
                 LinkedHashMap::new
         ));
-		
+
+        int count = 0; 	
+        
 		for(Entry<String, Integer> inputEntry : totalMap.entrySet()) {
-			sortedMap.put(inputEntry.getKey(), input.get(inputEntry.getKey()));
+			if(count++ > (input.keySet().size() - 10)) {
+				sortedMap.put(inputEntry.getKey(), input.get(inputEntry.getKey()));
+			}
 		}
 		
 		return sortedMap;
