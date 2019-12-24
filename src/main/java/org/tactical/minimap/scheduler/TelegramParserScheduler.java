@@ -100,7 +100,7 @@ public class TelegramParserScheduler {
 	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?\\s*?(防暴|速龍|鋭武)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
-	Pattern groupPattern = Pattern.compile("((?<!小心|不)安全|safe|Safe|clear|冇狗|(?<!仍未)清理)");
+	Pattern groupPattern = Pattern.compile("((?<!小心|不|公眾)安全|safe|Safe|clear|冇狗|(?<!仍未)清理)");
 	Pattern dangerPattern = Pattern.compile("(制服|拉左|被捕)");
 	Pattern warningPattern = Pattern.compile("(交通意外|意外|壞車)");
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路|受阻|封閉|慢車)");
