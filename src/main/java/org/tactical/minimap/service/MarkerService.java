@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,7 +76,36 @@ public class MarkerService {
 
 		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		List<Long> processedList = new ArrayList<Long>();
+		
+		Set<Integer> streetGroupList = new HashSet<Integer>();
 
+		// if street overlap , remove current street group
+		for (Marker marker : markerList) {
+			Set<Integer> tempGroupList = new HashSet<Integer>();
+
+			if (marker instanceof ShapeMarker) {
+				ShapeMarker shapeMarker = (ShapeMarker) marker;
+				List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
+				boolean haveFilteredGroup = false;
+
+				for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
+					if (streetGroupList.contains(smd.getSubGroup())) {
+						// remove whole group
+						haveFilteredGroup = true;
+					} else {
+						tempGroupList.add(smd.getSubGroup());
+						smdList.add(smd);
+					}
+				}
+
+				streetGroupList.addAll(tempGroupList);
+
+				if (haveFilteredGroup) {
+					shapeMarker.setShapeMarkerDetailList(smdList);
+				}
+			}
+		}
+		
 		for (Marker marker : markerList) {
 			boolean isControllable = false;
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
@@ -87,7 +117,7 @@ public class MarkerService {
 			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
 
 			double opacity = getMarkerOpacity(marker);
-
+			
 			// process marker new line and wrap issue
 			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
 
