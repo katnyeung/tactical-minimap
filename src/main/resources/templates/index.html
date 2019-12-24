@@ -774,7 +774,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map.on('zoomend', function(e) {
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));
-				updateWordCloud();
+
 				processMarker(markerDataList);
 			});
 
