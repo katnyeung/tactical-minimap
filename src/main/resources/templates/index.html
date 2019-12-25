@@ -691,12 +691,28 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					y : [],
 		    					text : []
 		    				}
-			    				
+		    				
+		    				resultMap['popo'] = {
+			    					type: 'bar',
+			    					hoverinfo:'none',
+			    					orientation:'h',
+									textposition: 'auto',
+			    					x : [],
+			    					y : [],
+			    					text : []
+			    			}
+		    				
 		    				for (var key in data.data) {
 		    					//console.log(key + "," + parseInt(data.data[key].hit)+ ','+  parseInt(data.data[key].popo || 0));
 		    					resultMap['hit'].y.push(key);
-		    					resultMap['hit'].x.push((data.data[key].hit || 0) + (data.data[key].popo || 0));
-		    					resultMap['hit'].text.push((data.data[key].hit || 0) + ' p/' + (data.data[key].popo || 0));
+		    					resultMap['hit'].x.push(data.data[key].hit || 0);
+		    					resultMap['hit'].text.push(data.data[key].hit || 0);
+		    				}
+		    				
+		    				for (var key in data.data) {
+		    					resultMap['popo'].y.push(key);
+		    					resultMap['popo'].x.push(data.data[key].popo || 0);
+		    					resultMap['popo'].text.push(data.data[key].popo || 0);
 		    				}
 		    				
 		    				for(var key in resultMap){
@@ -717,7 +733,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								textposition: 'auto',
 		    					paper_bgcolor:'rgba(0,0,0,0)',
 		    				    plot_bgcolor:'rgba(0,0,0,0)',
-		    				    barmode: 'group',
+		    				    barmode: 'stack',
 								xaxis: {
 									side: 'top',
 									autorange: "reversed",
