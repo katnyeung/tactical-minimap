@@ -17,7 +17,7 @@ public interface TelegramChatStatDAO extends JpaRepository<TelegramChatStat, Lon
 	@Query("FROM TelegramChatStat tcs WHERE tcs.count > :count AND CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) IN :dayBackTimeList GROUP BY tcs.key ORDER BY CONCAT(tcs.year,LPAD(tcs.month,2,0),LPAD(tcs.day,2,0),LPAD(tcs.hour,2,0)) ASC")
 	List<TelegramChatStat> getStatByDate(@Param("dayBackTimeList") List<String> dayBackTimeList, @Param("count") Long count);
 
-	@Query("SELECT new org.tactical.minimap.web.result.StatItem(concat(LPAD(tcs.year,4,0), '-', LPAD(tcs.month,2,0),'-', LPAD(tcs.day,2,0),' ', LPAD(tcs.hour,2,0) , ':00:00') , sum(tcs.count), '') FROM TelegramChatStat tcs WHERE (tcs.region = :street or tcs.key = :street) AND tcs.createdate > :dateCutOff GROUP BY tcs.hour, tcs.day, tcs.month, tcs.year ")
+	@Query("SELECT new org.tactical.minimap.web.result.StatItem(concat(LPAD(tcs.year,4,0), '-', LPAD(tcs.month,2,0),'-', LPAD(tcs.day,2,0),' ', LPAD(tcs.hour,2,0) , ':00:00') , sum(tcs.count), '') FROM TelegramChatStat tcs WHERE (tcs.region = :street or tcs.key = :street) AND tcs.createdate > :dateCutOff GROUP BY tcs.hour, tcs.day, tcs.month, tcs.year ORDER BY tcs.year, tcs.month, tcs.day, tcs.hour ASC")
 	List<StatItem> getStatByKeyword(@Param("street") String street, @Param("dateCutOff") Date dateCutOff);
 
 }
