@@ -53,9 +53,28 @@ public class StatController {
 	@GetMapping("/streetLive/")
 	public DefaultResult streetLiveSTat() {
 
-		Map<String, HashMap<String, Integer>> regionMap = tgService.getStreetLiveStat();
+		Map<String, HashMap<String, Integer>> redisStatMap = tgService.getStreetLiveStat();
 
-		DefaultResult dr = CommonResult.success(sortMap(regionMap));
+		Map<String, List<StatItem>> dbStatMap = new LinkedHashMap<String, List<StatItem>>();
+
+		redisStatMap = sortMap(redisStatMap);
+		
+		int count = 0;
+
+		for (Entry<String, HashMap<String, Integer>> entry : redisStatMap.entrySet()) {
+			if (count > redisStatMap.entrySet().size() - 3) {
+				String key = entry.getKey();
+				dbStatMap.put(key, tgService.getStreetStat(key));
+
+			}
+			count++;
+		}
+		
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("live", redisStatMap);
+		returnMap.put("day", dbStatMap);
+		
+		DefaultResult dr = CommonResult.success(returnMap);
 
 		return dr;	
 	}
@@ -108,5 +127,14 @@ public class StatController {
 
 		return dr;
 	}
+	
+	@GetMapping("/streetStat/")
+	public DefaultResult update(@RequestParam("key") String key) {
 
+		List<StatItem> listStat = tgService.getStreetStat(key);
+
+		DefaultResult dr = StatResult.success(listStat);
+
+		return dr;
+	}
 }

@@ -57,7 +57,7 @@ public class TelegramMessageService {
 
 	@Autowired
 	TelegramChatStatDAO telegramChatStatDAO;
-
+	
 	@Autowired
 	RedisService redisService;
 
@@ -558,6 +558,16 @@ public class TelegramMessageService {
 	}
 
 
+	public List<StatItem> getStreetStat(String street) {
+		
+		Calendar cutOffDate = Calendar.getInstance();
+		cutOffDate.add(Calendar.DAY_OF_MONTH, -1);
+		
+		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street , cutOffDate.getTime());
+
+		return chatStatList;
+	}
+
 	public Map<String, HashMap<String, Integer>>  getStreetLiveStat() {
 		Pattern patternStreet = Pattern.compile("(.*):street:?(.*)");
 		Pattern patternRegionOnly = Pattern.compile("(.*):(.*)");
@@ -617,6 +627,7 @@ public class TelegramMessageService {
 					streetStat.put(matcherStreet.group(1), streetDetailMap);
 
 					String region = matcherStreet.group(2);
+					
 					if (region != null && !region.equals("")) {
 						// get regionMap
 						HashMap<String, Integer> regionDetailMap = streetStat.get(region);

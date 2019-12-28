@@ -8,9 +8,18 @@ public class StatItem {
 
 	Long weight;
 
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	String label;
-
+	
+	public StatItem() {
+	}
+	
+	public StatItem(String text, Long weight, String label) {
+		this.text = text;
+		this.weight = weight;
+		this.label = label;
+	}
+	
 	public String getText() {
 		return text;
 	}

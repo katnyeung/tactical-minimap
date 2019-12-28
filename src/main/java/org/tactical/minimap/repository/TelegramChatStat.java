@@ -28,11 +28,11 @@ public class TelegramChatStat extends Auditable<String> {
 
 	String key;
 	String subKey;
-	
+
 	Long count;
 
 	int group;
-	
+
 	@Column(nullable = true)
 	String region;
 
@@ -130,6 +130,12 @@ public class TelegramChatStat extends Auditable<String> {
 
 	public void setRegion(String region) {
 		this.region = region;
+	}
+
+	@Override
+	public String toString() {
+		return "TelegramChatStat [telegramChatStatId=" + telegramChatStatId + ", year=" + year + ", month=" + month + ", day=" + day + ", weekday=" + weekday + ", hour=" + hour + ", minute=" + minute + ", key=" + key + ", subKey=" + subKey + ", count=" + count + ", group=" + group + ", region="
+				+ region + "]";
 	}
 
 }

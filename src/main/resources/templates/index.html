@@ -658,7 +658,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				onAdd: function (map) {
 					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
 					container.id = 'heatStatControl';
-					container.innerHTML = '<div id="heatStat"></div>';
+					container.innerHTML = '<div id="heatStat" align="right"></div><div id="heatDayStat"></div>';
 					container.style = 'border:0px; padding:0px; margin:0px;';
 
 					return container;
@@ -668,19 +668,24 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    map.addControl(new heatStatControl());
 		    
 		    updateWordStat()
-		    setInterval(function(){updateWordStat()}, 1000 * 60);
+		    setInterval(function(){ updateWordStat() }, 1000 * 60);
 
 		    function updateWordStat(){
 		    	// ajax get data
 		    	var resultList = [];
+		    	var dayList = [];
+		    	
 		    	var redraw = false;
+		    	var redrawDay = false;
 		    	$.ajax({
 		    		type : "GET",
 		    		url : '/stat/streetLive/',
 		    		success : function(data){
 		    			if(data.status == 'success'){
 		    				var resultMap = {};
+		    				var dayMap = {};
 		    				resultList = [];
+		    				dayList = [];
 		    				
 		    				resultMap['hit'] = {
 		    					type: 'bar',
@@ -702,17 +707,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    					text : []
 			    			}
 		    				
-		    				for (var key in data.data) {
+		    				for (var key in data.data.live) {
 		    					//console.log(key + "," + parseInt(data.data[key].hit)+ ','+  parseInt(data.data[key].popo || 0));
 		    					resultMap['hit'].y.push(key);
-		    					resultMap['hit'].x.push(data.data[key].hit || 0);
-		    					resultMap['hit'].text.push(data.data[key].hit || 0);
+		    					resultMap['hit'].x.push(data.data.live[key].hit || 0);
+		    					resultMap['hit'].text.push(data.data.live[key].hit || 0);
 		    				}
 		    				
-		    				for (var key in data.data) {
+		    				for (var key in data.data.live) {
 		    					resultMap['popo'].y.push(key);
-		    					resultMap['popo'].x.push(data.data[key].popo || 0);
-		    					resultMap['popo'].text.push(data.data[key].popo || 0);
+		    					resultMap['popo'].x.push(data.data.live[key].popo || 0);
+		    					resultMap['popo'].text.push(data.data.live[key].popo || 0);
 		    				}
 		    				
 		    				for(var key in resultMap){
@@ -720,11 +725,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				var layout = {
-								width: 200,
+								width: 150,
 								height: 300,
 								margin: {
 									l: 0,
-									r: 40,
+									r: 50,
 									b: 0,
 									t: 0,
 									pad: 0
@@ -737,18 +742,75 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								xaxis: {
 									side: 'top',
 									autorange: "reversed",
-									showgrid: false	
+									showgrid: false,
+									fixedrange: true
 								},
 								yaxis: {
 									side: 'right',
+									fixedrange: true
 								}
 		    				};
+		    				
 		    				if(!redraw){
 		    					redraw = true;
 			    				Plotly.newPlot('heatStat', resultList, layout, {displayModeBar: false});
 		    				}else{
 		    					Plotly.redraw('heatStat');
 		    				}
+		    				
+			    			//draw line chart
+		    				for (var key in data.data.day) {
+			    				dayMap[key] = {
+	    						  type: "scatter",
+	    						  mode: "lines",
+			    					hoverinfo:'none',
+									name: key,
+			    					x : [],
+			    					y : [],
+			    					text : []
+			    				}
+			    				
+			    				for(var index in data.data.day[key]){
+			    					var val = data.data.day[key][index];
+			    					
+			    					dayMap[key].x.push(val.text)
+			    					dayMap[key].y.push(val.weight)
+			    					dayMap[key].text.push(key);
+			    				}
+		    				}
+
+		    				for (var key in data.data.day) {
+		    					dayList.push(dayMap[key]);
+		    				}
+		    				
+		    				var dayLayout = {
+									width: 250,
+									height: 250,
+									margin: {
+										r: 5,
+										t: 0,
+										pad: 0
+									},
+			    					paper_bgcolor:'rgba(0,0,0,0)',
+			    				    plot_bgcolor:'rgba(0,0,0,0)',
+									xaxis: {
+										fixedrange: true,
+										tickformat : "%d %H:%M"
+									},
+									yaxis: {
+										fixedrange: true
+									},
+									showlegend: true,
+									legend: {"orientation": "h"}
+			    				};
+			    				
+		    				if(!redrawDay){
+		    					redrawDay = true;
+			    				Plotly.newPlot('heatDayStat', dayList, dayLayout, {displayModeBar: false});
+		    				}else{
+		    					Plotly.redraw('heatDayStat');
+		    				}
+		    				
 		    			}
 		    		}
 		    	});

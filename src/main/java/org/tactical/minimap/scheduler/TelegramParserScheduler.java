@@ -97,7 +97,7 @@ public class TelegramParserScheduler {
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
-	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)");
+	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)(?!槍|彈槍)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?\\s*?(防暴|速龍|鋭武)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
 	Pattern groupPattern = Pattern.compile("((?<!小心|不|公眾)安全|safe|Safe|clear|冇狗|(?<!仍未)清理)");
@@ -544,7 +544,7 @@ public class TelegramParserScheduler {
 	private MarkerGeoCoding doGeoDataHK(final Map<String, Integer> keyMap, TelegramChannel tc) {
 
 		// filter out the key weight < 15
-		keyMap.entrySet().removeIf(e -> e.getValue() < 15);
+		keyMap.entrySet().removeIf(e -> e.getValue() < 0);
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
