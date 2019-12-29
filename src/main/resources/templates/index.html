@@ -689,6 +689,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 		    function updateWordStat(){
 		    	// ajax get data
+				var colors = ['red','blue','green','orange','white','black','#336699','#0000FF','#00FF00','#FF0000'];
+
 		    	var resultList = [];
 		    	var dayList = [];
 		    	
@@ -710,6 +712,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					hoverinfo:'none',
 		    					orientation:'h',
 								textposition: 'auto',
+								marker:{
+									color:colors
+								},
 		    					x : [],
 		    					y : [],
 		    					text : []
@@ -782,6 +787,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 			    			//draw line chart
+			    			var count = Object.keys(data.data.live).length - 4;
 		    				for (var key in data.data.day) {
 				    			dayMap[key] = {
 									type: "scatter",
@@ -789,7 +795,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    					hoverinfo:'none',
 									name: key,
 									line:{
-			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 20)
+										color : colors[count++],
+			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 10)
 									  },
 			    					x : [],
 			    					y : [],
@@ -810,7 +817,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				var dayLayout = {
-								width: 550,
+								width: 350,
 								height: 350,
 								margin: {
 									l: 0,
