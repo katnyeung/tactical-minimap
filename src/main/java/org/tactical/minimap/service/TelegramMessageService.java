@@ -563,15 +563,14 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
-		Calendar cutOffDate = Calendar.getInstance(tz1);
+		Calendar cutOffDate = Calendar.getInstance();
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
 
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
 
 		for (int i = cutOffHour; i <= 0; i++) {
 
-			Calendar fillUpCalendar = Calendar.getInstance(tz1);
+			Calendar fillUpCalendar = Calendar.getInstance();
 			fillUpCalendar.add(Calendar.HOUR_OF_DAY, i);
 
 			boolean isExist = false;
