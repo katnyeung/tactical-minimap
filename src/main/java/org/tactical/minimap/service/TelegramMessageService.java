@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -11,7 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -564,16 +564,17 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
-		Calendar cutOffDate = Calendar.getInstance(Locale.TAIWAN);
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
+		Calendar cutOffDate = Calendar.getInstance(tz1);
+		cutOffDate.add(Calendar.HOUR_OF_DAY, 8);
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
-
-		logger.info("cut off {}", sdf.format(cutOffDate.getTime()));
+		
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
 
 		for (int i = cutOffHour; i <= 0; i++) {
 
-			Calendar fillUpCalendar = Calendar.getInstance(Locale.TAIWAN);
-			logger.info("fill up {} ,{}" ,i , sdf.format(fillUpCalendar.getTime()));
+			Calendar fillUpCalendar = Calendar.getInstance(tz1);
+			fillUpCalendar.add(Calendar.HOUR_OF_DAY, 8);
 			fillUpCalendar.add(Calendar.HOUR_OF_DAY, i);
 
 			boolean isExist = false;
