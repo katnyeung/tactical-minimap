@@ -563,7 +563,7 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar cutOffDate = Calendar.getInstance(tz1);
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
 
@@ -576,7 +576,6 @@ public class TelegramMessageService {
 
 			boolean isExist = false;
 			for (StatItem si : chatStatList) {
-				logger.info("checking : {} , {} " ,si.getText(),  sdf.format(fillUpCalendar.getTime()));
 				if (si.getText().equals(sdf.format(fillUpCalendar.getTime()))) {
 					isExist = true;
 				}
