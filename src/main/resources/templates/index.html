@@ -650,6 +650,23 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    map.addControl(new fullScreenControl());
 		    
+			var heatDayStatControl =  L.Control.extend({
+				options: {
+					position: 'bottomright'
+				},
+				
+				onAdd: function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'heatDayStatControl';
+					container.innerHTML = '<div id="heatDayStat"></div>';
+					container.style = 'border:0px; padding:0px; margin:0px;';
+
+					return container;
+				}
+			});
+			
+		    map.addControl(new heatDayStatControl());
+		    
 			var heatStatControl =  L.Control.extend({
 				options: {
 					position: 'topright'
@@ -658,7 +675,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				onAdd: function (map) {
 					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
 					container.id = 'heatStatControl';
-					container.innerHTML = '<div id="heatStat" align="right"></div><div id="heatDayStat"></div>';
+					container.innerHTML = '<div id="heatStat" align="right"></div>';
 					container.style = 'border:0px; padding:0px; margin:0px;';
 
 					return container;
@@ -784,10 +801,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				var dayLayout = {
-									width: 250,
-									height: 250,
+									width: 350,
+									height: 350,
 									margin: {
-										r: 5,
+										l: 0,
+										r: 25,
 										t: 0,
 										pad: 0
 									},
@@ -795,10 +813,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    				    plot_bgcolor:'rgba(0,0,0,0)',
 									xaxis: {
 										fixedrange: true,
-										tickformat : "%d %H:%M"
+										tickformat : "%H:%M",
+											showgrid: false,
 									},
 									yaxis: {
-										fixedrange: true
+										fixedrange: true,
+										showgrid: false,
 									},
 									showlegend: true,
 									legend: {"orientation": "h"}

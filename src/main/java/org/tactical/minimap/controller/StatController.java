@@ -62,7 +62,7 @@ public class StatController {
 		int count = 0;
 
 		for (Entry<String, HashMap<String, Integer>> entry : redisStatMap.entrySet()) {
-			if (count > redisStatMap.entrySet().size() - 3) {
+			if (count > redisStatMap.entrySet().size() - 5) {
 				String key = entry.getKey();
 				dbStatMap.put(key, tgService.getStreetStat(key));
 

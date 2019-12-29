@@ -561,7 +561,7 @@ public class TelegramMessageService {
 	public List<StatItem> getStreetStat(String street) {
 		
 		Calendar cutOffDate = Calendar.getInstance();
-		cutOffDate.add(Calendar.DAY_OF_MONTH, -1);
+		cutOffDate.add(Calendar.HOUR_OF_DAY, -12);
 		
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street , cutOffDate.getTime());
 
