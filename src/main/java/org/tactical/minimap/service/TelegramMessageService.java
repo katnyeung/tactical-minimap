@@ -566,7 +566,6 @@ public class TelegramMessageService {
 		int cutOffHour = -8;
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar cutOffDate = Calendar.getInstance(tz1);
-		cutOffDate.add(Calendar.HOUR_OF_DAY, 8);
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
 		
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
