@@ -563,18 +563,21 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
-		Calendar cutOffDate = Calendar.getInstance();
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
+		logger.info("{}", tz1);
+		Calendar cutOffDate = Calendar.getInstance(tz1);
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
 
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
 
 		for (int i = cutOffHour; i <= 0; i++) {
 
-			Calendar fillUpCalendar = Calendar.getInstance();
+			Calendar fillUpCalendar = Calendar.getInstance(tz1);
 			fillUpCalendar.add(Calendar.HOUR_OF_DAY, i);
 
 			boolean isExist = false;
 			for (StatItem si : chatStatList) {
+				logger.info("fill up {}", sdf.format(fillUpCalendar.getTime()));
 				if (si.getText().equals(sdf.format(fillUpCalendar.getTime()))) {
 					isExist = true;
 				}
