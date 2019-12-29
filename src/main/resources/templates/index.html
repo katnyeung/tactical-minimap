@@ -689,7 +689,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 		    function updateWordStat(){
 		    	// ajax get data
-				var colors = ['#F97A18','#FFCF32','#654930','#291F1A','#E6E6E7','black','#336699','#0000FF','#00FF00','#FF0000'];
+				var colors = ['#F97A18','#FFCF32','#654930','#291F1A','#E6E6E7','black','#336699','#32C8FF','#276662','#192828'];
 
 		    	var resultList = [];
 		    	var dayList = [];
@@ -796,7 +796,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									name: key,
 									line:{
 										color : colors[count++],
-			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 20)
+			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 23)
 									  },
 			    					x : [],
 			    					y : [],
