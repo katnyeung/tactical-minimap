@@ -699,6 +699,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    		url : '/stat/streetLive/',
 		    		success : function(data){
 		    			if(data.status == 'success'){
+		    				var total = 0;
 		    				var resultMap = {};
 		    				var dayMap = {};
 		    				resultList = [];
@@ -715,13 +716,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				resultMap['popo'] = {
-			    					type: 'bar',
-			    					hoverinfo:'none',
-			    					orientation:'h',
-									textposition: 'auto',
-			    					x : [],
-			    					y : [],
-			    					text : []
+		    					type: 'bar',
+		    					hoverinfo:'none',
+		    					orientation:'h',
+								textposition: 'auto',
+		    					x : [],
+		    					y : [],
+		    					text : []
 			    			}
 		    				
 		    				for (var key in data.data.live) {
@@ -729,6 +730,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    					resultMap['hit'].y.push(key);
 		    					resultMap['hit'].x.push(data.data.live[key].hit || 0);
 		    					resultMap['hit'].text.push(data.data.live[key].hit || 0);
+		    					total += (data.data.live[key].hit || 0) + (data.data.live[key].popo || 0);
 		    				}
 		    				
 		    				for (var key in data.data.live) {
@@ -745,11 +747,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								width: 150,
 								height: 300,
 								margin: {
-									l: 0,
+									l: 25,
 									r: 50,
 									b: 0,
 									t: 0,
 									pad: 0
+								},
+								font:{
+								    family: '微軟正黑體',
+								    size:15,
 								},
 		    					showlegend : false,
 								textposition: 'auto',
@@ -777,11 +783,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				
 			    			//draw line chart
 		    				for (var key in data.data.day) {
-			    				dayMap[key] = {
-	    						  type: "scatter",
-	    						  mode: "lines",
+				    			dayMap[key] = {
+									type: "scatter",
+									mode: "lines",
 			    					hoverinfo:'none',
 									name: key,
+									line:{
+			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 20)
+									  },
 			    					x : [],
 			    					y : [],
 			    					text : []
@@ -801,29 +810,32 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				var dayLayout = {
-									width: 350,
-									height: 350,
-									margin: {
-										l: 0,
-										r: 25,
-										t: 0,
-										pad: 0
-									},
-			    					paper_bgcolor:'rgba(0,0,0,0)',
-			    				    plot_bgcolor:'rgba(0,0,0,0)',
-									xaxis: {
-										fixedrange: true,
-										tickformat : "%H:%M",
-											showgrid: false,
-									},
-									yaxis: {
-										fixedrange: true,
+								width: 350,
+								height: 350,
+								margin: {
+									r: 25,
+									t: 0,
+									pad: 0
+								},
+								font:{
+								    family: '微軟正黑體',
+								    size:15,
+								},
+		    					paper_bgcolor:'rgba(0,0,0,0)',
+		    				    plot_bgcolor:'rgba(0,0,0,0)',
+								xaxis: {
+									fixedrange: true,
+									tickformat : "%H:%M",
 										showgrid: false,
-									},
-									showlegend: true,
-									legend: {"orientation": "h"}
-			    				};
-			    				
+								},
+								yaxis: {
+									fixedrange: true,
+									showgrid: false,
+								},
+								showlegend: true,
+								legend: {"orientation": "h"}
+		    				};
+		    				
 		    				if(!redrawDay){
 		    					redrawDay = true;
 			    				Plotly.newPlot('heatDayStat', dayList, dayLayout, {displayModeBar: false});

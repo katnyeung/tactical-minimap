@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -557,15 +559,35 @@ public class TelegramMessageService {
 		return listStat;
 	}
 
-
 	public List<StatItem> getStreetStat(String street) {
-		
-		Calendar cutOffDate = Calendar.getInstance();
-		cutOffDate.add(Calendar.HOUR_OF_DAY, -12);
-		
-		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street , cutOffDate.getTime());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
-		return chatStatList;
+		int cutOffHour = -8;
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+8");
+		Calendar cutOffDate = Calendar.getInstance(tz1);
+		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
+
+		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
+
+		for (int i = cutOffHour; i <= 0; i++) {
+
+			Calendar fillUpCalendar = Calendar.getInstance(tz1);
+			fillUpCalendar.add(Calendar.HOUR_OF_DAY, i);
+
+			boolean isExist = false;
+			for (StatItem si : chatStatList) {
+				logger.info("checking : {} , {} " ,si.getText(),  sdf.format(fillUpCalendar.getTime()));
+				if (si.getText().equals(sdf.format(fillUpCalendar.getTime()))) {
+					isExist = true;
+				}
+			}
+			
+			if (!isExist) {
+				chatStatList.add(new StatItem(sdf.format(fillUpCalendar.getTime()), (long) 0, ""));
+			}
+		}
+		
+		return chatStatList.stream().sorted(Comparator.comparing(StatItem::getText)).collect(Collectors.toList());
 	}
 
 	public Map<String, HashMap<String, Integer>>  getStreetLiveStat() {
