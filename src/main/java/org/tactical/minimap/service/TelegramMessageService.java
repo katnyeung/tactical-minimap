@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -560,7 +559,7 @@ public class TelegramMessageService {
 		return listStat;
 	}
 
-	public List<StatItem> getStreetStat(String street) {
+	public List<StatItem> getStreetStat(String street, long liveStat) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
@@ -570,7 +569,7 @@ public class TelegramMessageService {
 		
 		List<StatItem> chatStatList = telegramChatStatDAO.getStatByKeyword(street, cutOffDate.getTime());
 
-		for (int i = cutOffHour; i <= 0; i++) {
+		for (int i = cutOffHour; i <= -1; i++) {
 
 			Calendar fillUpCalendar = Calendar.getInstance(tz1);
 			fillUpCalendar.add(Calendar.HOUR_OF_DAY, 8);
@@ -587,6 +586,11 @@ public class TelegramMessageService {
 				chatStatList.add(new StatItem(sdf.format(fillUpCalendar.getTime()), (long) 0, ""));
 			}
 		}
+		
+		Calendar fillUpCalendar = Calendar.getInstance(tz1);
+		fillUpCalendar.add(Calendar.HOUR_OF_DAY, 8);
+		
+		chatStatList.add(new StatItem(sdf.format(fillUpCalendar.getTime()), liveStat, ""));
 		
 		return chatStatList.stream().sorted(Comparator.comparing(StatItem::getText)).collect(Collectors.toList());
 	}

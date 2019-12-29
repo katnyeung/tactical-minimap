@@ -64,7 +64,9 @@ public class StatController {
 		for (Entry<String, HashMap<String, Integer>> entry : redisStatMap.entrySet()) {
 			if (count > redisStatMap.entrySet().size() - 5) {
 				String key = entry.getKey();
-				dbStatMap.put(key, tgService.getStreetStat(key));
+				HashMap<String, Integer> value = entry.getValue();
+				
+				dbStatMap.put(key, tgService.getStreetStat(key, zeroIfNull(value.get("hit")) + zeroIfNull(value.get("popo"))));
 
 			}
 			count++;
@@ -131,7 +133,7 @@ public class StatController {
 	@GetMapping("/streetStat/")
 	public DefaultResult update(@RequestParam("key") String key) {
 
-		List<StatItem> listStat = tgService.getStreetStat(key);
+		List<StatItem> listStat = tgService.getStreetStat(key, 0);
 
 		DefaultResult dr = StatResult.success(listStat);
 

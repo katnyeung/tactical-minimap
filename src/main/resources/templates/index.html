@@ -789,7 +789,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			    					hoverinfo:'none',
 									name: key,
 									line:{
-			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 20)
+			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 30)
 									  },
 			    					x : [],
 			    					y : [],
@@ -813,6 +813,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								width: 350,
 								height: 350,
 								margin: {
+									l: 0,
 									r: 25,
 									t: 0,
 									pad: 0
