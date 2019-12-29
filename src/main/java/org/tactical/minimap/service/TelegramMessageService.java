@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -563,8 +564,7 @@ public class TelegramMessageService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
 
 		int cutOffHour = -8;
-		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
-		Calendar cutOffDate = Calendar.getInstance(tz1);
+		Calendar cutOffDate = Calendar.getInstance(Locale.TAIWAN);
 		cutOffDate.add(Calendar.HOUR_OF_DAY, cutOffHour);
 
 		logger.info("cut off {}", sdf.format(cutOffDate.getTime()));
@@ -572,7 +572,7 @@ public class TelegramMessageService {
 
 		for (int i = cutOffHour; i <= 0; i++) {
 
-			Calendar fillUpCalendar = Calendar.getInstance(tz1);
+			Calendar fillUpCalendar = Calendar.getInstance(Locale.TAIWAN);
 			logger.info("fill up {} ,{}" ,i , sdf.format(fillUpCalendar.getTime()));
 			fillUpCalendar.add(Calendar.HOUR_OF_DAY, i);
 
