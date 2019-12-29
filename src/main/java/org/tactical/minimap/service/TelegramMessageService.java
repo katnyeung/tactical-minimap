@@ -561,6 +561,7 @@ public class TelegramMessageService {
 
 	public List<StatItem> getStreetStat(String street, long liveStat) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
+		SimpleDateFormat sdfWithMinute = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
 
 		int cutOffHour = -8;
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
@@ -590,7 +591,7 @@ public class TelegramMessageService {
 		Calendar fillUpCalendar = Calendar.getInstance(tz1);
 		fillUpCalendar.add(Calendar.HOUR_OF_DAY, 8);
 		
-		chatStatList.add(new StatItem(sdf.format(fillUpCalendar.getTime()), liveStat, ""));
+		chatStatList.add(new StatItem(sdfWithMinute.format(fillUpCalendar.getTime()), liveStat, ""));
 		
 		return chatStatList.stream().sorted(Comparator.comparing(StatItem::getText)).collect(Collectors.toList());
 	}
