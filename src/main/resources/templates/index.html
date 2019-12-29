@@ -659,7 +659,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
 					container.id = 'heatDayStatControl';
 					container.innerHTML = '<div id="heatDayStat"></div>';
-					container.style = 'border:0px; padding:0 0 50px 0; margin:0px;';
+					container.style = 'border:0px; padding:0 0 30px 0; margin:0px;';
 
 					return container;
 				}
@@ -689,7 +689,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 		    function updateWordStat(){
 		    	// ajax get data
-				var colors = ['#F97A18','#FFCF32','#654930','#291F1A','#FF6932','#FF3262','#336699','#32C8FF','#276662','#192828'];
+				var colors = ['#F97A18','#FFCF32','#654930','#291F1A','#FF6932','#FF3262','#750075','#32C8FF','#276662','#192828'];
 
 		    	var resultList = [];
 		    	var dayList = [];
@@ -817,8 +817,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    				}
 		    				
 		    				var dayLayout = {
-								width: 350,
-								height: 350,
+								width: 250,
+								height: 250,
 								margin: {
 									l: 0,
 									r: 25,
