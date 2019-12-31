@@ -84,25 +84,31 @@ public class MarkerService {
 			Set<Integer> tempGroupList = new HashSet<Integer>();
 
 			if (marker instanceof ShapeMarker) {
-				ShapeMarker shapeMarker = (ShapeMarker) marker;
-				List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
-				boolean haveFilteredGroup = false;
 
-				for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
-					if (streetGroupList.contains(smd.getSubGroup())) {
-						// remove whole group
-						haveFilteredGroup = true;
-					} else {
-						tempGroupList.add(smd.getSubGroup());
-						smdList.add(smd);
+				MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+
+				if(mc != null && mc.getExpire() > 0) {
+					ShapeMarker shapeMarker = (ShapeMarker) marker;
+					List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
+					boolean haveFilteredGroup = false;
+
+					for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
+						if (streetGroupList.contains(smd.getSubGroup())) {
+							// remove whole group
+							haveFilteredGroup = true;
+						} else {
+							tempGroupList.add(smd.getSubGroup());
+							smdList.add(smd);
+						}
+					}
+
+					streetGroupList.addAll(tempGroupList);
+
+					if (haveFilteredGroup) {
+						shapeMarker.setShapeMarkerDetailList(smdList);
 					}
 				}
 
-				streetGroupList.addAll(tempGroupList);
-
-				if (haveFilteredGroup) {
-					shapeMarker.setShapeMarkerDetailList(smdList);
-				}
 			}
 		}
 		
