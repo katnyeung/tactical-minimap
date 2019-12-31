@@ -79,13 +79,22 @@ public class MarkerService {
 		
 		Set<Integer> streetGroupList = new HashSet<Integer>();
 
-		// if street overlap , remove current street group
 		for (Marker marker : markerList) {
+			boolean isControllable = false;
+			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
+				isControllable = true;
+			}
+
+			MarkerResult mr;
+
+			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+
+			double opacity = getMarkerOpacity(marker);
+
+			// if street overlap , remove current street group
 			Set<Integer> tempGroupList = new HashSet<Integer>();
 
 			if (marker instanceof ShapeMarker) {
-
-				MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
 
 				if(mc != null && mc.getExpire() > 0) {
 					ShapeMarker shapeMarker = (ShapeMarker) marker;
@@ -110,19 +119,6 @@ public class MarkerService {
 				}
 
 			}
-		}
-		
-		for (Marker marker : markerList) {
-			boolean isControllable = false;
-			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
-				isControllable = true;
-			}
-
-			MarkerResult mr;
-
-			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
-
-			double opacity = getMarkerOpacity(marker);
 			
 			// process marker new line and wrap issue
 			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
