@@ -1208,7 +1208,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 			
 			function highlightSharp(message){
-				return message.replace(/#(.*?) /gi,'<span style="color:#ffac4e"><b>#$1</b></span> ')
+				var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");
+				var firstPart = message.substr(0, messageCutOff);
+				var secondPart = message.substr(messageCutOff, message.length);
+				
+				var finalMessage = firstPart.replace(/#(.*?)(?:\s|\n|$)/gi,'<span style="color:#ffac4e"><b>#$1</b></span>') + secondPart;
+				
+				return finalMessage;
 			}
 			
 			function processMarker(markerDataList){
