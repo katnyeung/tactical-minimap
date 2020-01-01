@@ -1212,7 +1212,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				var firstPart = message.substr(0, messageCutOff);
 				var secondPart = message.substr(messageCutOff, message.length);
 				
-				var finalMessage = firstPart.replace(/#(.*?)(?:\s|\n|$)/gi,'<span style="color:#ffac4e"><b>#$1</b></span>') + secondPart;
+				var finalMessage = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span style="color:#ffac4e"><b>#$1</b></span>') + secondPart;
 				
 				return finalMessage;
 			}
