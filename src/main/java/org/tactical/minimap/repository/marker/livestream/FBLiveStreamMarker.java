@@ -42,7 +42,6 @@ public class FBLiveStreamMarker extends Marker {
 			marker.setExpire(getMarkerExpire());
 			marker.setStatus(ConstantsUtil.MARKER_STATUS_ACTIVE);
 			marker.setUuid(markerDTO.getUuid());
-			marker.setRegion(markerDTO.getRegion());
 			return marker;
 		} else {
 			return null;

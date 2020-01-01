@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
@@ -211,6 +212,15 @@ public class TelegramMessageService {
 		}
 	}
 
+	public TelegramMessage getTelegramMessageById(Long id) {
+		Optional<TelegramMessage> optTGMessage = telegramMessageDAO.findById(id);
+		if (optTGMessage.isPresent()) {
+			return optTGMessage.get();
+		} else {
+			return null;
+		}
+	}
+	
 	public List<TelegramMessage> getPendingTelegramMessage(List<String> messageTypeList) {
 		return telegramMessageDAO.findPendingTelegramMessage(messageTypeList);
 	}

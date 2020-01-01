@@ -1,7 +1,9 @@
 package org.tactical.minimap.repository;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,14 +11,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.util.Auditable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
 @Table(name = "telegram_message", indexes = { @Index(name = "message_index", columnList = "groupKey, id") })
@@ -61,6 +67,14 @@ public class TelegramMessage extends Auditable<String> {
 	@NotNull
 	@Size(max = 1)
 	String messageType;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "telegramMessage", cascade = CascadeType.ALL)
+	List<Marker> markerList;
+	
+	@JsonInclude(Include.NON_NULL)
+	@Column(nullable = true)
+	String region;
 
 	public Long getTelegramMessageId() {
 		return telegramMessageId;
@@ -132,6 +146,14 @@ public class TelegramMessage extends Auditable<String> {
 
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 	@Override

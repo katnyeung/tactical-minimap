@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tactical.minimap.DAO.MarkerDAO;
 import org.tactical.minimap.repository.Layer;
+import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.marker.Marker;
 import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarker;
@@ -61,6 +62,9 @@ public class MarkerService {
 
 	@Autowired
 	LayerService layerService;
+
+	@Autowired
+	TelegramMessageService telegramMessageService;
 	
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
@@ -219,13 +223,14 @@ public class MarkerService {
 		}
 
 		marker = marker.fill(markerDTO);
-		
+
 		if (marker != null) {
-			
-			if(markerDTO.getTelegramMessageId() != null) {
-				marker.setTelegramMessageId(markerDTO.getTelegramMessageId());
+
+			if (markerDTO.getTelegramMessageId() != null) {
+				TelegramMessage telegramMessage = telegramMessageService.getTelegramMessageById(markerDTO.getTelegramMessageId());
+				marker.setTelegramMessage(telegramMessage);
 			}
-			
+
 			marker.setLayer(layer);
 
 			if (layer.getPassword() != null && !layer.getPassword().equals("")) {

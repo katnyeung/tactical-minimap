@@ -100,8 +100,6 @@ public class ShapeMarker extends Marker {
 			
 			this.setHour(markerDTO.getHour());
 			this.setMinute(markerDTO.getMinute());
-
-			this.setRegion(markerDTO.getRegion());
 			
 			return this;
 		} catch (IOException e) {

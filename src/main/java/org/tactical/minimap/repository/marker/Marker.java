@@ -25,6 +25,7 @@ import javax.validation.constraints.Size;
 
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.MarkerResponse;
+import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.repository.marker.livestream.FBLiveStreamMarker;
 import org.tactical.minimap.repository.marker.livestream.ImageMarker;
 import org.tactical.minimap.repository.marker.livestream.TwtichLiveStreamMarker;
@@ -137,7 +138,6 @@ public abstract class Marker extends Auditable<String> {
 		this.setUuid(markerDTO.getUuid());
 		this.setHour(markerDTO.getHour());
 		this.setMinute(markerDTO.getMinute());
-		this.setRegion(markerDTO.getRegion());
 		return this;
 	}
 
@@ -174,10 +174,6 @@ public abstract class Marker extends Auditable<String> {
 	@NotNull
 	private String uuid;
 
-	@JsonIgnore
-	@Column(nullable = true)
-	private Long telegramMessageId;
-
 	@JsonInclude(Include.NON_NULL)
 	@Column(nullable = true)
 	Integer hour;
@@ -203,10 +199,10 @@ public abstract class Marker extends Auditable<String> {
 
 	@Transient
 	double opacity;
-
-	@JsonInclude(Include.NON_NULL)
-	@Column(nullable = true)
-	String region;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "telegram_message_id", referencedColumnName = "telegramMessageId")
+	TelegramMessage telegramMessage;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -359,20 +355,12 @@ public abstract class Marker extends Auditable<String> {
 		this.minute = minute;
 	}
 
-	public Long getTelegramMessageId() {
-		return telegramMessageId;
+	public TelegramMessage getTelegramMessage() {
+		return telegramMessage;
 	}
 
-	public void setTelegramMessageId(Long telegramMessageId) {
-		this.telegramMessageId = telegramMessageId;
-	}
-
-	public String getRegion() {
-		return region;
-	}
-
-	public void setRegion(String region) {
-		this.region = region;
+	public void setTelegramMessage(TelegramMessage telegramMessage) {
+		this.telegramMessage = telegramMessage;
 	}
 
 }

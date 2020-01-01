@@ -283,7 +283,8 @@ public class TelegramParserScheduler {
 							// save parse result
 							Gson gson = new Gson();
 							telegramMessage.setResult("{\"label\":\"" + latlng.getLabel() + "\",\"data\":" + gson.toJson(keyMap) + "}");
-
+							telegramMessage.setRegion(streetDataService.getRegionByLatlng(latlng));
+							
 							telegramMessageService.saveTelegramMessage(telegramMessage);
 
 							try {
@@ -455,8 +456,6 @@ public class TelegramParserScheduler {
 
 		markerDTO.setLat(markerDTO.getLat() + randLat);
 		markerDTO.setLng(markerDTO.getLng() + randLng);
-
-		markerDTO.setRegion(streetDataService.getRegionByLatlng(latlng));
 		
 		markerService.addMarker(layer, markerDTO, marker);
 	}
