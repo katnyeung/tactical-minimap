@@ -130,7 +130,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 }
 #toast-container > .toast {
     background-image: none !important;
-    margin:8px;
+    margin:5px;
     padding:7px;
     font-size:16px;
     font-family: 微軟正黑體;
@@ -1207,6 +1207,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				}
 			}
 			
+			function highlightSharp(message){
+				return message.replace(/#(.*?) /gi,'<span style="color:#ffac4e"><b>#$1</b></span> ')
+			}
+			
 			function processMarker(markerDataList){
 				// remove non active markers
 				markerObjectList.forEach(function(item, index, object){
@@ -1244,12 +1248,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var pulseStyle = '';
 					var copyButton = '';
 					var expirePercent = 0;
-
+					
 					if (item.controllable){						
 						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
-						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="font-weight-normal">' + item.message + '</span>';
+						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="font-weight-normal">' + highlightSharp(item.message) + '</span>';
 					}
 					
 					if(loggedLayers.length > 0){
@@ -1368,7 +1372,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(item.controllable){
 						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'
 					}else{
-						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+item.message+'</span>'
+						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ highlightSharp(item.message) +'</span>'
 					}
 					
 					var imagePopup = L.popup().setContent(imageContent);
@@ -1538,7 +1542,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
-							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ item.message.substr(0, messageCutOff) +'</b></a><br/>');
+							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage">'+ highlightSharp(item.message.substr(0, messageCutOff)) +'</a><br/>');
 							
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
@@ -1920,9 +1924,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 		    toastr.options.positionClass = 'toast-bottom-right';
 		    toastr.options.extendedTimeOut = 1000; //1000;
-		    toastr.options.timeOut = 10000;
+		    toastr.options.timeOut = 15000;
 		    toastr.options.fadeOut = 250;
-		    toastr.options.fadeIn = 250;
+		    toastr.options.fadeIn = 150;
 		    toastr.options.showEasing = 'swing';
 		    toastr.options.hideEasing = 'linear';
 		});
