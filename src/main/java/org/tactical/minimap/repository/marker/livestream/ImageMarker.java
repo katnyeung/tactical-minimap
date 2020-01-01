@@ -47,6 +47,7 @@ public class ImageMarker extends Marker {
 		this.setHour(markerDTO.getHour());
 		this.setMinute(markerDTO.getMinute());
 		this.setImagePath(markerDTO.getImagePath());
+		this.setRegion(markerDTO.getRegion());
 		return this;
 	}
 

@@ -137,6 +137,7 @@ public abstract class Marker extends Auditable<String> {
 		this.setUuid(markerDTO.getUuid());
 		this.setHour(markerDTO.getHour());
 		this.setMinute(markerDTO.getMinute());
+		this.setRegion(markerDTO.getRegion());
 		return this;
 	}
 
@@ -202,6 +203,10 @@ public abstract class Marker extends Auditable<String> {
 
 	@Transient
 	double opacity;
+
+	@JsonInclude(Include.NON_NULL)
+	@Column(nullable = true)
+	String region;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -360,6 +365,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setTelegramMessageId(Long telegramMessageId) {
 		this.telegramMessageId = telegramMessageId;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }

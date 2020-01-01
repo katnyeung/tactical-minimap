@@ -456,6 +456,8 @@ public class TelegramParserScheduler {
 		markerDTO.setLat(markerDTO.getLat() + randLat);
 		markerDTO.setLng(markerDTO.getLng() + randLng);
 
+		markerDTO.setRegion(streetDataService.getRegionByLatlng(latlng));
+		
 		markerService.addMarker(layer, markerDTO, marker);
 	}
 

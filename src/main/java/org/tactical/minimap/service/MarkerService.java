@@ -61,7 +61,7 @@ public class MarkerService {
 
 	@Autowired
 	LayerService layerService;
-
+	
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -96,26 +96,25 @@ public class MarkerService {
 
 			if (marker instanceof ShapeMarker) {
 
-					ShapeMarker shapeMarker = (ShapeMarker) marker;
-					List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
-					boolean haveFilteredGroup = false;
+				ShapeMarker shapeMarker = (ShapeMarker) marker;
+				List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
+				boolean haveFilteredGroup = false;
 
-					for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
-						if (streetGroupList.contains(smd.getSubGroup())) {
-							// remove whole group
-							haveFilteredGroup = true;
-						} else {
-							tempGroupList.add(smd.getSubGroup());
-							smdList.add(smd);
-						}
+				for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
+					if (streetGroupList.contains(smd.getSubGroup())) {
+						// remove whole group
+						haveFilteredGroup = true;
+					} else {
+						tempGroupList.add(smd.getSubGroup());
+						smdList.add(smd);
 					}
+				}
 
-					streetGroupList.addAll(tempGroupList);
+				streetGroupList.addAll(tempGroupList);
 
-					if (haveFilteredGroup) {
-						shapeMarker.setShapeMarkerDetailList(smdList);
-					}
-				
+				if (haveFilteredGroup) {
+					shapeMarker.setShapeMarkerDetailList(smdList);
+				}
 
 			}
 			
@@ -220,7 +219,7 @@ public class MarkerService {
 		}
 
 		marker = marker.fill(markerDTO);
-
+		
 		if (marker != null) {
 			
 			if(markerDTO.getTelegramMessageId() != null) {

@@ -31,6 +31,8 @@ public class MarkerDTO {
 
 	List<Long> markerIdList;
 
+	String region;
+	
 	public Double getLat() {
 		return lat;
 	}
@@ -149,6 +151,14 @@ public class MarkerDTO {
 
 	public void setTelegramMessageId(Long telegramMessageId) {
 		this.telegramMessageId = telegramMessageId;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }
