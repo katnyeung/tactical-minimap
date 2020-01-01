@@ -96,7 +96,6 @@ public class MarkerService {
 
 			if (marker instanceof ShapeMarker) {
 
-				if(mc != null && mc.getExpire() > 0) {
 					ShapeMarker shapeMarker = (ShapeMarker) marker;
 					List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
 					boolean haveFilteredGroup = false;
@@ -116,7 +115,7 @@ public class MarkerService {
 					if (haveFilteredGroup) {
 						shapeMarker.setShapeMarkerDetailList(smdList);
 					}
-				}
+				
 
 			}
 			
