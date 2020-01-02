@@ -1,5 +1,6 @@
 package org.tactical.minimap.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -10,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -40,6 +42,7 @@ import org.tactical.minimap.repository.marker.shape.ShapeMarker;
 import org.tactical.minimap.repository.marker.shape.ShapeMarkerDetail;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
+import org.tactical.minimap.util.TelegramResult;
 import org.tactical.minimap.web.DTO.MarkerDTO;
 import org.tactical.minimap.web.DTO.MarkerWebSocketDTO;
 import org.tactical.minimap.web.result.MarkerResult;
@@ -65,7 +68,7 @@ public class MarkerService {
 
 	@Autowired
 	TelegramMessageService telegramMessageService;
-	
+
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -74,14 +77,16 @@ public class MarkerService {
 
 	public List<MarkerResult> findMultiLayerMarkersResponse(String uuid, List<Long> markerIdList, List<String> layerKeys, Double lat, Double lng, Double range) {
 
+		ObjectMapper om = new ObjectMapper();
+		
 		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
 
 		List<MarkerResult> mrList = new LinkedList<MarkerResult>();
 
 		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		List<Long> processedList = new ArrayList<Long>();
-		
-		Set<Integer> streetGroupList = new HashSet<Integer>();
+
+		Set<Integer> streetGroupSet = new HashSet<Integer>();
 
 		for (Marker marker : markerList) {
 			boolean isControllable = false;
@@ -96,35 +101,31 @@ public class MarkerService {
 			double opacity = getMarkerOpacity(marker);
 
 			// if street overlap , remove current street group
-			Set<Integer> tempGroupList = new HashSet<Integer>();
+			removeOverlapStreet(marker, streetGroupSet);
 
-			if (marker instanceof ShapeMarker) {
-
-				ShapeMarker shapeMarker = (ShapeMarker) marker;
-				List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
-				boolean haveFilteredGroup = false;
-
-				for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
-					if (streetGroupList.contains(smd.getSubGroup())) {
-						// remove whole group
-						haveFilteredGroup = true;
-					} else {
-						tempGroupList.add(smd.getSubGroup());
-						smdList.add(smd);
-					}
-				}
-
-				streetGroupList.addAll(tempGroupList);
-
-				if (haveFilteredGroup) {
-					shapeMarker.setShapeMarkerDetailList(smdList);
-				}
-
-			}
-			
 			// process marker new line and wrap issue
 			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
 
+			// group policeMarker to a numberMarker
+			
+			// group Image marker to a imageListMarker
+			
+			// set keywords list to marker
+			List<String> keywordList = new ArrayList<String>();
+			TelegramMessage telegramMessage = marker.getTelegramMessage();
+			if(telegramMessage != null && telegramMessage.getResult() != null) {
+				try {
+					TelegramResult tr = om.readValue(telegramMessage.getResult(), TelegramResult.class);
+					for (Entry<String, Integer> entry : tr.getData().entrySet()) {
+						keywordList.add(entry.getKey());
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			marker.setKeywordList(keywordList);
+			
 			if (markerIdList != null) {
 				if (!markerIdList.contains(marker.getMarkerId())) {
 					// new marker, not in client list
@@ -161,6 +162,36 @@ public class MarkerService {
 		}
 
 		return mrList;
+	}
+
+	public Marker removeOverlapStreet(Marker marker, Set<Integer> streetGroupSet) {
+		Set<Integer> tempGroupList = new HashSet<Integer>();
+
+		if (marker instanceof ShapeMarker) {
+
+			ShapeMarker shapeMarker = (ShapeMarker) marker;
+			List<ShapeMarkerDetail> smdList = new ArrayList<ShapeMarkerDetail>();
+			boolean haveFilteredGroup = false;
+
+			for (ShapeMarkerDetail smd : shapeMarker.getShapeMarkerDetailList()) {
+				if (streetGroupSet.contains(smd.getSubGroup())) {
+					// remove whole group
+					haveFilteredGroup = true;
+				} else {
+					tempGroupList.add(smd.getSubGroup());
+					smdList.add(smd);
+				}
+			}
+
+			streetGroupSet.addAll(tempGroupList);
+
+			if (haveFilteredGroup) {
+				shapeMarker.setShapeMarkerDetailList(smdList);
+			}
+
+		}
+
+		return marker;
 	}
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
@@ -281,7 +312,7 @@ public class MarkerService {
 		marker.setLat(lat);
 		marker.setLng(lng);
 		marker.setCreatedate(Calendar.getInstance().getTime());
-		
+
 		markerDAO.save(marker);
 	}
 

@@ -50,9 +50,9 @@ public abstract class Marker extends Auditable<String> {
 
 	String icon;
 	int iconSize;
-	
+
 	static {
-		
+
 		ClassList.add(InfoMarker.class);
 		ClassList.add(RedInfoMarker.class);
 		ClassList.add(YellowInfoMarker.class);
@@ -123,7 +123,7 @@ public abstract class Marker extends Auditable<String> {
 
 	@Transient
 	public abstract int getPulseRate();
-	
+
 	@JsonIgnore
 	@Transient
 	public abstract long getMarkerExpire();
@@ -199,7 +199,10 @@ public abstract class Marker extends Auditable<String> {
 
 	@Transient
 	double opacity;
-	
+
+	@Transient
+	List<String> keywordList;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "telegram_message_id", referencedColumnName = "telegramMessageId")
 	TelegramMessage telegramMessage;
@@ -361,6 +364,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setTelegramMessage(TelegramMessage telegramMessage) {
 		this.telegramMessage = telegramMessage;
+	}
+
+	public List<String> getKeywordList() {
+		return keywordList;
+	}
+
+	public void setKeywordList(List<String> keywordList) {
+		this.keywordList = keywordList;
 	}
 
 }
