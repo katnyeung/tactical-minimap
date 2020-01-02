@@ -492,7 +492,7 @@ public class TelegramParserScheduler {
 					double toLng = latlng.getLng() + 0.0025;
 
 					if ((fromLat < lat && lat <= toLat) && (fromLng < lng && lng <= toLng)) {
-						logger.info("{} < {} < {} , {} < {} < {}", fromLat, lat, toLat, fromLng, lng, toLng);
+						logger.debug("{} < {} < {} , {} < {} < {}", fromLat, lat, toLat, fromLng, lng, toLng);
 
 						smd.put("lat", lat);
 						smd.put("lng", lng);
@@ -522,7 +522,10 @@ public class TelegramParserScheduler {
 
 	private MarkerGeoCoding doGoogle(final Map<String, Integer> keyMap, TelegramChannel tc) {
 
-		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> sortedMap = keyMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		logger.info("keyMap {} ", sortedMap);
 		// get geo location
