@@ -177,7 +177,7 @@ public class TelegramParserScheduler {
 				try {
 
 					// convert message
-					message = message.replaceAll("\n", "");
+					message = message.replaceAll("\n|\r\n", "");
 
 					HashMap<String, String> messageRules = getRules();
 
@@ -236,6 +236,9 @@ public class TelegramParserScheduler {
 									keyMap.put(key, keyMap.get(key) - 50);
 								}
 							}
+
+							// filter out the key weight < 0
+							keyMap.entrySet().removeIf(e -> e.getValue() < 0);
 
 							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路") || streetCount > 1) {
 
@@ -546,9 +549,6 @@ public class TelegramParserScheduler {
 	}
 
 	private MarkerGeoCoding doGeoDataHK(final Map<String, Integer> keyMap, TelegramChannel tc) {
-
-		// filter out the key weight < 15
-		keyMap.entrySet().removeIf(e -> e.getValue() < 0);
 
 		final Map<String, Integer> sortedMap = keyMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(4).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 

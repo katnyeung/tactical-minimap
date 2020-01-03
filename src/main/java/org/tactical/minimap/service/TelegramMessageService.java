@@ -139,7 +139,7 @@ public class TelegramMessageService {
 			postDirectionStartAt = postDirectionMatcher.start();
 		}
 		
-		Pattern preDirectionPattern = Pattern.compile("(去|龍尾：)");
+		Pattern preDirectionPattern = Pattern.compile("(向|去|龍尾：)");
 		Matcher preDirectionMatcher = preDirectionPattern.matcher(message);
 		int preDirectionEndAt = 0; 
 		if(preDirectionMatcher.find()) {
