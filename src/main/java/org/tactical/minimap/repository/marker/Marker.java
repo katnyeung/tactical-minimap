@@ -203,6 +203,7 @@ public abstract class Marker extends Auditable<String> {
 	@Transient
 	List<String> keywordList;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "telegram_message_id", referencedColumnName = "telegramMessageId")
 	TelegramMessage telegramMessage;
