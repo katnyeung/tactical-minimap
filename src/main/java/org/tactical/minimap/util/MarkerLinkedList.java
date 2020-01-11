@@ -61,11 +61,11 @@ public class MarkerLinkedList {
 		if (o.getClass() == this.getClass()) {
 
 			MarkerLinkedList mll = (MarkerLinkedList) o;
-			double fromLat = mll.getLat() - 0.0005;
-			double fromLng = mll.getLng() - 0.0005;
+			double fromLat = mll.getLat() - 0.0008;
+			double fromLng = mll.getLng() - 0.0008;
 
-			double toLat = mll.getLat() + 0.0005;
-			double toLng = mll.getLng() + 0.0005;
+			double toLat = mll.getLat() + 0.0008;
+			double toLng = mll.getLng() + 0.0008;
 			
 			if (fromLat < this.getLat() && this.getLat() < toLat && fromLng < this.getLng() && this.getLng() < toLng) {
 				return true;

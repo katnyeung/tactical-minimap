@@ -77,6 +77,7 @@ public class SupportTaskScheduler {
 			markerCacheList.add(redisService.saveMarkerCache(marker));
 		}
 
+		// group marker cache with region
 		markerCacheList = markerCacheList.stream().sorted(Comparator.comparingLong(MarkerCache::getMarkerId).reversed()).collect(Collectors.toList());
 		
 		List<MarkerLinkedList> popoMasterList = new ArrayList<MarkerLinkedList>();
