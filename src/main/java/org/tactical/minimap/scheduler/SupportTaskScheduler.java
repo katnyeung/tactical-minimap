@@ -137,7 +137,7 @@ public class SupportTaskScheduler {
 				while (node.hasNext()) {
 					node = node.next();
 					
-					totalWeight += 1;
+					totalWeight += node.getMarkerCache().getWeight();
 					
 					node.getMarkerCache().setGroup("r:" + masterNode.getMarkerCache().getMarkerId());
 					redisService.saveMarkerCache(node.getMarkerCache());
