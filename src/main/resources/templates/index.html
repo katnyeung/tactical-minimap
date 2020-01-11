@@ -1758,7 +1758,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									var slave = $.grep(markerObjectList, function(e){ return e.markerId == item.groupList[index]; });
 									
 									if(slave[0] && slave[0].popupContent){
-										popup += '\n\r\n\r' + slave[0].popupContent;
+										popup += '\n<br/>' + slave[0].popupContent;
 									}
 								}
 								
