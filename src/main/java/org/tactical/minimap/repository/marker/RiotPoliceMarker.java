@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class RiotPoliceMarker extends Marker {
 
 	String icon = "riot.png";
-	int iconSize = 48;
+	int iconSize = 38;
 	
 	@Override
 	public String getIcon() {

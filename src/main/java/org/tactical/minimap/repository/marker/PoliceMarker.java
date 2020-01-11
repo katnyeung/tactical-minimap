@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class PoliceMarker extends Marker {
 
 	String icon = "popo.png";
-	int iconSize = 48;
+	int iconSize = 38;
 	
 	@Override
 	public String getIcon() {
