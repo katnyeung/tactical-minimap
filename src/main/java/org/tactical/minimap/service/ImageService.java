@@ -1,8 +1,11 @@
 package org.tactical.minimap.service;
 
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,10 +69,10 @@ public class ImageService {
 	public String getServerFullPath(String fileName) {
 		return uploadFolder + fileName;
 	}
-	
+
 	public File uploadImage(MultipartFile file, String fileName) throws IllegalStateException, IOException {
 		File targetFile = new File(getServerFullPath(fileName));
-		
+
 		logger.info("upload file to : " + targetFile.getAbsolutePath());
 
 		Path filepath = targetFile.toPath();
@@ -88,4 +92,26 @@ public class ImageService {
 		return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(bytes);
 	}
 
+	public ResponseEntity<byte[]> addNumberOnImage(String fileName, int number) throws IOException {
+		logger.info("reading : {}", "/static/icon/" + fileName);
+
+		InputStream is = new ClassPathResource("/static/icon/" + fileName).getInputStream();
+
+		BufferedImage image = ImageIO.read(is);
+
+		Graphics g = image.getGraphics();
+		g.setFont(g.getFont().deriveFont(60f));
+		if(number < 10) {
+			g.drawString("" + number, 45, 83);
+		}else {
+			g.drawString("" + number, 28, 83);
+		}
+		g.dispose();
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "png", baos);
+		byte[] bytes = baos.toByteArray();
+
+		return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytes);
+	}
 }

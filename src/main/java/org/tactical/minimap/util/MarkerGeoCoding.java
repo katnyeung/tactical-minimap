@@ -41,5 +41,13 @@ public class MarkerGeoCoding {
 		latlng.setLng(lng);
 		latlng.setLabel(label);
 		return latlng;
+	}	
+	
+	public static MarkerGeoCoding latlng(double lat, double lng) {
+		MarkerGeoCoding latlng = new MarkerGeoCoding();
+		latlng.setLat(lat);
+		latlng.setLng(lng);
+		latlng.setLabel(null);
+		return latlng;
 	}
 }

@@ -105,10 +105,6 @@ public class MarkerService {
 
 			// process marker new line and wrap issue
 			marker.setMessage(marker.getMessage().replaceAll("\\n+", "\n").replaceAll("(\\S{30})", "$1\n"));
-
-			// group policeMarker to a numberMarker
-			
-			// group Image marker to a imageListMarker
 			
 			// set keywords list to marker
 			List<String> keywordList = new ArrayList<String>();

@@ -326,20 +326,23 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						success : function(data){
 							if(data.status == 'success'){
 								wordCloudData = data;
-								
-								$('.statRegion').each(function(){
-									if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){
-									    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);
-									}else{
-										$(this).html('');
-									}
-								});
+
+								if(wordCloudData.mapStat){
+									$('.statRegion').each(function(){
+											if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){
+											    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);
+											}else{
+												$(this).html('');
+											}
+	
+									});
+								}
 							}
 						}
 					});
 				}
 				
-				if(wordCloudData){
+				if(wordCloudData && wordCloudData.mapStat){
 					$('.statRegion').each(function(){
 						if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){
 						    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);
@@ -1260,6 +1263,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var pulseStyle = '';
 					var copyButton = '';
 					var expirePercent = 0;
+					var markerGroupType = undefined;
+					var markerGroupValue = undefined;
 					
 					if (item.controllable){						
 						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
@@ -1285,7 +1290,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						expirePercent = 1;
 					}
 					
-					if (item.markerCache != null) {
+					if (item.markerCache) {
 						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + (item.markerCache.u ? item.markerCache.u : '' )  + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + (item.markerCache.d ? item.markerCache.d : '')  + '</a>' + deleteBtn + '</mark></div>';
 
 						if(item.markerCache.pulse > 0){
@@ -1321,12 +1326,20 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								iconBorderColor = '#ffeceb';
 							}
 						}
+						
+						if(item.markerCache.g){
+							markerGroupType = item.markerCache.g.split(":")[0];
+							markerGroupValue = item.markerCache.g.split(":")[1];
+						}
 					}
 					
 					content = message;
 					
 					var htmlContent;
 					var icon;
+
+					var htmlContentMaster;
+					var iconMaster;
 					var updateClass;
 					var updateCSS;
 					var updateTextCSS;
@@ -1344,7 +1357,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + ((item.iconSize + ((item.level / 10) * item.iconSize)) * scale) + 'px; height:' + ((item.iconSize + ((item.level / 10) * item.iconSize)) * scale) + 'px; '+ pulseStyle +'';
 						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';
 						
-						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;
+						if(markerGroupType && markerGroupType === 'm'){
+							iconMaster = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';
+						}
+						
+						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';
+						
 					}
 					
 					var updateMessage = '';
@@ -1367,9 +1385,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							updateMessage = '';			
 						}
 					}
-					
+
 					htmlContent = icon + '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + updateMessage + '</div></div></div>';
-										
+
+					if(markerGroupType && markerGroupType === 'm' && item.type != 'image'){
+						htmlContentMaster = iconMaster + '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + updateMessage + '</div></div></div>';
+						item.htmlContent = htmlContentMaster;
+					}
+					
 					var popup = L.popup().setContent(content);
 					
 					divIcon = L.divIcon({
@@ -1389,15 +1412,32 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					
 					var imagePopup = L.popup().setContent(imageContent);
 					
+					if(markerGroupType == 'r'){
+						var itemMaster = $.grep(markerDataList, function(e){ return e.markerId == markerGroupValue; });
+						
+						if(itemMaster){
+							if(!itemMaster[0].groupList){
+								itemMaster[0].groupList = [];
+							}
+							
+							if(!itemMaster[0].groupList.includes(item.markerId)){
+								itemMaster[0].groupList.push(item.markerId);
+							}
+						}
+						
+					}
+					
 					if(marker.length == 0){
+
 						marker = L.marker([ item.lat, item.lng ], {
 							draggable : !dragLock && item.controllable,
 							icon : divIcon
 						}).addTo(map)
 						
-						marker.setZIndexOffset(0);	
+						marker.setZIndexOffset(0);
 						
 						marker.setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
+						
 						if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){
 							marker.bindPopup(imagePopup, {
 								autoPan: false,
@@ -1406,7 +1446,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								maxWidth: "auto"
 							});
 							marker.setPopupContent(imageContent);
+							marker.popupContent = imageContent;
 							marker.getPopup();
+
 						}else{
 							marker.bindPopup(popup, {
 								autoPan: false,
@@ -1414,8 +1456,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								autoClose: true,
 								maxWidth: "auto"
 							});
+							
 							marker.setPopupContent(content);
+							marker.popupContent = content;
 							marker.getPopup();
+
 						}
 						
 						if(item.message){
@@ -1568,7 +1613,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							})
 						}
 					}else{
-						
+
 						marker[0].setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));
 						
 						$('#marker_message_' + item.markerId).html(updateMessage);
@@ -1576,7 +1621,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 						$('#marker_icon_' + item.markerId).attr('class', updateClass);
 						$('#marker_icon_' + item.markerId).attr('style', updateCSS);
-						
+						/*
 						if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){
 							if(marker[0].getPopup().getContent() != imageContent){
 						        marker[0].openPopup();
@@ -1588,7 +1633,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								marker[0].setPopupContent(content);	
 							}
 						}
-			
+						*/
 						if(item.message){
 							if(!marker[0]._events.mouseover){
 						        marker[0].on('mouseover', function (e) {
@@ -1596,6 +1641,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						        });
 							}
 						}
+						
+
 						
 						if(!dragLock && item.controllable){
 							marker[0].dragging.enable();
@@ -1688,6 +1735,50 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									}
 								}
 							}
+						}
+					}
+				});
+
+				markerDataList.forEach(function(item) {
+					var markerGroupType = undefined;
+					var markerGroupValue = undefined;
+					
+					if(item.markerCache && item.markerCache.g){
+						markerGroupType = item.markerCache.g.split(":")[0];
+						markerGroupValue = item.markerCache.g.split(":")[1];
+					}
+					
+					if(markerGroupType){
+						var marker = $.grep(markerObjectList, function(e){ return e.markerId == item.markerId; });
+					
+						if(markerGroupType == 'm'){
+							if(item.groupList){
+								var popup = marker[0].popupContent;
+								for(var index in item.groupList){
+									var slave = $.grep(markerObjectList, function(e){ return e.markerId == item.groupList[index]; });
+									
+									if(slave[0] && slave[0].popupContent){
+										popup += '\n' + slave[0].popupContent;
+									}
+								}
+								
+								if(item.type != 'image'){
+									divIcon = L.divIcon({
+										className:'location-icon',
+										html: item.htmlContent,
+										popupAnchor:  [-3, -14],
+										iconAnchor: [-5, 10], 
+									});
+									
+									marker[0].setIcon(divIcon);
+								}
+
+								marker[0].setPopupContent(popup);
+							}
+						}else if(markerGroupType == 'r'){
+							divIcon = L.divIcon({html:'',icon:'',className:''});
+							marker[0].setIcon(divIcon);
+							marker[0].unbindPopup()
 						}
 					}
 				});
@@ -2035,11 +2126,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 		
 		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">
-			<img src="/icon/police-car.png" style="width: 32px; height: 32px" />
+			<img src="/icon/popo.png" style="width: 32px; height: 32px" />
 			<div>警察</div>
 		</button>
 		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">
-			<img src="/icon/riotpolice.png" style="width: 32px; height: 32px" />
+			<img src="/icon/riot.png" style="width: 32px; height: 32px" />
 			<div>防暴</div>
 		</button>
 		<button id="btnWaterTruckMarker" class="btn btn-warning mt-1">

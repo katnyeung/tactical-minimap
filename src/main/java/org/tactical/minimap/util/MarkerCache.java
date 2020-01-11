@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class MarkerCache {
 	@JsonIgnore
 	Long markerId;
-	
+
 	@JsonIgnore
 	double lat;
 	@JsonIgnore
@@ -28,7 +28,7 @@ public class MarkerCache {
 
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	int pulse = 0;
-	
+
 	@JsonIgnore
 	int upRate;
 
@@ -37,6 +37,16 @@ public class MarkerCache {
 
 	@JsonIgnore
 	String layer;
+
+	@JsonIgnore
+	String type;
+
+	@JsonIgnore
+	int weight;
+
+	@JsonProperty("g")
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	String group;
 
 	public Long getMarkerId() {
 		return markerId;
@@ -122,6 +132,30 @@ public class MarkerCache {
 		this.pulse = pulse;
 	}
 
+	public int getWeight() {
+		return weight;
+	}
+
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public Map<String, String> toHashMap() {
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("lat", "" + lat);
@@ -133,6 +167,9 @@ public class MarkerCache {
 		hashMap.put("expire", "" + expire);
 		hashMap.put("layer", "" + layer);
 		hashMap.put("pulse", "" + pulse);
+		hashMap.put("weight", "" + weight);
+		hashMap.put("group", "" + emptyIfNull(group));
+		hashMap.put("type", "" + type);
 		return hashMap;
 	}
 
@@ -148,9 +185,22 @@ public class MarkerCache {
 			mc.setDownRate(Integer.parseInt((String) objMap.get("downRate")));
 			mc.setLayer((String) objMap.get("layer"));
 			mc.setPulse(Integer.parseInt((String) objMap.get("pulse")));
+			mc.setWeight(Integer.parseInt((String) objMap.get("weight")));
+			mc.setGroup((String) objMap.get("group"));
+			mc.setType((String) objMap.get("type"));
 			return mc;
 		} else {
 			return null;
 		}
 	}
+
+	private String emptyIfNull(String value) {
+		return value == null ? "" : value;
+	}
+
+	@Override
+	public String toString() {
+		return "MarkerCache [markerId=" + markerId + ", lat=" + lat + ", lng=" + lng + ", upVote=" + upVote + ", downVote=" + downVote + ", expire=" + expire + ", pulse=" + pulse + ", upRate=" + upRate + ", downRate=" + downRate + ", layer=" + layer + ", type=" + type + ", group=" + group + "]";
+	}
+
 }

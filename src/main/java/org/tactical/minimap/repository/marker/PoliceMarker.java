@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class PoliceMarker extends Marker {
 
-	String icon = "police-car.png";
-	int iconSize = 28;
+	String icon = "popo.png";
+	int iconSize = 48;
 	
 	@Override
 	public String getIcon() {

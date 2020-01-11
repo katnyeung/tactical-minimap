@@ -2,7 +2,9 @@ package org.tactical.minimap.scheduler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
 import org.tactical.minimap.util.ConstantsUtil;
 import org.tactical.minimap.util.MarkerCache;
+import org.tactical.minimap.util.MarkerLinkedList;
 
 @Component
 public class SupportTaskScheduler {
@@ -41,12 +44,14 @@ public class SupportTaskScheduler {
 				logger.info("> Updating " + mc.getMarkerId() + " to D");
 				markerService.updateStatusUpDown(mc.getMarkerId(), ConstantsUtil.MARKER_STATUS_DEACTIVED, mc.getUpVote(), mc.getDownVote());
 				redisService.deleteKey(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + mc.getMarkerId());
+				
 			} else {
 				// count down the timer of those marker in redis
 				mc.setExpire(mc.getExpire() - 3);
 				if(mc.getPulse() > 0) {
 					mc.setPulse(mc.getPulse() - 1);
 				}
+				
 				redisService.saveMarkerCache(mc);
 			}
 			markerIdList.add(mc.getMarkerId());
@@ -69,11 +74,90 @@ public class SupportTaskScheduler {
 
 			marker.setExpire(marker.getExpire() - (markerCount * 5));
 
-			redisService.saveMarkerCache(marker);
+			markerCacheList.add(redisService.saveMarkerCache(marker));
 		}
 
+		markerCacheList = markerCacheList.stream().sorted(Comparator.comparingLong(MarkerCache::getMarkerId).reversed()).collect(Collectors.toList());
+		
+		List<MarkerLinkedList> popoMasterList = new ArrayList<MarkerLinkedList>();
+		List<MarkerLinkedList> riotMasterList = new ArrayList<MarkerLinkedList>();
+		List<MarkerLinkedList> imageMasterList = new ArrayList<MarkerLinkedList>();
+		
+		for (MarkerCache mc : markerCacheList) {
+			if (mc.getExpire() <= 0) {
+
+			} else {
+				// create the markerTrain
+				MarkerLinkedList mll = MarkerLinkedList.latlng(mc.getLat(), mc.getLng());
+				mll.setMarkerCache(mc);
+
+				List<MarkerLinkedList> masterList = null;
+
+				if (mc.getType().equals("police")) {
+					masterList = popoMasterList;
+				} else if (mc.getType().equals("riotpolice")) {
+					masterList = riotMasterList;
+				} else if (mc.getType().equals("image")) {
+					masterList = imageMasterList;
+				}
+
+				if (masterList != null) {
+					MarkerLinkedList node = findMaster(mll, masterList);
+					
+					if (node != null) {
+						while (node.hasNext()) {
+							node = node.next();
+						}
+						node.setNextMarker(mll);
+					} else {
+						// master node
+						masterList.add(mll);
+					}
+				}
+			}
+		}
+
+		// after fill up the linked list, reverse backfill the MarkerCache
+		reverseFillMarkerCache(popoMasterList);
+		reverseFillMarkerCache(riotMasterList);
+		reverseFillMarkerCache(imageMasterList);
+
 	}
-	
+
+	private void reverseFillMarkerCache(List<MarkerLinkedList> mllList) {
+		for (MarkerLinkedList node : mllList) {
+
+			if (node.hasNext()) {
+				// have a group
+				int totalWeight = 0;
+				
+				MarkerLinkedList masterNode = node;
+
+				while (node.hasNext()) {
+					node = node.next();
+					
+					totalWeight += node.getMarkerCache().getWeight();
+					
+					node.getMarkerCache().setGroup("r:" + masterNode.getMarkerCache().getMarkerId());
+					redisService.saveMarkerCache(node.getMarkerCache());
+				}
+				totalWeight += masterNode.getMarkerCache().getWeight();
+				
+				masterNode.getMarkerCache().setGroup("m:" + totalWeight);
+				redisService.saveMarkerCache(masterNode.getMarkerCache());
+			}
+		}
+	}
+
+	private MarkerLinkedList findMaster(MarkerLinkedList mll, List<MarkerLinkedList> masterList) {
+		for (MarkerLinkedList masterTemp : masterList) {
+			if (masterTemp.equals(mll)) {
+				return masterTemp;
+			}
+		}
+		return null;
+	}
+
 	@Scheduled(cron = "0 0 */4 * * *")
 	public void layerManager() {
 		// handle layer expire
