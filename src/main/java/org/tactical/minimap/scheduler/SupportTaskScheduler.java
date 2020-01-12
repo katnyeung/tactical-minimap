@@ -100,7 +100,7 @@ public class SupportTaskScheduler {
 					masterList = popoMasterList;
 				} else if (mc.getIcon().equals("riot.png")) {
 					masterList = riotMasterList;
-				} else if (mc.getType().equals("image")) {
+				} else if (mc.getType().equals("image") || mc.getIcon().equals("image.png")) {
 					masterList = imageMasterList;
 				} else if (mc.getType().equals("warning")) {
 					masterList = warningMarkerList;
