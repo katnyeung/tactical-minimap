@@ -94,7 +94,7 @@ public class TelegramParserScheduler {
 	// time pattern
 	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
 	// marker pattern
-	Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|私家車)");
+	Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(suv|SUV|EU|eu|Eu|衝|警車|警|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|私家車)");
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
