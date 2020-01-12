@@ -1361,7 +1361,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							iconMaster = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';
 						}
 						
-						if(item.type == 'police' || item.type == 'riotpolice' || (item.type == 'shape' && item.icon == 'popo.png' || item.icon == 'riot.png')){
+						if(item.type == 'police' || item.type == 'riotpolice' || (item.type == 'shape' && (item.icon == 'popo.png' || item.icon == 'riot.png'))){
 							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';
 						}else{
 							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';

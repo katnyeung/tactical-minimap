@@ -171,6 +171,9 @@ public class TelegramParserScheduler {
 			notOkIdList.add(telegramMessage.getTelegramMessageId());
 
 		} else {
+			
+			message = processChineseNumber(message);
+			
 			Matcher matcher = timePattern.matcher(message);
 
 			if (matcher.find()) {
@@ -320,6 +323,20 @@ public class TelegramParserScheduler {
 		}
 
 		return latlng;
+	}
+
+	private String processChineseNumber(String message) {
+		message = message.replaceAll("一", "1");
+		message = message.replaceAll("二", "2");
+		message = message.replaceAll("三", "3");
+		message = message.replaceAll("四", "4");
+		message = message.replaceAll("五", "5");
+		message = message.replaceAll("六", "6");
+		message = message.replaceAll("七", "7");
+		message = message.replaceAll("八", "8");
+		message = message.replaceAll("九", "9");
+		message = message.replaceAll("十", "0");
+		return message;
 	}
 
 	private void convertGeoLocateToMarker(MarkerGeoCoding latlng, TelegramChannel tc, TelegramMessage tm, Map<String, Integer> keyMap) throws InstantiationException, IllegalAccessException, IOException {
