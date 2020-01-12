@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class BlockadeMarker extends Marker {
 
-	String icon = "no-stopping.png";
+	String icon = "stop.png";
 	int iconSize = 38;
 	
 	@Override
