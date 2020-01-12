@@ -422,7 +422,7 @@ public class TelegramParserScheduler {
 					}
 				}
 
-				level = totalPolice < 10 ? totalPolice : 10;
+				level = totalPolice < 20 ? totalPolice : 20;
 			}
 			marker = RiotPoliceMarker.class.newInstance();
 			marker.setLevel(level);
@@ -443,7 +443,7 @@ public class TelegramParserScheduler {
 					}
 				}
 
-				level = totalPolice < 10 ? totalPolice : 10;
+				level = totalPolice < 20 ? totalPolice : 20;
 			}
 
 			marker = PoliceMarker.class.newInstance();
