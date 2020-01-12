@@ -67,6 +67,7 @@ import kong.unirest.json.JSONObject;
 
 @Service
 public class TelegramParserScheduler {
+	//	([a-zA-Z])出口|$1出口
 	public final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired

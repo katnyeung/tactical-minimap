@@ -42,6 +42,9 @@ public class MarkerCache {
 	String type;
 
 	@JsonIgnore
+	String icon;
+	
+	@JsonIgnore
 	int weight;
 
 	@JsonProperty("g")
@@ -156,6 +159,14 @@ public class MarkerCache {
 		this.type = type;
 	}
 
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
 	public Map<String, String> toHashMap() {
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("lat", "" + lat);
@@ -170,6 +181,7 @@ public class MarkerCache {
 		hashMap.put("weight", "" + weight);
 		hashMap.put("group", "" + emptyIfNull(group));
 		hashMap.put("type", "" + type);
+		hashMap.put("icon", "" + icon);
 		return hashMap;
 	}
 
@@ -188,6 +200,7 @@ public class MarkerCache {
 			mc.setWeight(Integer.parseInt((String) objMap.get("weight")));
 			mc.setGroup((String) objMap.get("group"));
 			mc.setType((String) objMap.get("type"));
+			mc.setIcon((String) objMap.get("icon"));
 			return mc;
 		} else {
 			return null;

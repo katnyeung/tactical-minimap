@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
+import org.tactical.minimap.repository.marker.PoliceMarker;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -94,9 +95,9 @@ public class SupportTaskScheduler {
 
 				List<MarkerLinkedList> masterList = null;
 
-				if (mc.getType().equals("police")) {
+				if (mc.getIcon().equals("popo.png")) {
 					masterList = popoMasterList;
-				} else if (mc.getType().equals("riotpolice")) {
+				} else if (mc.getIcon().equals("riot.png")) {
 					masterList = riotMasterList;
 				} else if (mc.getType().equals("image")) {
 					masterList = imageMasterList;
