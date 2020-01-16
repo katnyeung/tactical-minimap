@@ -1218,10 +1218,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span style="color:#ffac4e"><b>#$1</b></span>');
 				
 				for(index in keywordList){
-					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span style="color:#F3B675">$1</span>');
+					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span style="color:#FFD69C">$1</span>');
 				}
 				
-				var finalMessage = firstPart + secondPart;
+				var finalMessage = firstPart + '<span style="font-size:7px">' + secondPart + '</span>';
 				
 				return finalMessage;
 			}
