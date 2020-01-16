@@ -172,8 +172,6 @@ public class TelegramParserScheduler {
 
 		} else {
 			
-			message = processChineseNumber(message);
-			
 			Matcher matcher = timePattern.matcher(message);
 
 			if (matcher.find()) {
@@ -340,7 +338,10 @@ public class TelegramParserScheduler {
 	}
 
 	private void convertGeoLocateToMarker(MarkerGeoCoding latlng, TelegramChannel tc, TelegramMessage tm, Map<String, Integer> keyMap) throws InstantiationException, IllegalAccessException, IOException {
-		String message = tm.getMessage();
+		String originalMessage = tm.getMessage();
+
+		String message = processChineseNumber(originalMessage);
+		
 		String groupKey = tm.getGroupKey();
 
 		String layerString = "scout";
@@ -354,7 +355,7 @@ public class TelegramParserScheduler {
 		markerDTO.setLat(Math.floor(latlng.getLat() * 10000000) / 10000000);
 		markerDTO.setLng(Math.floor(latlng.getLng() * 10000000) / 10000000);
 		markerDTO.setLayer(layer.getLayerKey());
-		markerDTO.setMessage(message + "\n#" + groupKey);
+		markerDTO.setMessage(originalMessage + "\n#" + groupKey);
 		markerDTO.setUuid("TELEGRAM_BOT");
 		markerDTO.setTelegramMessageId(tm.getTelegramMessageId());
 
