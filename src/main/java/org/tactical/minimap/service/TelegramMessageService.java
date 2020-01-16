@@ -102,6 +102,10 @@ public class TelegramMessageService {
 
 			prepareData("additional", mapFolder + patternFolder + "/v2/additional");
 
+			
+			for(Entry<String, List<String>> patternEntry : patternMap.entrySet()) {
+				patternEntry.getValue().sort((s1, s2) -> s2.length() - s1.length());
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,9 +123,7 @@ public class TelegramMessageService {
 		}
 
 		sc.close();
-
-		patternList.sort((s1, s2) -> s2.length() - s1.length());
-
+		
 		if (patternMap.get(category) != null) {
 			List<String> currentStringList = patternMap.get(category);
 			currentStringList.addAll(patternList);
