@@ -333,7 +333,8 @@ public class TelegramParserScheduler {
 		message = message.replaceAll("七", "7");
 		message = message.replaceAll("八", "8");
 		message = message.replaceAll("九", "9");
-		message = message.replaceAll("十", "0");
+		message = message.replaceAll("十", "10");
+		message = message.replaceAll("零", "0");
 		return message;
 	}
 

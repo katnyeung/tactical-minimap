@@ -128,26 +128,39 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 #toast-container{
 	margin:0px;
 }
-#toast-container > .toast {
+
+.highlight{
+	color:#FFBA63;
+}
+.logMessage{
+	color: black !important;
+}
+.logMessage > b > .highlight{
+	color:#C03F4C !important;
+}
+.logMessage > .highlight{
+	color:#C03F4C !important;
+}
+#toast-container > .toast{
     background-image: none !important;
     margin:5px;
-    padding:7px;
+    padding:5px;
     font-size:16px;
     font-family: 微軟正黑體;
+    font-weight:normal;
     color:black;
-	background-color: rgba(255, 0, 0, 0); 
-	border-radius: 2px;
+	background-color: transparent; 
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	border-radius: 5px;
 }
+
 .toast-top-center {
 	top:5px;
 }
-.logMessage{
-	color:black !important;
-}
+
 .statRegion {
     font-family: 微軟正黑體;
     text-shadow: 1px 1px #CCCCCC;
-	-webkit-text-stroke: 1px;
 }
 </style>
 </head>
@@ -1222,10 +1235,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				var firstPart = message.substr(0, messageCutOff);
 				var secondPart = message.substr(messageCutOff, message.length);
 				
-				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span style="color:#ffac4e"><b>#$1</b></span>');
+				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');
 				
 				for(index in keywordList){
-					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span style="color:#FFD69C">$1</span>');
+					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span class="highlight">$1</span>');
 				}
 				
 				var finalMessage = firstPart + '<span style="font-size:7px">' + secondPart + '</span>';
@@ -2039,14 +2052,15 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 		    toastr.options.positionClass = 'toast-top-center';
-		    toastr.options.extendedTimeOut = 2000; //1000;
-		    toastr.options.timeOut = 15000;
+		    toastr.options.extendedTimeOut = 10000; //1000;
+		    toastr.options.timeOut = 20000;
 		    toastr.options.fadeOut = 250;
 		    toastr.options.fadeIn = 150;
 		    toastr.options.showEasing = 'swing';
 		    toastr.options.hideEasing = 'linear';
 		    toastr.options.tapToDismiss = false;
 		    toastr.options.progressBar = true;
+		    toastr.options.newestOnTop = false;
 		});
 
 		function toggleFullScreen() {
