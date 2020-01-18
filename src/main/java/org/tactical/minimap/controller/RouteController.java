@@ -209,4 +209,9 @@ public class RouteController {
 		}
 	}
 
+	@GetMapping(path = "/cam")
+	public String camIndex(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) {
+		return "cam";
+	}
+
 }
