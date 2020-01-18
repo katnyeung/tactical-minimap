@@ -131,6 +131,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 .highlight{
 	color:#FFBA63;
+	font-size:14px;
 }
 .logMessage{
 	color: black !important;
@@ -1228,10 +1229,18 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				}
 			}
 			
-			function highlightSharp(message, keywordList){
-				var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");
-				var firstPart = message.substr(0, messageCutOff);
-				var secondPart = message.substr(messageCutOff, message.length);
+			function highlightSharp(message, keywordList){				
+				var firstPart = '';
+				var secondPart = '';
+				
+				if((message.match(/,/g) || []).length > 1){
+					var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");
+					firstPart = message.substr(0, messageCutOff);
+					secondPart = '<span style="font-size:10px">' + message.substr(messageCutOff, message.length) + '</span>';
+				}else{
+					firstPart = message;
+					secondPart = '';
+				}
 				
 				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');
 				
@@ -1239,7 +1248,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span class="highlight">$1</span>');
 				}
 				
-				var finalMessage = firstPart + '<span style="font-size:7px">' + secondPart + '</span>';
+				var finalMessage = firstPart + secondPart ;
 				
 				return finalMessage;
 			}
