@@ -1229,17 +1229,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 			
 			function highlightSharp(message, keywordList){				
-				var firstPart = '';
-				var secondPart = '';
-				
-				if((message.match(/#/g) || []).length > 0){
-					var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");
-					firstPart = message.substr(0, messageCutOff);
-					secondPart = '<span style="font-size:10px">' + message.substr(messageCutOff, message.length) + '</span>';
-				}else{
-					firstPart = message;
-					secondPart = '';
-				}
+				var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");
+				var firstPart = message.substr(0, messageCutOff);
+				var secondPart = '<span style="font-size:10px">' + message.substr(messageCutOff, message.length) + '</span>';
 				
 				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');
 				
@@ -1250,6 +1242,17 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				var finalMessage = firstPart + secondPart ;
 				
 				return finalMessage;
+			}
+			
+			function toastrHighlightSharp(message, keywordList){				
+				
+				message = message.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');
+				
+				for(index in keywordList){
+					message = message.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span class="highlight">$1</span>');
+				}
+				
+				return message;
 			}
 			
 			function processMarker(markerDataList){
@@ -1631,7 +1634,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
-							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ highlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>');
+							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>');
 							
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
