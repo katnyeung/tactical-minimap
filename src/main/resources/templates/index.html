@@ -134,6 +134,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 }
 .logMessage{
 	color: black !important;
+	display:block;
 }
 .logMessage > b > .highlight > b > .highlight{
 	color:#950800 !important;
@@ -156,8 +157,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 	border-radius: 5px;
 }
 
-.toast-top-center {
-	top:5px;
+.toast-top-left {
+	top:7px;
+	left:60px;
 }
 
 .statRegion {
@@ -2063,7 +2065,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				$('#markerMessage').insertAfter(this);
 			});
 			
-		    toastr.options.positionClass = 'toast-top-center';
+		    toastr.options.positionClass = 'toast-top-left';
 		    toastr.options.extendedTimeOut = 10000; //1000;
 		    toastr.options.timeOut = 20000;
 		    toastr.options.fadeOut = 250;
