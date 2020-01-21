@@ -94,14 +94,14 @@ public class TelegramParserScheduler {
 	// time pattern
 	Pattern timePattern = Pattern.compile("((?:[2][0-3]|[0-5][0-9])\\:?[0-5][0-9])");
 	// marker pattern
-	Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(suv|SUV|EU|eu|Eu|衝|警車|警|綠衫|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|私家車)");
+	Pattern policeMarkerPattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架|多個|多)*?(?:閃燈|閃光|蒙面)*?(?:藍|白)*?(?:大|小)*?\\s*?(suv|SUV|EU|eu|Eu|衝|警車|警|綠衫|籠|豬籠|軍裝|豬龍|豬|曱|green object|blue object|狗|私家車)");
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
 	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)(?!槍|彈槍)");
 	Pattern riotPolicePattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?\\s*?(防暴|速龍|鋭武)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
-	Pattern groupPattern = Pattern.compile("((?<!小心|不|公眾)安全|safe|Safe|clear|冇狗|(?<!仍未)清理)");
+	Pattern groupPattern = Pattern.compile("((?<!小心|不|公眾)安全(?!島)|safe|Safe|clear|冇狗|(?<!仍未)清理)");
 	Pattern dangerPattern = Pattern.compile("(制服|拉左|被捕)");
 	Pattern warningPattern = Pattern.compile("(交通意外|意外|壞車)");
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路|受阻|封閉|慢車)");
@@ -191,6 +191,8 @@ public class TelegramParserScheduler {
 
 					message = telegramMessageService.processData(message, "region", keyMap, 40);
 
+					message = telegramMessageService.processData(message, "mtr", keyMap, 50);
+
 					message = telegramMessageService.processData(message, "street", keyMap, 50);
 
 					message = telegramMessageService.processData(message, "plaza", keyMap, 15);
@@ -198,8 +200,6 @@ public class TelegramParserScheduler {
 					message = telegramMessageService.processData(message, "building", keyMap, 15);
 
 					message = telegramMessageService.processData(message, "district", keyMap, 25);
-
-					message = telegramMessageService.processData(message, "mtr", keyMap, 50);
 
 					message = telegramMessageService.processData(message, "wildcard", keyMap, 5);
 
