@@ -80,7 +80,8 @@ public class SupportTaskScheduler {
 
 		// group marker cache with region
 		markerCacheList = markerCacheList.stream().sorted(Comparator.comparingLong(MarkerCache::getMarkerId).reversed()).collect(Collectors.toList());
-		
+
+		List<MarkerLinkedList> infoMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> popoMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> riotMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> imageMasterList = new ArrayList<MarkerLinkedList>();
@@ -104,6 +105,8 @@ public class SupportTaskScheduler {
 					masterList = imageMasterList;
 				} else if (mc.getType().equals("warning")) {
 					masterList = warningMarkerList;
+				}else if (mc.getType().equals("info")) {
+					masterList = infoMasterList;
 				}
 
 				if (masterList != null) {
@@ -123,12 +126,12 @@ public class SupportTaskScheduler {
 		}
 
 		// after fill up the linked list, reverse backfill the MarkerCache
+		reverseFillMarkerCache(infoMasterList);
 		reverseFillMarkerCache(popoMasterList);
 		reverseFillMarkerCache(riotMasterList);
 		reverseFillMarkerCache(imageMasterList);
 		reverseFillMarkerCache(warningMarkerList);
 		
-
 	}
 
 	private void reverseFillMarkerCache(List<MarkerLinkedList> mllList) {
