@@ -242,7 +242,7 @@ public class TelegramParserScheduler {
 							// filter out the key weight < 0
 							keyMap.entrySet().removeIf(e -> e.getValue() < 0);
 
-							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路") || streetCount > 1) {
+							if ((tc.getGeoCodeMethod() != null && tc.getGeoCodeMethod().equals("google")) || keyMap.containsKey("交界") || keyMap.containsKey("太和路") || keyMap.containsKey("天瑞") || streetCount > 1) {
 
 								keyMap.entrySet().removeIf(e -> e.getKey().matches("(交界)"));
 
