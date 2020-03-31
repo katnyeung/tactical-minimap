@@ -30,7 +30,7 @@ public class TrafficScheduler {
 	StringRedisTemplate redisTemplate;
 	
 	@Async
-	@Scheduled(fixedRate = 180000)
+	//@Scheduled(fixedRate = 180000)
 	public void dataoneParser() throws IOException {
 
 		Unirest.config().verifySsl(false);
