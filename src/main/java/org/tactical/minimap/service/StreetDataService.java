@@ -250,7 +250,7 @@ public class StreetDataService {
 					markerDTO.setLat(camLat);
 					markerDTO.setLng(camLng);
 					markerDTO.setLayer(layer.getLayerKey());
-					markerDTO.setMessage(sdf.format(Calendar.getInstance().getTime())  + " " + message);
+					markerDTO.setMessage(sdf.format(Calendar.getInstance(tz1).getTime())  + " " + message);
 					markerDTO.setUuid("TRAFFIC_STAT");
 					markerDTO.setShapeType("polyline_group");
 					markerDTO.setType("info");
