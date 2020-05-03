@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -158,12 +159,13 @@ public class StreetDataService {
 		subGroupMap.put("TC604F", 604.0);
 		subGroupMap.put("K305F", 305.0);
 		subGroupMap.put("K202F", 202.0);
-
-		Calendar calendarFrom = Calendar.getInstance();
+		
+		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
+		Calendar calendarFrom = Calendar.getInstance(tz1);
 		calendarFrom.set(Calendar.SECOND, 0);
 		calendarFrom.add(Calendar.MINUTE, -minute);
 
-		Calendar calendarTo = Calendar.getInstance();
+		Calendar calendarTo = Calendar.getInstance(tz1);
 		calendarTo.set(Calendar.SECOND, 0);
 		calendarTo.add(Calendar.MINUTE, minute);
 
