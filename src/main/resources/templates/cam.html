@@ -9,9 +9,10 @@
 	integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
 	crossorigin="anonymous">
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-	integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+	integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
 	crossorigin="anonymous"></script>
+
 <script
 	src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
 	integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
@@ -21,34 +22,216 @@
 	integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
 	crossorigin="anonymous"></script>
 
-<script>
-$(function() {
-    $('.cam').click(function(e){
-    	console.log($(this).data('id'));
-        var offset = $(this).offset();
-        alert(e.pageX - offset.left);
-        alert(e.pageY - offset.top);
-    });
-});
-</script>
+<link rel="stylesheet" href="/css/toastr.min.css" />
 
+<script src="/js/toastr.min.js"/></script>
+
+<script>
+	$(function() {
+		$('.imageSet').click(function(e) {
+			var imageSet = $(this);
+
+			var offset = imageSet.offset();
+			
+		});
+
+		$('.car').click(function(event){
+			event.stopPropagation();
+			$.ajax({
+				type : "POST",
+				url : '/stat/pieceSubmit/',
+				contentType : "application/json; charset=utf-8",
+				data : JSON.stringify({
+					image : $(this).closest('.overlaySet').first().attr('data-image'),
+					id : $(this).closest('.imageSet').first().data('id'),
+					type : 'car'
+				}),
+				success : function(data) {
+
+					toastr['info']('Saved');
+				}
+			});
+		});
+
+		$('.notcar').click(function(event){
+			event.stopPropagation();
+			$.ajax({
+				type : "POST",
+				url : '/stat/pieceSubmit/',
+				contentType : "application/json; charset=utf-8",
+				data : JSON.stringify({
+					image : $(this).closest('.overlaySet').first().attr('data-image'),
+					id : $(this).closest('.imageSet').first().data('id'),
+					type : 'notcar'
+				}),
+				success : function(data) {
+
+					toastr['info']('Saved');
+				}
+			});
+		});
+		
+		function updateImage() {
+			var d = new Date();
+
+			$('.cam').each( function() {
+					$(this).attr('src', $(this).data('src') + "?" + Date.now());
+				});
+			
+
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F').attr("src","data:image/png;base64," + data)
+				}
+			});
+
+
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap0/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F0').attr("src","data:image/png;base64," + data)
+				}
+			});
+
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap1/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F1').attr("src","data:image/png;base64," + data)
+				}
+			});
+			
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap2/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F2').attr("src","data:image/png;base64," + data)
+				}
+			});
+			
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap3/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F3').attr("src","data:image/png;base64," + data)
+				}
+			});
+			
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap4/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F4').attr("src","data:image/png;base64," + data)
+				}
+			});
+			
+			
+			$.ajax({
+				type : "GET",
+				url : '/stat/heatmap5/TC604F',
+				contentType : "application/json; charset=utf-8",
+				success : function(data) {
+					$('#TC604F5').attr("src","data:image/png;base64," + data)
+				}
+			});
+			
+			
+			console.log('updating');
+		}
+		updateImage();
+
+		setInterval(function() {
+			updateImage();
+		}, 60000);
+		
+	    toastr.options.positionClass = 'toast-top-left';
+	    toastr.options.extendedTimeOut = 5000; //1000;
+	    toastr.options.timeOut = 5000;
+	    toastr.options.fadeOut = 250;
+	    toastr.options.fadeIn = 150;
+	    toastr.options.showEasing = 'swing';
+	    toastr.options.hideEasing = 'linear';
+	    toastr.options.newestOnTop = false;
+	});
+</script>
+<style>
+.imageSet {
+	position: relative;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.overlaySet {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width:500px;
+}
+
+.cam {
+	width: 640px;
+	height: 480px;
+}
+
+#toast-container > .toast{
+    background-image: none !important;
+    margin:5px;
+    padding:5px;
+    font-size:16px;
+    font-weight:normal;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	border-radius: 5px;
+}
+
+
+</style>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-4">汀九橋
-				<img class="cam" data-id="TC604F" src="https://tdcctv.data.one.gov.hk/TC604F.JPG" />
-			</div>
-			<div class="col-md-4">
-				<img class="cam" data-id="TR103F" src="http://tdcctv.data.one.gov.hk/TR103F.JPG" />
-			</div>
-			<div class="col-md-4">
-				<img class="cam" data-id="K305F" src="http://tdcctv.data.one.gov.hk/K305F.JPG" />
-			</div>
-			<div class="col-md-4">窩打老道近東方街
-				<img class="cam" data-id="K112F" src="http://tdcctv.data.one.gov.hk/K112F.JPG" />
-			</div>
-		</div>
-	</div>
+<input type="text" id="range"/>
+	<table cellpadding="10" cellspacing="10">
+		<tr>
+			<td><img class="cam" data-src="https://tdcctv.data.one.gov.hk/TC604F.JPG" src="" /></td>
+			<td><img id="TC604F" src="" /></td>
+			<td><img id="TC604F1" src="" /></td>
+			<td><img id="TC604F0" src=""  /></td>
+		</tr>
+		<tr>
+			<td><img id="TC604F2" src="" /></td>
+			<td><img id="TC604F3" src="" /></td>
+			<td><img id="TC604F4" src="" /></td>
+			<td><img id="TC604F5" src="" /></td>
+		</tr>
+	</table>
+<!-- 
+	汀九橋
+				<div class="imageSet" data-id="TC604F">
+					<div class="base">
+						<img class="cam"
+							data-src="https://tdcctv.data.one.gov.hk/TC604F.JPG" src="" />
+					</div>
+					<div class="overlay">
+						<div class="overlaySet">
+							<img class="overlayImage"src="https://limap.co/icon/019-pin-4.png" style="width: 40px; height: 40px" />
+							<button class="btn btn-primary car">Car</button>
+							<button class="btn btn-light notcar">Not car</button>
+						</div>
+					</div>
+				</div>
+				
+				
+ -->
 </body>
 </html>

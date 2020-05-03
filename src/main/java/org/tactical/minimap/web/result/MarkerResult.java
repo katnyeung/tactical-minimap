@@ -21,7 +21,11 @@ public class MarkerResult {
 	@JsonProperty("c")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	boolean controllable;
-
+	
+	@JsonProperty("l")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	String layer;
+	
 	@JsonProperty("mc")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	MarkerCache markerCache;
@@ -74,6 +78,14 @@ public class MarkerResult {
 		this.controllable = controllable;
 	}
 
+	public String getLayer() {
+		return layer;
+	}
+
+	public void setLayer(String layer) {
+		this.layer = layer;
+	}
+
 	public static MarkerResult makeResult(Long markerId) {
 		MarkerResult mr = new MarkerResult();
 		mr.setMarkerId(markerId);
@@ -85,6 +97,11 @@ public class MarkerResult {
 		return this;
 	}
 
+	public MarkerResult layer(String layer) {
+		this.setLayer(layer);
+		return this;
+	}
+	
 	public MarkerResult marker(Marker m) {
 		this.setMarker(m);
 		return this;

@@ -2,26 +2,53 @@ package org.tactical.minimap.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.tactical.minimap.DAO.StreetDataDAO;
+import org.tactical.minimap.DAO.TrafficStatDAO;
+import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.StreetData;
+import org.tactical.minimap.repository.TrafficStat;
+import org.tactical.minimap.repository.marker.shape.ShapeMarker;
 import org.tactical.minimap.util.MarkerGeoCoding;
+import org.tactical.minimap.web.DTO.MarkerDTO;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 @Service
 public class StreetDataService {
+	public final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	@Autowired
 	StreetDataDAO streetDataDAO;
 
+	@Autowired
+	TrafficStatDAO trafficStatDAO;
+	
+	@Autowired
+	LayerService layerService;
+	
+	@Autowired
+	MarkerService markerService;
+	
 	@Value("${MAP_FOLDER}")
 	String mapFolder;
 
@@ -112,5 +139,144 @@ public class StreetDataService {
 			e.printStackTrace();
 		}
 		return latlngList;
+	}
+
+	public void addTrafficStatMarker(int minute) {
+		ObjectMapper om = new ObjectMapper();
+
+		Map<String, String> camMap = new HashMap<String, String>();
+		camMap.put("TC604F", "22.363557,114.079930;↖ {in} ↘ {out}");
+		camMap.put("K305F", "22.338542,114.152087;← {in} ↘ {out}");
+		camMap.put("K202F", "22.319821,114.172500;← {in} → {out}");
+
+		Map<String, String> pathMap = new HashMap<String, String>();
+		pathMap.put("TC604F", "22.363114,114.080167;22.366190,114.078495");
+		pathMap.put("K305F", "22.338468,114.151279;22.338597,114.151916;22.338597,114.151916;22.338364,114.152554");
+		pathMap.put("K202F", "22.319856,114.172584;22.319642,114.171646");
+
+		Map<String, Double> subGroupMap = new HashMap<String, Double>();
+		subGroupMap.put("TC604F", 604.0);
+		subGroupMap.put("K305F", 305.0);
+		subGroupMap.put("K202F", 202.0);
+
+		Calendar calendarFrom = Calendar.getInstance();
+		calendarFrom.set(Calendar.SECOND, 0);
+		calendarFrom.add(Calendar.MINUTE, -minute);
+
+		Calendar calendarTo = Calendar.getInstance();
+		calendarTo.set(Calendar.SECOND, 0);
+		calendarTo.add(Calendar.MINUTE, minute);
+
+		for (String cam : camMap.keySet()) {
+			String camDetail[] = camMap.get(cam).split(";");
+
+			Double camLat = Double.parseDouble(camDetail[0].split(",")[0]);
+			Double camLng = Double.parseDouble(camDetail[0].split(",")[1]);
+
+			String message = camDetail[1];
+
+			String pathLatLng = pathMap.get(cam);
+
+			List<LinkedHashMap<String, Double>> pathShapeList = new LinkedList<LinkedHashMap<String, Double>>();
+			
+			String[] pathLatLngArray = pathLatLng.split(";");
+
+			for (String pathLatLngItem : pathLatLngArray) {
+				String[] latlngObj = pathLatLngItem.split(",");
+				LinkedHashMap<String, Double> smd = new LinkedHashMap<String, Double>();
+				smd.put("lat", Double.parseDouble(latlngObj[0]));
+				smd.put("lng", Double.parseDouble(latlngObj[1]));
+				smd.put("group", subGroupMap.get(cam));
+				pathShapeList.add(smd);
+				
+			}			
+			
+			List<TrafficStat> trafficStatList = trafficStatDAO.findTrafficStatById(cam, calendarFrom.getTime(), calendarTo.getTime());
+
+			logger.info("processing cam {} with lat,lng {},{} : records {}", cam, camLat, camLng, trafficStatList.size());
+			
+			if(trafficStatList.size() >= minute) {
+				Long inMean = (long) 0;
+				Long inMax = (long) 0;
+				Long inMin = Long.MAX_VALUE;
+
+				Long outMean = (long) 0;
+				Long outMax = (long) 0;
+				Long outMin = Long.MAX_VALUE;
+				
+				for(TrafficStat ts : trafficStatList) {
+					inMean += ts.getIn();
+					outMean += ts.getOut();
+					
+					if(ts.getIn() > inMax) {
+						inMax = ts.getIn();
+					}
+					if(ts.getIn() < inMin) {
+						inMin = ts.getIn();
+					}
+					
+					if(ts.getOut() > outMax) {
+						outMax = ts.getOut();
+					}
+					if(ts.getOut() < outMin) {
+						outMin = ts.getOut();
+					}
+				}
+				
+				// exclude outliner
+				inMean = inMean - inMax - inMin;
+				outMean = outMean - outMax - outMin;
+				
+				inMean /= (trafficStatList.size() - 2);
+				outMean /= (trafficStatList.size() - 2);
+				
+				//builder marker
+				message = message.replace("{in}", "" + inMean);
+				message = message.replace("{out}", "" + outMean);
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+				
+				try {
+					ShapeMarker sm = ShapeMarker.class.newInstance();
+					
+					sm.setIcon("015-pin-8.png");
+					sm.setIconSize(20);
+					
+					Layer layer = layerService.getLayerByKey("traffic");
+					
+					MarkerDTO markerDTO = new MarkerDTO();
+					markerDTO.setLat(camLat);
+					markerDTO.setLng(camLng);
+					markerDTO.setLayer(layer.getLayerKey());
+					markerDTO.setMessage(sdf.format(Calendar.getInstance().getTime())  + " " + message);
+					markerDTO.setUuid("TRAFFIC_STAT");
+					markerDTO.setShapeType("polyline_group");
+					markerDTO.setType("info");
+					
+					if(inMean + outMean > 20) {
+						markerDTO.setColor("#ffff66");
+					}else if(inMean + outMean > 40) {
+						markerDTO.setColor("#ff4d4d");
+					}else {
+						markerDTO.setColor("#ffffff");
+					}
+					
+					markerDTO.setShapeList(om.writeValueAsString(pathShapeList));
+
+					markerService.addMarker(layer, markerDTO, sm);
+					
+				} catch (InstantiationException | IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				
+				
+			}
+		}
+		
 	}
 }
