@@ -237,6 +237,7 @@ public class StreetDataService {
 				message = message.replace("{out}", "" + outMean);
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+				sdf.setTimeZone(tz1);
 				
 				try {
 					ShapeMarker sm = ShapeMarker.class.newInstance();

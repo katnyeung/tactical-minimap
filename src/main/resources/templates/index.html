@@ -1438,7 +1438,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() > 18){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark>' + upDownButton + copyButton;
 					}else{
-						console.log(item.markerIndex);
 						if(item.markerIndex < 8){
 							var messageText = item.message.substr(0, messageCutOff);
 							

@@ -35,6 +35,7 @@ public class TrafficStat extends Auditable<String> {
 
 	int temperature;
 	int humidity;
+	int weather;
 	
 	public Long getTrafficStatId() {
 		return trafficStatId;
@@ -130,6 +131,14 @@ public class TrafficStat extends Auditable<String> {
 
 	public void setHumidity(int humidity) {
 		this.humidity = humidity;
+	}
+
+	public int getWeather() {
+		return weather;
+	}
+
+	public void setWeather(int weather) {
+		this.weather = weather;
 	}
 
 }

@@ -190,7 +190,8 @@ public class TrafficScheduler {
 
 					Integer temperature = null;
 					Integer humidity = null;
-
+					Integer weather = null;
+					
 					for (Object item : tempArray) {
 						JSONObject obj = (JSONObject) item;
 
@@ -199,6 +200,9 @@ public class TrafficScheduler {
 						}
 					}
 
+
+					weather = weatherObj.getJSONArray("icon").getInt(0);
+					
 					humidity = weatherObj.getJSONObject("humidity").getJSONArray("data").getJSONObject(0).getInt("value");
 
 					String url = "https://tdcctv.data.one.gov.hk/" + id + ".JPG?" + millis;
@@ -271,6 +275,7 @@ public class TrafficScheduler {
 
 					ts.setTemperature(temperature);
 					ts.setHumidity(humidity);
+					ts.setWeather(weather);
 					
 					tsDAO.save(ts);
 				}
