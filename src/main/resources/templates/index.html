@@ -1209,8 +1209,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								
 								if(item.markerId == result.markerId){
 									item.markerIndex = markerCount[result.l]++;
-
-									console.log(item.markerIndex);
 									
 									item.opacity = result.o;
 									item.controllable = result.c;
@@ -1233,8 +1231,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 																
 								if(item.markerId == result.markerId){
 									item.markerIndex = markerCount[result.l]++;
-
-									console.log(item.markerIndex);
 									
 									item.lat = result.marker.lat;
 									item.lng = result.marker.lng;
@@ -2118,7 +2114,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 		}
 	</script>
-	<div id="coord" style="width: 250px; display: none;">
+	<div id="coord" style="width: 250px; display: none">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
