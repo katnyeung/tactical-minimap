@@ -1200,16 +1200,18 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							}
 							
 						}else if(result.status == 'O'){
-							markerCount = [];
+
+							if(result.l && !markerCount[result.l]){
+								markerCount[result.l] = 0;
+							}
+							
 							markerDataList.forEach(function(item){
 								
-								if(result.l && !markerCount[result.l]){
-									markerCount[result.l] = 0;
-								}
-								
-								item.markerIndex = markerCount[result.l]++;
-								
 								if(item.markerId == result.markerId){
+									item.markerIndex = markerCount[result.l]++;
+
+									console.log(item.markerIndex);
+									
 									item.opacity = result.o;
 									item.controllable = result.c;
 									
@@ -1222,17 +1224,18 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							});
 	
 						}else if(result.status == 'U'){
-							markerCount = [];
+
+							if(result.l && !markerCount[result.l]){
+								markerCount[result.l] = 0;
+							}
 							
 							markerDataList.forEach(function(item){
-								
-								if(result.l && !markerCount[result.l]){
-									markerCount[result.l] = 0;
-								}
-								
-								item.markerIndex = markerCount[result.l]++;
-								
+																
 								if(item.markerId == result.markerId){
+									item.markerIndex = markerCount[result.l]++;
+
+									console.log(item.markerIndex);
+									
 									item.lat = result.marker.lat;
 									item.lng = result.marker.lng;
 									item.message = result.marker.message;
@@ -1438,7 +1441,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() > 18){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark>' + upDownButton + copyButton;
 					}else{
-						if(item.markerIndex < 8){
+						console.log(item.markerIndex);
+						if(item.markerIndex < 2){
 							var messageText = item.message.substr(0, messageCutOff);
 							
 							if(messageText.length > 25){
@@ -2114,7 +2118,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}
 		}
 	</script>
-	<div id="coord" style="width: 185px; display: none">
+	<div id="coord" style="width: 250px; display: none;">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
 			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />
 			<div>資訊</div>
