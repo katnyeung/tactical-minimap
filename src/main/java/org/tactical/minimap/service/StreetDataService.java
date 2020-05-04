@@ -149,16 +149,22 @@ public class StreetDataService {
 		camMap.put("TC604F", "22.363557,114.079930;↖ {in} ↘ {out}");
 		camMap.put("K305F", "22.338542,114.152087;← {in} ↘ {out}");
 		camMap.put("K202F", "22.319821,114.172500;← {in} → {out}");
-
+		camMap.put("K505F", "22.343103,114.184185;← {in} → {out}");
+		camMap.put("K621F", "22.329855,114.210571;↖ {in} ↘ {out}");
+		
 		Map<String, String> pathMap = new HashMap<String, String>();
 		pathMap.put("TC604F", "22.363114,114.080167;22.366190,114.078495");
 		pathMap.put("K305F", "22.338468,114.151279;22.338597,114.151916;22.338597,114.151916;22.338364,114.152554");
 		pathMap.put("K202F", "22.319856,114.172584;22.319642,114.171646");
-
+		pathMap.put("K505F", "22.343523,114.183488;22.342779,114.185128");
+		pathMap.put("K621F", "22.330017,114.210726;22.328733,114.212260");
+		
 		Map<String, Double> subGroupMap = new HashMap<String, Double>();
 		subGroupMap.put("TC604F", 604.0);
 		subGroupMap.put("K305F", 305.0);
 		subGroupMap.put("K202F", 202.0);
+		subGroupMap.put("K505F", 505.0);
+		subGroupMap.put("K621F", 621.0);
 		
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar calendarFrom = Calendar.getInstance(tz1);
@@ -167,7 +173,6 @@ public class StreetDataService {
 
 		Calendar calendarTo = Calendar.getInstance(tz1);
 		calendarTo.set(Calendar.SECOND, 0);
-		calendarTo.add(Calendar.MINUTE, minute);
 
 		for (String cam : camMap.keySet()) {
 			String camDetail[] = camMap.get(cam).split(";");
@@ -236,7 +241,7 @@ public class StreetDataService {
 				message = message.replace("{in}", "" + inMean);
 				message = message.replace("{out}", "" + outMean);
 				
-				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+				SimpleDateFormat sdf = new SimpleDateFormat("HHmm");
 				sdf.setTimeZone(tz1);
 				
 				try {

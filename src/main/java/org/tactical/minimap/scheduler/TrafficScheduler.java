@@ -56,7 +56,7 @@ public class TrafficScheduler {
 	@Scheduled(fixedRate = 300000)
 	public void addTrafficStatMarker() {
 		logger.info("adding traffic stat marker");
-		sdService.addTrafficStatMarker(10);
+		sdService.addTrafficStatMarker(20);
 	}
 
 	@Async
@@ -80,15 +80,29 @@ public class TrafficScheduler {
 			outMap.put("K202F", "0:0,190:245,190:0,395:245");
 			tempMap.put("K202F", "Hong Kong Observatory");
 			
-			processImageToBackground("TC604F", 20, 90.0);
-			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 30, 2, 90.0);
+			inMap.put("K505F", "0:0,200:200,0:200,400:200");
+			outMap.put("K505F", "0:200,200:400,200:200,400:400");
+			tempMap.put("K505F", "Wong Tai Sin");
+			
+			inMap.put("K621F", "0:0,215:200,0:215,400:215");
+			outMap.put("K621F", "0:215,200:400,200:215,400:400");
+			tempMap.put("K621F", "Kwun Tong");
+			
+			processImageToBackground("TC604F", 25, 90.0);
+			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 50, 2, 90.0);
 
-			processImageToBackground("K305F", 10, -60.0);
+			processImageToBackground("K305F", 20, -60.0);
 			calculateForegroundTraffic("K305F", inMap, outMap, tempMap, 30, 8, -60.0);
 
-			processImageToBackground("K202F", 10, -45.0);
+			processImageToBackground("K202F", 20, -45.0);
 			calculateForegroundTraffic("K202F", inMap, outMap, tempMap, 50, 6, -45.0);
 
+			processImageToBackground("K505F", 20, 30.0);
+			calculateForegroundTraffic("K505F", inMap, outMap, tempMap, 50, 6, 30.0);
+			
+			processImageToBackground("K621F", 20, 50.0);
+			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 50, 6, 50.0);
+			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

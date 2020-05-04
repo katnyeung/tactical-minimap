@@ -1455,7 +1455,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var htmlContentMaster = '';
 					
 					if(markerGroupType && markerGroupType === 'm' && item.type != 'image'){
-						htmlContentMaster = iconMaster + '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message + '</mark><br/>' + '</div></div></div>';
+
+						var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");
+						
+						htmlContentMaster = iconMaster + '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) + '</mark><br/>' + '</div></div></div>';
 						item.htmlContent = htmlContentMaster;
 					}
 					
