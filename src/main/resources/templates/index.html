@@ -1484,8 +1484,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(markerGroupType == 'r'){
 						var itemMaster = $.grep(markerDataList, function(e){ return e.markerId == markerGroupValue; });
 						
-						if(itemMaster){
-							if(typeof itemMaster[0].groupList == undefined){
+						if(itemMaster && itemnMaster[0]){
+							if(typeof itemMaster[0]['groupList'] === undefined){
 								itemMaster[0]['groupList'] = [];
 							}
 							
