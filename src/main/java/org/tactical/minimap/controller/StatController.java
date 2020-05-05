@@ -210,7 +210,7 @@ public class StatController {
 
 			BufferedImage image = ImageIO.read(bis);
 			
-			image = rotateImage(image, 90.0);
+			image = rotateImage(image, 50.0);
 
 			BufferedImage dest = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
@@ -280,7 +280,7 @@ public class StatController {
 
 				BufferedImage image = ImageIO.read(bis);
 
-				image = rotateImage(image, 90.0);
+				image = rotateImage(image, 50.0);
 
 				BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
@@ -337,7 +337,7 @@ public class StatController {
 
 			BufferedImage image = ImageIO.read(bis);
 
-			image = rotateImage(image, 90.0);
+			image = rotateImage(image, 50.0);
 
 			BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
@@ -409,7 +409,7 @@ public class StatController {
 
 			BufferedImage image = ImageIO.read(bis);
 
-			image = rotateImage(image, 90.0);
+			image = rotateImage(image, 50.0);
 
 			logger.info("image W {}, H {} " , image.getWidth(), image.getHeight());
 			BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
@@ -472,7 +472,7 @@ public class StatController {
 
 			BufferedImage image = ImageIO.read(bis);
 
-			image = rotateImage(image, 90.0);
+			image = rotateImage(image, 50.0);
 
 			BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
@@ -531,7 +531,7 @@ public class StatController {
 
 			BufferedImage image = ImageIO.read(bis);
 
-			image = rotateImage(image, 90.0);
+			image = rotateImage(image, 50.0);
 
 			BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
@@ -597,7 +597,7 @@ public class StatController {
 
 				BufferedImage image = ImageIO.read(bis);
 
-				image = rotateImage(image, 90.0);
+				image = rotateImage(image, 50.0);
 
 				BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
