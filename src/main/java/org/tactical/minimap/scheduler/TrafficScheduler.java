@@ -56,7 +56,7 @@ public class TrafficScheduler {
 	@Scheduled(fixedRate = 600000)
 	public void addTrafficStatMarker() {
 		logger.info("adding traffic stat marker");
-		sdService.addTrafficStatMarker(20);
+		sdService.addTrafficStatMarker(10);
 	}
 
 	@Async
