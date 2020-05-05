@@ -263,7 +263,7 @@ public class StreetDataService {
 					
 					if(inMean + outMean > 20) {
 						markerDTO.setColor("#ffff66");
-					}else if(inMean + outMean > 40) {
+					}else if(inMean + outMean > 30) {
 						markerDTO.setColor("#ff4d4d");
 					}else {
 						markerDTO.setColor("#ffffff");

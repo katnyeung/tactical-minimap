@@ -88,14 +88,14 @@ public class TrafficScheduler {
 			outMap.put("K621F", "0:215,200:400,200:215,400:400");
 			tempMap.put("K621F", "Kwun Tong");
 			
-			processImageToBackground("TC604F", 25, 90.0);
-			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 50, 2, 90.0);
+			processImageToBackground("TC604F", 20, 90.0);
+			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 30, 3, 90.0);
 
 			processImageToBackground("K305F", 20, -60.0);
 			calculateForegroundTraffic("K305F", inMap, outMap, tempMap, 30, 8, -60.0);
 
 			processImageToBackground("K202F", 20, -45.0);
-			calculateForegroundTraffic("K202F", inMap, outMap, tempMap, 50, 6, -45.0);
+			calculateForegroundTraffic("K202F", inMap, outMap, tempMap, 30, 6, -45.0);
 
 			processImageToBackground("K505F", 20, 30.0);
 			calculateForegroundTraffic("K505F", inMap, outMap, tempMap, 30, 6, 30.0);
