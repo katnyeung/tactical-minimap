@@ -1489,7 +1489,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								itemMaster[0].groupList = [];
 							}
 							
-							if(typeof itemMaster[0].groupList != undefined && !itemMaster[0].groupList.includes(item.markerId)){
+							if(itemMaster[0].groupList && !itemMaster[0].groupList.includes(item.markerId)){
 								itemMaster[0].groupList.push(item.markerId);
 							}
 						}
