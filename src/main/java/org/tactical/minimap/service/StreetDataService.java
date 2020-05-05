@@ -261,11 +261,11 @@ public class StreetDataService {
 					markerDTO.setShapeType("polyline_group");
 					markerDTO.setType("info");
 					
-					if(inMean + outMean > 20) {
+					if(inMean + outMean > 40) {
+						markerDTO.setColor("#ff0000");
+					} else if(inMean + outMean > 20) {
 						markerDTO.setColor("#ffff66");
-					}else if(inMean + outMean > 30) {
-						markerDTO.setColor("#ff4d4d");
-					}else {
+					} else {
 						markerDTO.setColor("#ffffff");
 					}
 					
