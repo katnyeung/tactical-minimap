@@ -98,10 +98,10 @@ public class TrafficScheduler {
 			calculateForegroundTraffic("K202F", inMap, outMap, tempMap, 50, 6, -45.0);
 
 			processImageToBackground("K505F", 20, 30.0);
-			calculateForegroundTraffic("K505F", inMap, outMap, tempMap, 50, 6, 30.0);
+			calculateForegroundTraffic("K505F", inMap, outMap, tempMap, 30, 6, 30.0);
 			
 			processImageToBackground("K621F", 20, 50.0);
-			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 50, 6, 50.0);
+			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 30, 3, 50.0);
 			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
