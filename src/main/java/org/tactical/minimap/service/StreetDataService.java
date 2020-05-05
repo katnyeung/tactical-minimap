@@ -150,7 +150,7 @@ public class StreetDataService {
 		camMap.put("K305F", "22.338542,114.152087;← {in} ↘ {out}");
 		camMap.put("K202F", "22.319821,114.172500;← {in} → {out}");
 		camMap.put("K505F", "22.343103,114.184185;← {in} → {out}");
-		camMap.put("K621F", "22.329855,114.210571;↖ {in} ↘ {out}");
+		camMap.put("K621F", "22.329855,114.210571;↖ {out} ↘ {in}");
 		
 		Map<String, String> pathMap = new HashMap<String, String>();
 		pathMap.put("TC604F", "22.363114,114.080167;22.366190,114.078495");
