@@ -1167,7 +1167,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							
 							item.markerIndex = markerCount[result.l]++;
 							
-							
 							item.opacity = result.o;
 							item.controllable = result.c;
 							
@@ -1222,7 +1221,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 							});
 	
 						}else if(result.status == 'U'){
-
 							if(result.l && !markerCount[result.l]){
 								markerCount[result.l] = 0;
 							}
@@ -1485,8 +1483,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						var itemMaster = $.grep(markerDataList, function(e){ return e.markerId == markerGroupValue; });
 						
 						if(itemMaster && itemMaster[0]){
-							if(typeof itemMaster[0]['groupList'] === undefined){
-								itemMaster[0]['groupList'] = [];
+							if(!itemMaster[0].groupList){
+								itemMaster[0].groupList = [];
 							}
 							
 							if(itemMaster[0].groupList && !itemMaster[0].groupList.includes(item.markerId)){
