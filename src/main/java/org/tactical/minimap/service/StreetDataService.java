@@ -151,6 +151,7 @@ public class StreetDataService {
 		camMap.put("K202F", "22.319821,114.172500;← {in} → {out}");
 		camMap.put("K505F", "22.343103,114.184185;← {in} → {out}");
 		camMap.put("K621F", "22.329855,114.210571;↖ {out} ↘ {in}");
+		camMap.put("TR111F", "22.364344,114.041566;← {in} → {out}");
 		
 		Map<String, String> pathMap = new HashMap<String, String>();
 		pathMap.put("TC604F", "22.363114,114.080167;22.366190,114.078495");
@@ -158,6 +159,7 @@ public class StreetDataService {
 		pathMap.put("K202F", "22.319856,114.172584;22.319642,114.171646");
 		pathMap.put("K505F", "22.343523,114.183488;22.342779,114.185128");
 		pathMap.put("K621F", "22.330017,114.210726;22.328733,114.212260");
+		pathMap.put("TR111F", "22.363888,114.040988;22.364602,114.041995;22.364602,114.041995;22.364820,114.043495");
 		
 		Map<String, Double> subGroupMap = new HashMap<String, Double>();
 		subGroupMap.put("TC604F", 604.0);
@@ -165,6 +167,7 @@ public class StreetDataService {
 		subGroupMap.put("K202F", 202.0);
 		subGroupMap.put("K505F", 505.0);
 		subGroupMap.put("K621F", 621.0);
+		subGroupMap.put("TR111F", 111.0);
 		
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar calendarFrom = Calendar.getInstance(tz1);

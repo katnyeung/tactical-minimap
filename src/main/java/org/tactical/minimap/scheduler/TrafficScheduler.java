@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -84,9 +85,13 @@ public class TrafficScheduler {
 			outMap.put("K505F", "0:200,200:400,200:200,400:400");
 			tempMap.put("K505F", "Wong Tai Sin");
 			
-			inMap.put("K621F", "0:0,215:200,0:215,400:215");
+			inMap.put("K621F", "0:0,200:215,200:0,400:215");
 			outMap.put("K621F", "0:215,200:400,200:215,400:400");
 			tempMap.put("K621F", "Kwun Tong");
+			
+			inMap.put("TR111F", "0:0,200:180,200:0,400:180");
+			outMap.put("TR111F", "0:180,200:400,200:180,400:400");
+			tempMap.put("TR111F", "Tuen Mun");
 			
 			processImageToBackground("TC604F", 20, 90.0);
 			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 25, 2, 90.0);
@@ -101,7 +106,10 @@ public class TrafficScheduler {
 			calculateForegroundTraffic("K505F", inMap, outMap, tempMap, 30, 6, 30.0);
 			
 			processImageToBackground("K621F", 20, 50.0);
-			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 30, 3, 50.0);
+			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 30, 4, 50.0);
+
+			processImageToBackground("TR111F", 20, -50.0);
+			calculateForegroundTraffic("TR111F", inMap, outMap, tempMap, 30, 5, -50.0);
 			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
@@ -271,7 +279,8 @@ public class TrafficScheduler {
 					logger.info("saving traffic stat {} in {}, out {}", id, inTrafficCount, outTrafficCount);
 					
 					// update the trafficCount to DB
-					Calendar curTime = Calendar.getInstance();
+					TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
+					Calendar curTime = Calendar.getInstance(tz1);
 					TrafficStat ts = new TrafficStat();
 
 					ts.setId(id);
