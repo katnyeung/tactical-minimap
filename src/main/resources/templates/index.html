@@ -1458,7 +1458,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						
 						htmlContentMaster = '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) + '</mark><br/>' + '</div></div></div>';
 						item.htmlContent = htmlContentMaster;
-						item.icon = iconMaster;
+						item.iconContent = iconMaster;
 					}
 					
 					var popup = L.popup().setContent(content);
@@ -1818,9 +1818,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								
 								var htmlContentMaster = '';
 								if(item.markerIndex < 5){
-									htmlContentMaster = item.icon + item.htmlContent;
+									htmlContentMaster = item.iconContent + item.htmlContent;
 								}else{
-									htmlContentMaster = item.icon;
+									htmlContentMaster = item.iconContent;
 								}
 								
 								if(item.type != 'image' && item.icon != 'image.png'){
