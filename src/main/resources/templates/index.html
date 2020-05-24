@@ -1435,7 +1435,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					if(map.getZoom() > 18){
 						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark>' + upDownButton + copyButton;
 					}else{
-						if(new Number(item.markerIndex) < 3){
+						if(new Number(item.markerIndex) < 5){
 							var messageText = item.message.substr(0, messageCutOff);
 							
 							if(messageText.length > 25){
@@ -1816,7 +1816,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 								}
 								
 								var masterHTMLContent = '';
-								if(new Number(item.markerIndex) < 3){
+								if(new Number(item.markerIndex) < 5){
 									masterHTMLContent = item.htmlContent;
 								}
 								
