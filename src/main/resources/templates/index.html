@@ -1815,18 +1815,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									}
 								}
 								
-								var masterHTMLContent = '';
-								if(new Number(item.markerIndex) < 5){
-									masterHTMLContent = item.htmlContent;
-								}else{
-									masterHTMLContent = item.htmlContent.replace(/<div id="marker_message.*$/g,'');
-								}
-								
-								
 								if(item.type != 'image' && item.icon != 'image.png'){
 									divIcon = L.divIcon({
 										className:'location-icon',
-										html: masterHTMLContent,
+										html: item.htmlContent,
 										popupAnchor:  [-3, -14],
 										iconAnchor: [-5, 10], 
 									});
