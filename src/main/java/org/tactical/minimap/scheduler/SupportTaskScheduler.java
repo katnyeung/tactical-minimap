@@ -85,7 +85,8 @@ public class SupportTaskScheduler {
 		List<MarkerLinkedList> popoMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> riotMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> imageMasterList = new ArrayList<MarkerLinkedList>();
-		List<MarkerLinkedList> warningMarkerList = new ArrayList<MarkerLinkedList>();
+		List<MarkerLinkedList> warningMasterList = new ArrayList<MarkerLinkedList>();
+		List<MarkerLinkedList> blueFlagMasterList = new ArrayList<MarkerLinkedList>();
 		
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
@@ -106,9 +107,11 @@ public class SupportTaskScheduler {
 				} else if (mc.getType().equals("image") || mc.getIcon().equals("image.png")) {
 					masterList = imageMasterList;
 				} else if (mc.getType().equals("warning")) {
-					masterList = warningMarkerList;
+					masterList = warningMasterList;
 				} else if (mc.getType().equals("info")) {
 					masterList = infoMasterList;
+				} else if (mc.getType().equals("blueflag")) {
+					masterList = blueFlagMasterList;
 				}
 
 				if (masterList != null) {
@@ -132,7 +135,8 @@ public class SupportTaskScheduler {
 		reverseFillMarkerCache(popoMasterList);
 		reverseFillMarkerCache(riotMasterList);
 		reverseFillMarkerCache(imageMasterList);
-		reverseFillMarkerCache(warningMarkerList);
+		reverseFillMarkerCache(warningMasterList);
+		reverseFillMarkerCache(blueFlagMasterList);
 		
 	}
 

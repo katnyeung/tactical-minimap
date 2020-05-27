@@ -2087,15 +2087,16 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 		    toastr.options.positionClass = 'toast-top-left';
-		    toastr.options.extendedTimeOut = 10000; //1000;
-		    toastr.options.timeOut = 20000;
+		    toastr.options.extendedTimeOut = 5000; //1000;
+		    toastr.options.timeOut = 12000;
 		    toastr.options.fadeOut = 250;
 		    toastr.options.fadeIn = 150;
 		    toastr.options.showEasing = 'swing';
 		    toastr.options.hideEasing = 'linear';
 		    toastr.options.tapToDismiss = false;
-		    toastr.options.progressBar = true;
+		    toastr.options.progressBar = false;
 		    toastr.options.newestOnTop = false;
+		    toastr.options.maxOpened = 5
 		});
 
 		function toggleFullScreen() {
