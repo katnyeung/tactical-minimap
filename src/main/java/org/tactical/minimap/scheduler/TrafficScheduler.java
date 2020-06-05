@@ -94,7 +94,7 @@ public class TrafficScheduler {
 			tempMap.put("TR111F", "Tuen Mun");
 			
 			processImageToBackground("TC604F", 20, 90.0);
-			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 25, 2, 90.0);
+			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 25, 5, 90.0);
 
 			processImageToBackground("K305F", 20, -60.0);
 			calculateForegroundTraffic("K305F", inMap, outMap, tempMap, 30, 8, -60.0);
