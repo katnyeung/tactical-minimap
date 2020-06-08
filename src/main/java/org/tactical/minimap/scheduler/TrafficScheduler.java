@@ -94,7 +94,7 @@ public class TrafficScheduler {
 			tempMap.put("TR111F", "Tuen Mun");
 			
 			processImageToBackground("TC604F", 20, 90.0);
-			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 25, 5, 90.0);
+			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 28, 4, 90.0);
 
 			processImageToBackground("K305F", 20, -60.0);
 			calculateForegroundTraffic("K305F", inMap, outMap, tempMap, 30, 8, -60.0);
@@ -109,7 +109,7 @@ public class TrafficScheduler {
 			calculateForegroundTraffic("K621F", inMap, outMap, tempMap, 30, 4, 50.0);
 
 			processImageToBackground("TR111F", 20, -50.0);
-			calculateForegroundTraffic("TR111F", inMap, outMap, tempMap, 30, 5, -50.0);
+			calculateForegroundTraffic("TR111F", inMap, outMap, tempMap, 28, 4, -50.0);
 			
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
@@ -119,25 +119,25 @@ public class TrafficScheduler {
 	}
 	
 	public BufferedImage rotateImage(BufferedImage originalImage, double degree) {
-	    int w = originalImage.getWidth();
-	    int h = originalImage.getHeight();
-	    double toRad = Math.toRadians(degree);
-	   // int hPrime = (int) (w * Math.abs(Math.sin(toRad)) + h * Math.abs(Math.cos(toRad)));
-	   // int wPrime = (int) (h * Math.abs(Math.sin(toRad)) + w * Math.abs(Math.cos(toRad)));
-	    
-	    BufferedImage rotatedImage = new BufferedImage(400, 400, BufferedImage.TYPE_INT_RGB);
-	    Graphics2D g = rotatedImage.createGraphics();
-	    g.setColor(Color.BLACK);
-	    g.fillRect(0, 0, 400, 400);  // fill entire area
-	    g.translate(400/2, 400/2);
-	    g.rotate(toRad);
-	    g.translate(-w/2, -h/2);
-	    g.drawImage(originalImage, 0, 0, null);
-	    g.dispose();  // release used resources before g is garbage-collected
+		int w = originalImage.getWidth();
+		int h = originalImage.getHeight();
+		double toRad = Math.toRadians(degree);
+		// int hPrime = (int) (w * Math.abs(Math.sin(toRad)) + h * Math.abs(Math.cos(toRad)));
+		// int wPrime = (int) (h * Math.abs(Math.sin(toRad)) + w * Math.abs(Math.cos(toRad)));
 
-	    return rotatedImage;
+		BufferedImage rotatedImage = new BufferedImage(400, 400, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = rotatedImage.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 400, 400); // fill entire area
+		g.translate(400 / 2, 400 / 2);
+		g.rotate(toRad);
+		g.translate(-w / 2, -h / 2);
+		g.drawImage(originalImage, 0, 0, null);
+		g.dispose(); // release used resources before g is garbage-collected
+
+		return rotatedImage;
 	}
-	
+
 	private void calculateForegroundTraffic(String id, HashMap<String, String> inMap, HashMap<String, String> outMap, HashMap<String, String> tempMap, int pixelThreadHold, int scale , double angle) {
 
 		String in = inMap.get(id);
