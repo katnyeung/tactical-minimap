@@ -110,7 +110,7 @@ public class SupportTaskScheduler {
 					masterList = warningMasterList;
 				} else if (mc.getType().equals("info")) {
 					masterList = infoMasterList;
-				} else if (mc.getType().equals("blueflag")) {
+				} else if (mc.getIcon().equals("blue.png")) {
 					masterList = blueFlagMasterList;
 				}
 
