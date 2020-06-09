@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Calendar;
@@ -23,7 +22,6 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -98,9 +96,8 @@ public class StatController {
 		for (Entry<String, HashMap<String, Integer>> entry : redisStatMap.entrySet()) {
 			if (count > redisStatMap.entrySet().size() - 5) {
 				String key = entry.getKey();
-				HashMap<String, Integer> value = entry.getValue();
 
-				dbStatMap.put(key, tgService.getStreetStat(key, zeroIfNull(value.get("hit")) + zeroIfNull(value.get("popo"))));
+				dbStatMap.put(key, tgService.getStreetStat(key));
 
 			}
 			count++;
@@ -165,7 +162,7 @@ public class StatController {
 	@GetMapping("/streetStat/")
 	public DefaultResult update(@RequestParam("key") String key) {
 
-		List<StatItem> listStat = tgService.getStreetStat(key, 0);
+		List<StatItem> listStat = tgService.getStreetStat(key);
 
 		DefaultResult dr = StatResult.success(listStat);
 
