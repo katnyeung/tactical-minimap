@@ -5,12 +5,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 import org.tactical.minimap.util.Auditable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
+@Table(name = "telegram_chat_stat", indexes = { @Index(name = "region_key_createdate", columnList = "region, key, createdate") })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class TelegramChatStat extends Auditable<String> {
 
