@@ -61,7 +61,7 @@ public class TrafficScheduler {
 	}
 
 	@Async
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 120000)
 	public void dataParser() {
 
 		try {
