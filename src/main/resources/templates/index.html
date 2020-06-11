@@ -269,13 +269,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				);
 
 				updateMarkers(map.getCenter().lat, map.getCenter().lng);
-			    
-				updateWordCloud();
-				setInterval(function(){updateWordCloud()}, 30000);
 
-			    updateWordStat()
-			    setInterval(function(){updateWordStat()}, 1000 * 60);
-			    
 				isConnected = true;
 			});
 
@@ -309,6 +303,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			
 			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(Esri_WorldTopoMap);
 
+			
 			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})
 			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)
 			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)
@@ -2096,7 +2091,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    toastr.options.progressBar = false;
 		    toastr.options.newestOnTop = false;
 		    toastr.options.maxOpened = 5;
+		    
+			updateWordCloud();
+			setInterval(function(){updateWordCloud()}, 30000);
 
+		    updateWordStat()
+		    setInterval(function(){updateWordStat()}, 1000 * 60);
 		});
 
 		function toggleFullScreen() {
