@@ -76,7 +76,10 @@ public class MarkerService {
 	EntityManager em;
 
 	public List<MarkerResult> findMultiLayerMarkersResponse(String uuid, List<Long> markerIdList, List<String> layerKeys, Double lat, Double lng, Double range) {
-
+		Long start = Calendar.getInstance().getTimeInMillis();
+		
+		logger.info("Show Marker Response - Start " + (start - start));
+		
 		ObjectMapper om = new ObjectMapper();
 		
 		Set<String> loggedLayers = layerService.getLoggedLayers(uuid);
@@ -86,6 +89,8 @@ public class MarkerService {
 		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		List<Long> processedList = new ArrayList<Long>();
 
+		logger.info("Show Marker Response - After DAO " + (Calendar.getInstance().getTimeInMillis() - start));
+		
 		Set<Integer> streetGroupSet = new HashSet<Integer>();
 
 		for (Marker marker : markerList) {
@@ -170,6 +175,8 @@ public class MarkerService {
 			mrList.add(mr);
 		}
 
+		logger.info("Show Marker Response - After Redis " + (Calendar.getInstance().getTimeInMillis() - start));
+		
 		if (markerIdList != null) {
 			for (Long markerId : markerIdList) {
 				// marker no more in process
