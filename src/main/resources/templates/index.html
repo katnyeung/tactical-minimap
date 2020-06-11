@@ -253,28 +253,28 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			$('#registerFormDiv').center();
 			$('#registerFormDiv').show();
 		}
-		
-		stompClient.debug = null
 
-		stompClient.connect({}, function (frame) {
-			toastr['info']('CONNECTED');
-
-			markerDataList = [];
-			stompClient.subscribe('/markers/list/' + key, 
-				function (data) {
-					processMarkerData(data);
-				}
-			);
-
-			updateMarkers(map.getCenter().lat, map.getCenter().lng);
-
-			isConnected = true;
-		});
-
-		setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 30000);
-		
 		$(document).ready(function() {
-			
+					
+			stompClient.debug = null
+
+			stompClient.connect({}, function (frame) {
+				toastr['info']('CONNECTED');
+
+				markerDataList = [];
+				stompClient.subscribe('/markers/list/' + key, 
+					function (data) {
+						processMarkerData(data);
+					}
+				);
+
+				updateMarkers(map.getCenter().lat, map.getCenter().lng);
+
+				isConnected = true;
+			});
+
+			setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 30000);
+
 			$('#registerFormDiv').hide();
 			$('#registerForm').submit(function(e){
 				e.preventDefault();
