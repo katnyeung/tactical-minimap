@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.Layer;
 import org.tactical.minimap.repository.marker.Marker;
-import org.tactical.minimap.repository.marker.PoliceMarker;
 import org.tactical.minimap.service.LayerService;
 import org.tactical.minimap.service.MarkerService;
 import org.tactical.minimap.service.RedisService;
@@ -81,7 +80,9 @@ public class SupportTaskScheduler {
 		}
 
 		// group marker cache with region
-		markerCacheList = markerCacheList.stream().sorted(Comparator.comparingLong(MarkerCache::getMarkerId).reversed()).collect(Collectors.toList());
+		markerCacheList = markerCacheList.stream()
+				.sorted(Comparator.comparingLong(MarkerCache::getMarkerId).reversed())
+				.collect(Collectors.toList());
 
 		List<MarkerLinkedList> infoMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> popoMasterList = new ArrayList<MarkerLinkedList>();
