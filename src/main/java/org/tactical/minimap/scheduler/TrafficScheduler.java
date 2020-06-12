@@ -54,14 +54,14 @@ public class TrafficScheduler {
 	StreetDataService sdService;
 	
 	@Async
-	@Scheduled(fixedRate = 600000)
+	//@Scheduled(fixedRate = 600000)
 	public void addTrafficStatMarker() {
 		logger.info("adding traffic stat marker");
 		sdService.addTrafficStatMarker(10);
 	}
 
 	@Async
-	@Scheduled(fixedRate = 60000)
+	//@Scheduled(fixedRate = 60000)
 	public void dataParser() {
 
 		try {
