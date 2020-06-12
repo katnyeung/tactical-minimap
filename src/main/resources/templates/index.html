@@ -192,6 +192,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		var maxZIndex = 1;
 		var markerBaseOpacity = 0.1;
 		
+		var enableToastr = true;
+		
 		var socket = new SockJS('/ws');
 		var stompClient = Stomp.over(socket);
 		var isConnected = false;
@@ -696,6 +698,37 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 		    map.addControl(new fullScreenControl());
+		    
+			var toastrControl =  L.Control.extend({
+				options: {
+					position: 'topleft'
+				},
+				
+				onAdd: function (map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+					container.id = 'toastrControl';
+					container.innerHTML = '<a><i class="fas fa-bell fa-2x" id="toastrCheckbox"></i></a>';
+					container.style = 'background-color:white;padding:1px;font-size:8px;color:#666666';
+					
+					container.onclick = function(){
+						if(enableToastr){
+							enableToastr = false;
+							$('#toastrCheckbox').removeClass("fa-bell");
+							$('#toastrCheckbox').addClass("fa-bell-slash");
+							
+						}else{
+							enableToastr = true;
+							$('#toastrCheckbox').addClass("fa-bell");
+							$('#toastrCheckbox').removeClass("fa-bell-slash");
+						}
+						
+					}
+					
+					return container;
+				}
+			});
+			
+		    map.addControl(new toastrControl());
 		    
 			var heatDayStatControl =  L.Control.extend({
 				options: {
@@ -1661,7 +1694,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
-							toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>');
+
+							if(enableToastr){
+								toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>');
+							}
 							
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
@@ -2088,10 +2124,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		    toastr.options.showEasing = 'swing';
 		    toastr.options.hideEasing = 'linear';
 		    toastr.options.tapToDismiss = false;
-		    toastr.options.progressBar = false;
-		    toastr.options.newestOnTop = false;
+		    toastr.options.progressBar = true;
+		    toastr.options.newestOnTop = true;
 		    toastr.options.maxOpened = 5;
-		    
+
 			updateWordCloud();
 			setInterval(function(){updateWordCloud()}, 30000);
 
