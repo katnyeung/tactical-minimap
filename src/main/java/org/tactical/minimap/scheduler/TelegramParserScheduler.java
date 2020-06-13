@@ -98,7 +98,7 @@ public class TelegramParserScheduler {
 	Pattern blackFlagPattern = Pattern.compile("(黑旗)");
 	Pattern orangeFlagPattern = Pattern.compile("(橙旗)");
 	Pattern blueFlagPattern = Pattern.compile("(藍旗)");
-	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)(?!槍|彈槍)");
+	Pattern tearGasPattern = Pattern.compile("(催淚|催淚彈|tg|TG)(?!槍|彈槍|\\d{4})");
 	Pattern riotPolicePattern = Pattern.compile("([0-9]*?)(?:隻|名|個|綠|白|架)*?\\s*?(防暴|速龍|鋭武)");
 	Pattern waterCarPattern = Pattern.compile("(水炮)");
 	Pattern groupPattern = Pattern.compile("((?<!小心|不|公眾)安全(?!島)|safe|Safe|clear|冇狗|(?<!仍未)清理)");
