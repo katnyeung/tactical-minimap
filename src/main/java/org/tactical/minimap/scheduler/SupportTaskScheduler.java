@@ -72,9 +72,7 @@ public class SupportTaskScheduler {
 		for (Marker marker : markerList) {
 			logger.info("Processing : " + marker);
 
-			int markerCount = markerService.getMarkerCountInRange(marker.getLayer().getLayerKey(), marker.getLat(), marker.getLng(), ConstantsUtil.RANGE);
-
-			marker.setExpire(marker.getExpire() - (markerCount * 5));
+			marker.setExpire(marker.getExpire() - (2 * 5));
 
 			markerCacheList.add(redisService.saveMarkerCache(marker));
 		}
