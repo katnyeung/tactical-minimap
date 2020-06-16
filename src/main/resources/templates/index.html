@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="/css/leaflet.draw.css" />
 <link rel="stylesheet" href="/css/fontawesome-5.8.1.all.css" />
 <link rel="stylesheet" href="/css/colorPicker.css" />
-<link rel="stylesheet" href="/css/toastr.min.css" />
+<link rel="stylesheet" href="/css/noty.css" />
 
 <script src="/js/leaflet.js"></script>
 <script src="/js/leaflet-search.js"></script>
@@ -33,7 +33,7 @@
 <script src="/js/leaflet-heat.js"></script>
 <script src="/js/paste.js"></script>
 <script src="/js/jquery.colorPicker.min.js"/></script>
-<script src="/js/toastr.min.js"/></script>
+<script src="/js/noty.min.js"/></script>
 
 <script src="/js/sockjs.min.js"></script>
 <script src="/js/stomp.min.js"></script>
@@ -129,9 +129,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 .messageEditor{
 	width:200px;
 }
-#toast-container{
-	margin:0px;
-}
 
 .highlight{
 	color:#FFBA63;
@@ -148,21 +145,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 .logMessage > .highlight{
 	color:#950800 !important;
 }
-#toast-container > .toast{
-    background-image: none !important;
-    margin:5px;
-    padding:5px;
-    font-size:16px;
-    font-weight:normal;
-    color:black;
-	background-color: transparent; 
-    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-	border-radius: 5px;
-}
 
-.toast-top-left {
-	top:7px;
-	left:60px;
+#noty_layout__topLeft{
+	left:50px;
+	top:10px;
 }
 
 .statRegion {
@@ -191,8 +177,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		var dragLock = true;
 		var maxZIndex = 1;
 		var markerBaseOpacity = 0.1;
-		
-		var enableToastr = true;
 		
 		var socket = new SockJS('/ws');
 		var stompClient = Stomp.over(socket);
@@ -261,7 +245,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			stompClient.debug = null
 
 			stompClient.connect({}, function (frame) {
-				toastr['info']('CONNECTED');
+				new Noty({				
+					layout: 'topLeft',
+				    timeout: '4000',
+				    progressBar: true,
+				    closeWith: ['click'],
+				    text: 'CONNECTED'
+				}).show();
 
 				markerDataList = [];
 				stompClient.subscribe('/markers/list/' + key, 
@@ -698,37 +688,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			});
 			
 		    map.addControl(new fullScreenControl());
-		    
-			var toastrControl =  L.Control.extend({
-				options: {
-					position: 'topleft'
-				},
-				
-				onAdd: function (map) {
-					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-					container.id = 'toastrControl';
-					container.innerHTML = '<a><i class="fas fa-bell fa-2x" id="toastrCheckbox"></i></a>';
-					container.style = 'background-color:white;padding:1px;font-size:8px;color:#666666';
-					
-					container.onclick = function(){
-						if(enableToastr){
-							enableToastr = false;
-							$('#toastrCheckbox').removeClass("fa-bell");
-							$('#toastrCheckbox').addClass("fa-bell-slash");
-							
-						}else{
-							enableToastr = true;
-							$('#toastrCheckbox').addClass("fa-bell");
-							$('#toastrCheckbox').removeClass("fa-bell-slash");
-						}
-						
-					}
-					
-					return container;
-				}
-			});
-			
-		    map.addControl(new toastrControl());
 		    
 			var heatDayStatControl =  L.Control.extend({
 				options: {
@@ -1694,11 +1653,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
+							new Noty({
+								layout: 'topLeft',
+							    timeout: '4000',
+							    progressBar: true,
+							    closeWith: ['click'],
+							    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>'
+							}).show();
 
-							if(enableToastr){
-								toastr['info']('<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>');
-							}
-							
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
 								var id = $(this).data('id');
@@ -2115,18 +2077,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			}).on('pasteText', function(ev, data){
 				$('#markerMessage').insertAfter(this);
 			});
-			
-		    toastr.options.positionClass = 'toast-top-left';
-		    toastr.options.extendedTimeOut = 5000; //1000;
-		    toastr.options.timeOut = 12000;
-		    toastr.options.fadeOut = 250;
-		    toastr.options.fadeIn = 150;
-		    toastr.options.showEasing = 'swing';
-		    toastr.options.hideEasing = 'linear';
-		    toastr.options.tapToDismiss = false;
-		    toastr.options.progressBar = true;
-		    toastr.options.newestOnTop = false;
-		    toastr.options.maxOpened = 5;
 
 			updateWordCloud();
 			setInterval(function(){updateWordCloud()}, 30000);
@@ -2158,6 +2108,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				}
 			}
 		}
+
 	</script>
 	<div id="coord" style="width: 250px; display: none">
 		<button id="btnInfoMarker" class="btn btn-info mt-1">
