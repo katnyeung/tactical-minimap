@@ -151,6 +151,13 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 	top:10px;
 }
 
+.noty_bar{
+	background-color:white;
+	padding:5px;
+	margin:2px;
+	border-radius: 2px;
+}
+
 .statRegion {
     text-shadow: 1px 1px #CCBBAA;
 }
@@ -247,7 +254,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 			stompClient.connect({}, function (frame) {
 				new Noty({				
 					layout: 'topLeft',
-				    timeout: '4000',
+				    timeout: '8000',
 				    progressBar: true,
 				    closeWith: ['click'],
 				    text: 'CONNECTED'
@@ -1314,7 +1321,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';
 						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 
 					}else{
-						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="font-weight-normal">' + highlightSharp(item.message, item.keywordList) + '</span>';
+						message = '<span style="font-size:16px;width:100%;white-space: pre;">' + highlightSharp(item.message, item.keywordList) + '</span>';
 					}
 					
 					if(loggedLayers.length > 0){
@@ -1653,13 +1660,16 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();
 						
 						if(currentDate - markerDate < 12000){
-							new Noty({
-								layout: 'topLeft',
-							    timeout: '4000',
-							    progressBar: true,
-							    closeWith: ['click'],
-							    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>'
-							}).show();
+							if(item.layer.layerKey != 'traffic'){
+								new Noty({
+									layout: 'topLeft',
+								    timeout: '8000',
+								    progressBar: true,
+								    closeWith: ['click'],
+								    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>'
+								}).show();
+							}
+
 
 							$('.logMessage').on('click',function(event){
 								event.preventDefault();
