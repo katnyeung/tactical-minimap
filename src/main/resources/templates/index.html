@@ -200,4 +200,2051 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		};
 		
 		String.prototype.toMMSS = function () {
-		    var sec_num = par
+ 		    var sec_num = parseInt(this, 10);
+		    var hours   = Math.floor(sec_num / 3600);	
+		    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);	
+		    var seconds = sec_num - (hours * 3600) - (minutes * 60);	
+
+		    if (hours   < 10) {hours   = "0"+hours;}	
+		    if (minutes < 10) {minutes = "0"+minutes;}	
+		    if (seconds < 10) {seconds = "0"+seconds;}	
+
+		    if(Math.floor(sec_num / 3600) > 0){	
+			    return hours+':'+minutes+':'+seconds;	
+		    }else{	
+			    return minutes+':'+seconds;	
+		    }	
+		}	
+
+		String.prototype.formatDate = function () {	
+		    var date = new Date(Date.parse(this));	
+
+		    var hours   = date.getHours();	
+		    var minutes = date.getMinutes();	
+
+		    if (hours   < 10) {hours   = "0"+hours;}	
+		    if (minutes < 10) {minutes = "0"+minutes;}	
+
+		    return hours + ":" + minutes;	
+		}	
+
+		Number.prototype.toFixedDown = function(digits) {	
+		    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)");	
+		    var m = this.toString().match(re);	
+
+		    return m ? parseFloat(m[1]) : this.valueOf();	
+		};	
+
+		jQuery.fn.center = function () {	
+		    this.css("position","absolute");	
+		    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop()) + "px");	
+		    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft()) + "px");	
+		    this.css("z-index" , 999);	
+		    return this;	
+		}	
+
+		function showRegister(layer) {	
+			$('#registerLayerKey').val(layer);	
+			$('#registerFormDiv').center();	
+			$('#registerFormDiv').show();	
+		}	
+
+		$(document).ready(function() {	
+
+			stompClient.debug = null	
+
+			stompClient.connect({}, function (frame) {	
+				new Noty({					
+					layout: 'topLeft',	
+				    timeout: '8000',	
+				    progressBar: true,	
+				    closeWith: ['click'],	
+				    text: 'CONNECTED'	
+				}).show();	
+
+				markerDataList = [];	
+				stompClient.subscribe('/markers/list/' + key, 	
+					function (data) {	
+						processMarkerData(data);	
+					}	
+				);	
+
+				updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+
+				isConnected = true;	
+			});	
+
+			setInterval(function(){if(isConnected){updateMarkers(map.getCenter().lat, map.getCenter().lng)}}, 30000);	
+
+			$('#registerFormDiv').hide();	
+			$('#registerForm').submit(function(e){	
+				e.preventDefault();	
+
+				$.ajax({	
+					type : "POST",	
+					url : '/register',	
+					data : $(this).serialize(),	
+
+					success : function(data) {	
+						if(data.status == "success"){	
+							window.location.reload();	
+						}else{	
+							alert(data.remarks);	
+						}	
+					}	
+				});	
+			});	
+
+			var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {	
+			    opacity: 0.6,	
+			    maxNativeZoom: 18,	
+			    maxZoom: 20,	
+				attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>'	
+			});	
+
+			map = L.map('map').setView([ [[${lat}]], [[${lng}]] ], [[${zoom}]]).addLayer(Esri_WorldTopoMap);	
+
+
+			var station_icon=L.divIcon({html:'<img src="/icon/house.png" style="width:24px;height:24px"/>',iconSize:[24,24],className:'baseIcon'})	
+			L.marker([22.278396,114.167411],{icon:station_icon}).bindTooltip("香港警察總部").addTo(map)	
+			L.marker([22.3257471,114.2083386],{icon:station_icon}).bindTooltip("香港輔助警察總部").addTo(map)	
+			L.marker([22.3243407,114.1690247],{icon:station_icon}).bindTooltip("旺角警署").addTo(map)	
+			L.marker([22.335529,114.146546],{icon:station_icon}).bindTooltip("長沙灣警署").addTo(map)	
+			L.marker([22.394854,113.971891],{icon:station_icon}).bindTooltip("屯門警署").addTo(map)	
+			L.marker([22.4438952,114.0229838],{icon:station_icon}).bindTooltip("元朗警署").addTo(map)	
+			L.marker([22.3869542,114.1925168],{icon:station_icon}).bindTooltip("沙田警署").addTo(map)	
+			L.marker([22.2683892,114.2355596],{icon:station_icon}).bindTooltip("柴灣警署").addTo(map)	
+			L.marker([22.2787249,114.1684913],{icon:station_icon}).bindTooltip("灣仔警署").addTo(map)	
+			L.marker([22.2876629,114.1405353],{icon:station_icon}).bindTooltip("西區警署").addTo(map)	
+			L.marker([22.248244,114.161405],{icon:station_icon}).bindTooltip("香港仔警署").addTo(map)	
+			L.marker([22.2187284,114.2132994],{icon:station_icon}).bindTooltip("赤柱警署").addTo(map)	
+			L.marker([22.3096515,114.2313135],{icon:station_icon}).bindTooltip("觀塘警署").addTo(map)	
+			L.marker([22.3097832,114.1688265],{icon:station_icon}).bindTooltip("油麻地警署").addTo(map)	
+			L.marker([22.3243407,114.1690247],{icon:station_icon}).bindTooltip("旺角警署").addTo(map)	
+			L.marker([22.3302026,114.1589355],{icon:station_icon}).bindTooltip("深水埗警署").addTo(map)	
+			L.marker([22.335529,114.146546],{icon:station_icon}).bindTooltip("長沙灣警署").addTo(map)	
+			L.marker([22.324378,114.185315],{icon:station_icon}).bindTooltip("九龍城警署").addTo(map)	
+			L.marker([22.315333,114.177682],{icon:station_icon}).bindTooltip("紅磡警署").addTo(map)	
+			L.marker([22.495107,114.141381],{icon:station_icon}).bindTooltip("上水警署").addTo(map)	
+			L.marker([22.394854,113.971891],{icon:station_icon}).bindTooltip("屯門警署").addTo(map)	
+			L.marker([22.3757973,113.9669359],{icon:station_icon}).bindTooltip("青山警署").addTo(map)	
+			L.marker([22.4438952,114.0229838],{icon:station_icon}).bindTooltip("元朗警署").addTo(map)	
+			L.marker([22.449897,114.00231],{icon:station_icon}).bindTooltip("天水圍警署").addTo(map)	
+			L.marker([22.376899,114.11024],{icon:station_icon}).bindTooltip("荃灣警署").addTo(map)	
+			L.marker([22.3569684,114.1296637],{icon:station_icon}).bindTooltip("葵涌警署").addTo(map)	
+			L.marker([22.3869542,114.1925168],{icon:station_icon}).bindTooltip("沙田警署").addTo(map)	
+			L.marker([22.4222711,114.2330609],{icon:station_icon}).bindTooltip("馬鞍山警署").addTo(map)	
+			L.marker([22.302571,113.932248],{icon:station_icon}).bindTooltip("機場警署").addTo(map)	
+			L.marker([22.208161,114.030623],{icon:station_icon}).bindTooltip("長洲警署").addTo(map)	
+			L.marker([22.3074959,114.1895446],{icon:station_icon}).bindTooltip("西九龍交通行動基地").addTo(map)	
+			L.marker([22.4897159,114.1330594],{icon:station_icon}).bindTooltip("警察機動部隊總部").addTo(map)	
+			L.marker([22.30267,114.171363],{icon:station_icon}).bindTooltip("尖沙咀警署").addTo(map)	
+
+			statRegionList.forEach(function(statRegion){	
+				var wordCloud = L.divIcon({	
+					className:'location-icon',	
+					iconAnchor: [125, 100],	
+					html: '<div class="statRegion rounded" data-region="'+statRegion.label+'"></div>'	
+
+				});	
+
+				L.marker([statRegion.lat,statRegion.lng],{icon:wordCloud}).addTo(map)	
+			});	
+
+			var wordCloudTotal = L.divIcon({	
+				className:'location-icon',	
+				iconAnchor: [150, 125],	
+				html: '<div class="statRegion" data-region="total"></div>'	
+			});	
+
+			L.marker([22.277500970654415,114.08168792724611],{icon:wordCloudTotal}).addTo(map)	
+
+			var lastUpdateCloudTimestamp = Date.now() / 1000;	
+			var wordCloudData;	
+
+			function updateWordCloud(){	
+
+				if(wordCloudData === undefined || lastUpdateCloudTimestamp + 30000 < (Date.now() / 1000)){	
+					$.ajax({	
+						type : "GET",	
+						url : '/stat/tgLive/',	
+
+						success : function(data){	
+							if(data.status == 'success'){	
+								wordCloudData = data;	
+
+								if(wordCloudData.mapStat){	
+									$('.statRegion').each(function(){	
+											if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){	
+											    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
+											}else{	
+												$(this).html('');	
+											}	
+
+									});	
+								}	
+							}	
+						}	
+					});	
+				}	
+
+				if(wordCloudData && wordCloudData.mapStat){	
+					$('.statRegion').each(function(){	
+						if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){	
+						    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
+						}else{	
+							$(this).html('');	
+						}	
+					});	
+				}	
+			}	
+
+			$('.statRegion').each(function(){	
+				if($(this).data("region") === 'total'){	
+			    	$(this).jQCloud(null, {	
+					  colors: ["#850014", "#1b2b57", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],	
+		    		  width: 300,	
+		    		  height: 250,	
+		    		  autoResize:true,	
+		    		  fontSize: {	
+		    			    from: 0.16,	
+		    			    to: 0.05	
+		    			  }	
+		    		});	
+				}else{	
+			    	$(this).jQCloud(null, {	
+					  colors: ["#850014", "#1b2b57", "#198C59","#4361B5", "#294AB5", "#4A96B5", "#22a525", "#229925", "#222A25"],	
+		    		  width: 250,	
+		    		  height: 200,	
+		    		  autoResize:true,	
+		    		  fontSize: {	
+		    			    from: 0.12,	
+		    			    to: 0.08	
+		    			  }	
+		    		});	
+				}	
+			});	
+
+			map.addControl( new L.Control.Search({	
+				url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',	
+				jsonpParam: 'json_callback',	
+				propertyName: 'display_name',	
+				propertyLoc: ['lat','lon'],	
+				marker: L.circleMarker([0,0],{radius:20}),	
+				autoCollapse: true,	
+				autoType: false,	
+				minLength: 2	
+			}));	
+
+			var lc = L.control.locate({	
+			    position: 'topleft',	
+			    strings: {	
+			        title: "Show me where I am, yo!"	
+			    },	
+			    locateOptions: {	
+		               enableHighAccuracy: true, 	
+		               maximumAge        : 30000, 	
+		               timeout           : 27000	
+				}	
+			}).addTo(map);	
+
+			var command = L.control({position: 'bottomleft'});	
+
+			command.onAdd = function (map) {	
+
+			    var htmlContent = "<div class='container mb-5 ml-n3 mr-4'>";	
+
+			    if(loggedLayers.length > 0){	
+			    	htmlContent += '<div class="row ml-1"><select name="layer" id="markerLayer" class="btn-warning rounded" style="padding:5px">';	
+
+			    	loggedLayers.forEach(function(loggedItem){	
+						if(layerKeys.includes(loggedItem)){	
+			    			htmlContent += '<option value="' + loggedItem + '">' + loggedItem + "</option>";	
+						}	
+			    	});	
+
+			    	htmlContent += '</select></div>'; 	
+				}	
+
+				layerKeys.forEach(function (item) {	
+					htmlContent += '<div class="row ml-1">';	
+
+					if(!loggedLayers.includes(item)){	
+						if(validLayers.includes(item)){	
+							htmlContent += '<form class="layerLoginForm row"><div class="col-5"><input type="hidden" name="layerKey" value="'+item+'"/><input type="password" name="password" placeholder="('+item+' password)" style="width:100px"/></div><div class="col-1"><button type="submit">Login</button></div></form>'; 	
+						}else{	
+							htmlContent += '<div class="row ml-1"><button onclick="showRegister(\''+ item+'\')">register '+item+'</button></div>'; 	
+						}	
+					}	
+					htmlContent += '</div>';	
+				});	
+
+			    htmlContent += "</div>";	
+
+			    var div = L.DomUtil.create('div', 'command');	
+			    div.innerHTML = htmlContent;	
+
+			    return div;	
+
+			}	
+
+			command.addTo(map);	
+
+			if(loggedLayers.length > 0){	
+				var excludedPublicLayers = loggedLayers;	
+
+				var index = excludedPublicLayers.indexOf("public");	
+				if (index > -1) {	
+					excludedPublicLayers.splice(index, 1);	
+				}	
+
+				if(excludedPublicLayers.length > 0){	
+					drawnItems = L.featureGroup().addTo(map);	
+
+					map.addControl(new L.Control.Draw({	
+						draw: {	
+							polygon: true,	
+							polyline: true,	
+							circlemarker: false,	
+							circle:false,	
+							rectangle: true,	
+							marker: false,	
+						},	
+						edit: {	
+							featureGroup: drawnItems,	
+							remove: false,	
+							edit:false	
+						}	
+					}));	
+					var addressPoints = [];	
+
+					var heat = L.heatLayer(addressPoints,{radius:15,gradient:{0.5: 'white', 1:'red'}}).addTo(map),	
+					    draw = false;	
+
+				     map.on('mousemove', function (e) {	
+						if (draw) {	
+						 	if(e.originalEvent.which == 1){	
+								map.dragging.disable();	
+								heat.setOptions({radius:15,gradient:{0.5: 'white', 1:$('#shapeColor').val()}})	
+							    heat.addLatLng(e.latlng);	
+							}	
+						}	
+				     });	
+
+					map.on('mouseup',function(e){	
+						if(draw){	
+
+							var layer = $('#markerLayer').val();	
+							var color = $('#shapeColor').val();	
+
+							if(layer){	
+								$.ajax({	
+									type : "POST",	
+									url : '/marker/add',	
+									data : {	
+										'lat' : addressPoints[addressPoints.length-1].lat,	
+										'lng' : addressPoints[addressPoints.length-1].lng,	
+										'shapeType' : 'heat',	
+										'type' : 'shape',	
+										'layer' : layer,	
+										'color' : color,	
+										'message' : '',	
+										'shapeList' : JSON.stringify(addressPoints)	
+									},	
+									success : function(data) {	
+										if(data.status == 'success'){	
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+										}else{	
+											if(data.status == 'success'){	
+												updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+											}else{	
+												var alertPopup = L.popup();	
+												alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);	
+											}	
+										}	
+									}	
+								});	
+							}else{	
+								var alertPopup = L.popup();	
+								alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);	
+							}	
+
+							draw = false;	
+							addressPoints = [];	
+							heat.setLatLngs(addressPoints);	
+							heat.redraw();	
+
+							map.dragging.enable();	
+
+						}	
+
+					})	
+
+				    map.on(L.Draw.Event.CREATED, function (e) {	
+						var type = e.layerType;	
+						var layerObject = e.layer;	
+
+						var latlngArr = [];	
+
+						if(Array.isArray(layerObject.getLatLngs()[0])){	
+							latlngArr = layerObject.getLatLngs()[0];	
+						}else{	
+							latlngArr = layerObject.getLatLngs();	
+						}	
+
+						var layer = $('#markerLayer').val();	
+						var color = $('#shapeColor').val();	
+
+						if(layer){	
+							$.ajax({	
+								type : "POST",	
+								url : '/marker/add',	
+								data : {	
+									'lat' : latlngArr[latlngArr.length-1].lat,	
+									'lng' : latlngArr[latlngArr.length-1].lng,	
+									'shapeType' : type,	
+									'type' : 'shape',	
+									'layer' : layer,	
+									'color' : color,	
+									'message' : '',	
+									'shapeList' : JSON.stringify(latlngArr)	
+								},	
+								success : function(data) {	
+									if(data.status == 'success'){	
+										updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+									}else{	
+										if(data.status == 'success'){	
+											updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+										}else{	
+											var alertPopup = L.popup();	
+											alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);	
+										}	
+									}	
+								}	
+							});	
+						}else{	
+							var alertPopup = L.popup();	
+							alertPopup.setLatLng(map.getCenter()).setContent('no logged layer').openOn(map);	
+						}	
+				    });	
+
+					var dragLockControl =  L.Control.extend({	
+
+						options: {	
+							position: 'topright'	
+						},	
+
+						onAdd: function (map) {	
+							var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');	
+							container.id = 'dragLockButton';	
+							container.innerHTML = '<i class="fas fa-lock fa-2x"></i>';	
+							container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';	
+
+							container.onclick = function(){	
+								if(dragLock){	
+									dragLock = false;	
+									$('#dragLockButton')[0].innerHTML = '<i class="fas fa-unlock fa-2x"></i>';	
+								}else{	
+									dragLock = true;	
+									$('#dragLockButton')[0].innerHTML = '<i class="fas fa-lock fa-2x"></i>';	
+								}	
+
+								updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+							}	
+
+							return container;	
+						}	
+					});	
+
+				    map.addControl(new dragLockControl());	
+
+					var command = L.control({position: 'topleft'});	
+
+					command.onAdd = function (map) {	
+						var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');	
+						container.id = 'shapeColorDiv';	
+						container.innerHTML = '<input id="shapeColor" type="text" name="shapeColor" value="ff0000" />';	
+						container.style = 'background-color:white;padding:2px;font-size:8px;color:#666666';	
+
+						return container;	
+
+					}	
+
+					command.addTo(map);	
+
+					$('#shapeColor').colorPicker({colors: ["000000", "003399", "009966", "00cc00", "cc0000","cc6600","ff0000","ff9900","ff66cc","990099","ccff00","ffffff"]});	
+				}	
+
+			}	
+
+			var fullScreenControl =  L.Control.extend({	
+				options: {	
+					position: 'topright'	
+				},	
+
+				onAdd: function (map) {	
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');	
+					container.id = 'fullScreenControl';	
+					container.innerHTML = '<i class="fas fa-expand fa-2x"></i>';	
+					container.style = 'background-color:white;padding:3px;font-size:8px;color:#666666';	
+
+					container.onclick = function(){	
+						toggleFullScreen();	
+					}	
+
+					return container;	
+				}	
+			});	
+
+		    map.addControl(new fullScreenControl());	
+
+			var heatDayStatControl =  L.Control.extend({	
+				options: {	
+					position: 'bottomright'	
+				},	
+
+				onAdd: function (map) {	
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');	
+					container.id = 'heatDayStatControl';	
+					container.innerHTML = '<div id="heatDayStat"></div>';	
+					container.style = 'border:0px; padding:0 0 30px 0; margin:0px;';	
+
+					return container;	
+				}	
+			});	
+
+		    map.addControl(new heatDayStatControl());	
+
+			var heatStatControl =  L.Control.extend({	
+				options: {	
+					position: 'topright'	
+				},	
+
+				onAdd: function (map) {	
+					var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');	
+					container.id = 'heatStatControl';	
+					container.innerHTML = '<div id="heatStat" align="right"></div>';	
+					container.style = 'border:0px; padding:0px; margin:0px;';	
+
+					return container;	
+				}	
+			});	
+
+		    map.addControl(new heatStatControl());	
+
+		    function updateWordStat(){	
+		    	// ajax get data	
+				var colors = ['#F97A18','#FFCF32','#654930','#291F1A','#FF6932','#FF3262','#750075','#32C8FF','#276662','#192828'];	
+
+		    	var resultList = [];	
+		    	var dayList = [];	
+
+		    	var redraw = false;	
+		    	var redrawDay = false;	
+		    	$.ajax({	
+		    		type : "GET",	
+		    		url : '/stat/streetLive/',	
+		    		success : function(data){	
+		    			if(data.status == 'success'){	
+		    				var total = 0;	
+		    				var resultMap = {};	
+		    				var dayMap = {};	
+		    				resultList = [];	
+		    				dayList = [];	
+
+		    				resultMap['hit'] = {	
+		    					type: 'bar',	
+		    					hoverinfo:'none',	
+		    					orientation:'h',	
+								textposition: 'auto',	
+								marker:{	
+									color:colors	
+								},	
+		    					x : [],	
+		    					y : [],	
+		    					text : []	
+		    				}	
+
+		    				resultMap['popo'] = {	
+		    					type: 'bar',	
+		    					hoverinfo:'none',	
+		    					orientation:'h',	
+								textposition: 'auto',	
+		    					x : [],	
+		    					y : [],	
+		    					text : []	
+			    			}	
+
+		    				for (var key in data.data.live) {	
+		    					resultMap['hit'].y.push(key);	
+		    					resultMap['hit'].x.push(data.data.live[key].hit || 0);	
+		    					resultMap['hit'].text.push(data.data.live[key].hit || 0);	
+		    					total += (data.data.live[key].hit || 0) + (data.data.live[key].popo || 0);	
+		    				}	
+
+		    				for (var key in data.data.live) {	
+		    					resultMap['popo'].y.push(key);	
+		    					resultMap['popo'].x.push(data.data.live[key].popo || 0);	
+		    					resultMap['popo'].text.push(data.data.live[key].popo || 0);	
+		    				}	
+
+		    				for(var key in resultMap){	
+		    					resultList.push(resultMap[key]);	
+		    				}	
+
+		    				var layout = {	
+								width: 150,	
+								height: 300,	
+								margin: {	
+									l: 25,	
+									r: 50,	
+									b: 0,	
+									t: 0,	
+									pad: 0	
+								},	
+								font:{	
+								    family: '微軟正黑體',	
+								    size:15,	
+								},	
+		    					showlegend : false,	
+								textposition: 'auto',	
+		    					paper_bgcolor:'rgba(0,0,0,0)',	
+		    				    plot_bgcolor:'rgba(0,0,0,0)',	
+		    				    barmode: 'stack',	
+								xaxis: {	
+									side: 'top',	
+									autorange: "reversed",	
+									showgrid: false,	
+									fixedrange: true	
+								},	
+								yaxis: {	
+									side: 'right',	
+									fixedrange: true	
+								}	
+		    				};	
+
+		    				if(!redraw){	
+		    					redraw = true;	
+			    				Plotly.newPlot('heatStat', resultList, layout, {displayModeBar: false});	
+		    				}else{	
+		    					Plotly.redraw('heatStat');	
+		    				}	
+
+			    			//draw line chart	
+			    			var count = Object.keys(data.data.live).length - 4;	
+		    				for (var key in data.data.day) {	
+				    			dayMap[key] = {	
+									type: "scatter",	
+									mode: "lines",	
+			    					hoverinfo:'none',	
+									name: key,	
+									line:{	
+										color : colors[count++],	
+			    						width: parseInt((parseInt((data.data.live[key].hit || 0) + (data.data.live[key].popo || 0)) / total) * 23)	
+									  },	
+			    					x : [],	
+			    					y : [],	
+			    					text : []	
+			    				}	
+
+			    				for(var index in data.data.day[key]){	
+			    					var val = data.data.day[key][index];	
+
+			    					dayMap[key].x.push(val.text)	
+			    					dayMap[key].y.push(val.weight)	
+			    					dayMap[key].text.push(key);	
+			    				}	
+		    				}	
+
+		    				for (var key in data.data.day) {	
+		    					dayList.push(dayMap[key]);	
+		    				}	
+
+		    				var dayLayout = {	
+								width: 250,	
+								height: 250,	
+								margin: {	
+									l: 0,	
+									r: 25,	
+									t: 0,	
+									pad: 0	
+								},	
+								font:{	
+								    family: '微軟正黑體',	
+								    size:15,	
+								},	
+		    					paper_bgcolor:'rgba(0,0,0,0)',	
+		    				    plot_bgcolor:'rgba(0,0,0,0)',	
+								xaxis: {	
+									fixedrange: true,	
+									tickformat : "%H:%M",	
+										showgrid: false,	
+								},	
+								yaxis: {	
+									fixedrange: true,	
+									showgrid: false,	
+								},	
+								showlegend: true,	
+								legend: {"orientation": "h"}	
+		    				};	
+
+		    				if(!redrawDay){	
+		    					redrawDay = true;	
+			    				Plotly.newPlot('heatDayStat', dayList, dayLayout, {displayModeBar: false});	
+		    				}else{	
+		    					Plotly.redraw('heatDayStat');	
+		    				}	
+
+		    			}	
+		    		}	
+		    	});	
+
+		    }	
+
+		    $('.layerLoginForm').submit(function(e){	
+		    	e.preventDefault();	
+				$.ajax({	
+					type : "GET",	
+					url : '/login',	
+					data : $(this).serialize(),	
+
+					success : function(data){	
+						if(data.status == 'success'){	
+							window.location.reload(false); 	
+						}else{	
+							var alertPopup = L.popup();	
+							alertPopup.setLatLng(map.getCenter()).setContent(data.remarks).openOn(map);	
+						}	
+					}	
+				});	
+		    })	
+
+			var menu = L.popup();	
+			var menuLatLng;	
+
+			function onMapClick(e) {	
+				menuLatLng = e.latlng;	
+				$('#coord').show();	
+				menu.setLatLng(e.latlng).setContent($('#coord')[0]).openOn(map);	
+			}	
+
+			map.on('contextmenu', onMapClick);	
+
+			map.on('dragend', function(e) {	
+				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));	
+			});	
+
+			map.on('zoomend', function(e) {	
+				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));	
+
+				processMarker(markerDataList);	
+			});	
+
+
+			clickRegister($("#btnInfoMarker"), 'info');	
+			clickRegister($("#btnRedInfoMarker"), 'redinfo');	
+			clickRegister($("#btnYellowInfoMarker"), 'yellowinfo');	
+
+			clickRegister($("#btnMedicalMarker"), 'medical');	
+			clickRegister($("#btnGroupMarker"), 'group');	
+			clickRegister($("#btnSupplyMarker"), 'supply');	
+
+			clickRegister($("#btnFlagBlackMarker"), 'blackflag');	
+			clickRegister($("#btnFlagBlueMarker"), 'blueflag');	
+			clickRegister($("#btnFlagOrangeMarker"), 'orangeflag');	
+			clickRegister($("#btnFlagRedMarker"), 'redflag');	
+			clickRegister($("#btnFlagYellowMarker"), 'yellowflag');	
+
+			clickRegister($("#btnBlockadeMarker"), 'blockade');	
+			clickRegister($("#btnPedestrianMarker"), 'pedestrian');	
+			clickRegister($("#btnWarningMarker"), 'warning');	
+			clickRegister($("#btnPoliceMarker"), 'police');	
+
+			clickRegister($("#btnRiotPoliceMarker"), 'riotpolice');	
+
+			clickRegister($("#btnWaterTruckMarker"), 'watertruck');	
+
+			clickRegister($("#btnDangerMarker"), 'danger');	
+			clickRegister($("#btnTearGasMarker"), 'teargas');	
+
+			function clickRegister(button,type){	
+				button.click(function(e) {	
+					e.preventDefault();	
+					var message = $('#markerMessage').val();	
+					var layer = $('#markerLayer').val();	
+
+					if(layer){	
+						$.ajax({	
+							type : "POST",	
+							url : '/marker/add',	
+							data : {	
+								'lat' : menu.getLatLng().lat,	
+								'lng' : menu.getLatLng().lng,	
+								'type' : type,	
+								'layer' : layer,	
+								'message' : message	
+							},	
+							success : function(data) {	
+								if(data.status == 'success'){	
+									$('#markerMessage').val('');	
+									map.closePopup();	
+								}else{	
+									var alertPopup = L.popup();	
+									alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);	
+								}	
+							}	
+						});	
+					}else{	
+						alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);	
+					}	
+
+				});	
+			}	
+
+			var locationFilter = new L.LocationFilter().addTo(map);	
+
+			var broadcastLoop;	
+			var markerBroadcastIdList = [];	
+			var messagesToSpeech = [];	
+			var snd;	
+
+			var newMessageCount = 0;	
+			var isPlayingMessage = false;	
+
+			var sndBeep = new Audio();	
+			sndBeep.volume = 0.15;	
+
+			var currentLocation;	
+			var currentOrientation = -1;	
+
+			map.on("locationfound",function(e){	
+				currentLocation = e.latlng;	
+
+				if(window.DeviceOrientationEvent) {	
+					window.addEventListener('deviceorientation', function(event) {	
+						var deg = parseInt(event.alpha);	
+						if(deg){	
+							currentOrientation = deg;	
+						}	
+					}, true);	
+				}else{	
+					console.log("Oriention not support")	
+				}	
+
+			});	
+
+			function broadcastMarker(){	
+				if(locationFilter.isEnabled()){	
+					$("#boardcastButton").text("(" + markerBroadcastIdList.length + ")");	
+
+					if(markerBroadcastIdList.length > 0) {	
+						if(!isPlayingMessage){	
+							isPlayingMessage = true;	
+
+							if (currentLocation){	
+								parameters = {	
+									'fromLat' : currentLocation.lat,	
+									'fromLng' : currentLocation.lng,	
+									'deg' : currentOrientation,	
+									'markerIdList' : markerBroadcastIdList.join(",")	
+								};	
+								makeSpeechRequest('/marker/' + layerKeysString + '/speech' , parameters);	
+							} else {	
+								parameters = {	
+									'markerIdList' : markerBroadcastIdList.join(",")	
+								};	
+								makeSpeechRequest('/marker/' + layerKeysString + '/speech' , parameters);	
+					        }	
+						}	
+					}else{	
+						if(!isPlayingMessage){	
+
+							sndBeep.currentTime = 0;	
+							sndBeep.play();	
+						}	
+					}	
+				}	
+			}	
+
+
+			function makeSpeechRequest(url , parameters){	
+				$.ajax({	
+					'type' : "POST",	
+					'url' : url,	
+					'data' : parameters,	
+					'success' : function(data) {	
+						if(data.text){	
+							messagesToSpeech = [];	
+							markerBroadcastIdList = [];	
+
+							messagesToSpeech.push(data.text);	
+						}	
+
+						playNext();	
+					}	
+				});	
+			}	
+
+			function playNext(){	
+				if(messagesToSpeech.length > 0){	
+					snd = new Audio("data:audio/wav;base64," + messagesToSpeech.shift());	
+					snd.volume = 0.9;	
+					snd.play();	
+
+					snd.addEventListener("ended", function(){	
+						snd.currentTime = 0;	
+						setTimeout(function() {	
+							playNext();	
+						}, 1000);	
+
+					});	
+				}else{	
+					isPlayingMessage = false;	
+				}	
+
+			}	
+
+			locationFilter.on("change", function (e) {	
+				console.log(";[" + locationFilter.getBounds().getNorthWest().lat + ',' + locationFilter.getBounds().getNorthWest().lng + ":" + locationFilter.getBounds().getSouthEast().lat + "," + locationFilter.getBounds().getSouthEast().lng + "]" );	
+			});	
+
+			locationFilter.on("enabled", function () {				 	
+				 broadcastMarker();	
+				 broadcastLoop = setInterval(function(){broadcastMarker();}, 8000);	
+			});	
+
+			locationFilter.on("disabled", function () {	
+				 if(snd){	
+					 snd.pause();	
+					 snd.currentTime = 0;	
+				 }	
+				 clearInterval(broadcastLoop);	
+			});			
+
+			function updateMarkers(lat, lng) {	
+				if(!pause){	
+					var markerIdList = [];	
+					markerDataList.forEach(function(item){	
+						markerIdList.push(item.markerId);	
+					});	
+
+					stompClient.send("/app/update/" + key  ,{},JSON.stringify({	
+						'lat' : lat,	
+						'lng' : lng,	
+						'uuid' : key,	
+						'layerString' : layerKeysString,	
+						'markerIdList' : markerIdList.join(",")	
+					}))	
+				}	
+			}	
+
+			var markerCount = [];	
+
+			function processMarkerData(data){	
+				data = JSON.parse(data.body);	
+
+				if(data.list) {	
+					markerCount = [];	
+					var markerIndex = 0;	
+
+					data.list.forEach(function(result){	
+
+						if(result.status == 'X'){	
+							markerDataList = markerDataList.filter(function( obj ) {	
+							    return obj.markerId !== result.markerId;	
+							});	
+						}else if(result.status == 'A'){	
+							var item = result.marker;	
+
+							if(result.l && !markerCount[result.l]){	
+								markerCount[result.l] = 0;	
+							}	
+
+							item.markerIndex = markerCount[result.l]++;	
+
+							item.opacity = result.o;	
+							item.controllable = result.c;	
+
+							if(result.mc != null){	
+								item.markerCache = result.mc;	
+							}else{	
+								item.markerCache = null;	
+							}	
+
+							var marker = $.grep(markerDataList, function(e){ return e.markerId == item.markerId; });	
+
+							if(marker.length == 0){	
+
+								if(locationFilter.isEnabled()){	
+									var bounds = locationFilter.getBounds();	
+									var fromLat = bounds.getSouthWest().lat;	
+									var fromLng = bounds.getSouthWest().lng;	
+									var toLat = bounds.getNorthEast().lat;	
+									var toLng = bounds.getNorthEast().lng;	
+
+									if(fromLat <= result.marker.lat && result.marker.lat <= toLat && fromLng < result.marker.lng && result.marker.lng < toLng){	
+										markerBroadcastIdList.push(result.marker.markerId);	
+									} 	
+
+									$("#boardcastButton").text("(" + markerBroadcastIdList.length + ")");	
+
+								}	
+
+								markerDataList.push(item);	
+							}	
+
+						}else if(result.status == 'O'){	
+
+							if(result.l && !markerCount[result.l]){	
+								markerCount[result.l] = 0;	
+							}	
+
+							markerDataList.forEach(function(item){	
+
+								if(item.markerId == result.markerId){	
+									item.markerIndex = markerCount[result.l]++;	
+
+									item.opacity = result.o;	
+									item.controllable = result.c;	
+
+									if(result.mc != null){	
+										item.markerCache = result.mc;	
+									}else{	
+										item.markerCache = null;	
+									}	
+								}	
+							});	
+
+						}else if(result.status == 'U'){	
+							if(result.l && !markerCount[result.l]){	
+								markerCount[result.l] = 0;	
+							}	
+
+							markerDataList.forEach(function(item){	
+
+								if(item.markerId == result.markerId){	
+									item.markerIndex = markerCount[result.l]++;	
+
+									item.lat = result.marker.lat;	
+									item.lng = result.marker.lng;	
+									item.message = result.marker.message;	
+
+									item.opacity = result.o;	
+									item.controllable = result.c;	
+
+									if(result.mc != null){	
+										item.markerCache = result.mc;	
+									}else{	
+										item.markerCache = null;	
+									}	
+
+									if(result.marker.shapeList){	
+										item.shapeList = result.marker.shapeList;		
+									}	
+								}	
+							});	
+
+						}	
+
+					});	
+
+					processMarker(markerDataList);	
+				}	
+			}	
+
+			function highlightSharp(message, keywordList){					
+				var messageCutOff = message.lastIndexOf("#") < 0 ? message.length : message.lastIndexOf("#");	
+				var firstPart = message.substr(0, messageCutOff);	
+				var secondPart = '<span style="font-size:10px;color:#999999">' + message.substr(messageCutOff, message.length) + '</span>';	
+
+				firstPart = firstPart.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');	
+
+				for(index in keywordList){	
+					firstPart = firstPart.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span class="highlight">$1</span>');	
+				}	
+
+				var finalMessage = firstPart + secondPart ;	
+
+				return finalMessage;	
+			}	
+
+			function toastrHighlightSharp(message, keywordList){					
+
+				message = message.replace(/#(.*?(?:\s|\n|$))/gi,'<span class="highlight"><b>#$1</b></span>');	
+
+				for(index in keywordList){	
+					message = message.replace(new RegExp('(' + keywordList[index] + ')',"g"), '<span class="highlight">$1</span>');	
+				}	
+
+				return message;	
+			}	
+
+			function processMarker(markerDataList){					
+				// remove non active markers	
+				markerObjectList.forEach(function(item, index, object){	
+					var marker = $.grep(markerDataList, function(e){ return e.markerId == item.markerId; });	
+
+					if(marker.length == 0){	
+						if(item.relatedMarker){	
+							map.removeLayer(item.relatedMarker);	
+						}	
+
+						if(item.relatedShape){	
+							if(Array.isArray(item.relatedShape)){	
+								item.relatedShape.forEach(function(relatedShapeItem){	
+									map.removeLayer(relatedShapeItem);	
+								});	
+							}else{	
+								map.removeLayer(item.relatedShape);	
+							}	
+						}	
+
+						map.removeLayer(item);	
+
+						object.splice(index, 1);	
+					}	
+				});	
+
+				markerDataList.forEach(function(item) {	
+					var marker = $.grep(markerObjectList, function(e){ return e.markerId == item.markerId; });	
+
+					var upDownButton = '';	
+					var message = '';	
+					var deleteBtn = '';	
+					var content = '';	
+					var pulseClass = '';	
+					var pulseStyle = '';	
+					var copyButton = '';	
+					var expirePercent = 0;	
+					var markerGroupType = undefined;	
+					var markerGroupValue = undefined;	
+
+					if (item.controllable){							
+						message = '<span style="font-size:16px;width:100%;white-space: pre;" class="editableMessage" data-message="' + item.message + '" data-id="'+ item.markerId +'">' + (item.message == '' ? '<span style="color:#CCCCCC">(Message)</span>' : item.message) + '</span>';	
+						deleteBtn = ' <a href="#" data-id="'+item.markerId+'" class="btn m-0 p-0 btnDelete"><i class="fas fa-trash-alt fa-1x"></i></a>'; 	
+					}else{	
+						message = '<span style="font-size:16px;width:100%;white-space: pre;">' + highlightSharp(item.message, item.keywordList) + '</span>';	
+					}	
+
+					if(loggedLayers.length > 0){	
+				    	loggedLayers.forEach(function(loggedItem){	
+				    		if(loggedItem != 'public'){	
+								if(layerKeys.includes(loggedItem)){	
+									if(item.layer.layerKey != loggedItem){	
+										copyButton += '<a href="#" data-id="' + item.markerId + '" data-layer="'+loggedItem+'" class="btnCopy mark">&gt;'+loggedItem+'</a>';	
+									}	
+								}		
+				    		}	
+				    	});	
+
+					}	
+
+					if(item.status == 'A'){	
+						expirePercent = 1;	
+					}	
+
+					if (item.markerCache) {	
+						upDownButton = '<div style="width:120px;font-size:13px"><mark class="rounded p-1"><a href="#" data-id="'+item.markerId+'" class="m-0 p-0 btnUp"><i class="far fa-thumbs-up"></i>' + (item.markerCache.u ? item.markerCache.u : '' )  + '</a>&nbsp;<a href="#" data-id="'+item.markerId+'" class="text-secondary m-0 p-0 btnDown"><i class="far fa-thumbs-down"></i>' + (item.markerCache.d ? item.markerCache.d : '')  + '</a>' + deleteBtn + '</mark></div>';	
+
+						if(item.markerCache.pulse > 0){	
+							pulseStyle = 'background: red;  color: #E74C3C; padding:1px';	
+							pulseClass = 'pulse';	
+						}	
+
+						//border color	
+						var iconBorderColor = '#FFFFFF';	
+
+						expirePercent = item.markerCache.expire / item.expire;	
+
+						if(item.markerCache.expire <= item.expire){	
+							var itemDate = new Date(item.createdate);	
+							itemDate.setHours(item.hour);	
+							itemDate.setMinutes(item.minute);	
+
+							var diffMinute = Math.floor((new Date() - itemDate)/1000/60);	
+
+							if(diffMinute < -30){	
+								iconBorderColor = '#ffffff';	
+							}else if(diffMinute < 5){	
+								iconBorderColor = '#fd00ff';	
+							} else if(diffMinute < 15){	
+								iconBorderColor = '#f9061e';	
+							} else if(diffMinute < 30){	
+								iconBorderColor = '#ff6e75';	
+							} else if(diffMinute < 60){	
+								iconBorderColor = '#ff8f8f';	
+							} else if(diffMinute < 90){	
+								iconBorderColor = '#ffcecc';	
+							} else if(diffMinute < 120){	
+								iconBorderColor = '#ffeceb';	
+							}	
+						}	
+
+						if(item.markerCache.g){	
+							markerGroupType = item.markerCache.g.split(":")[0];	
+							markerGroupValue = item.markerCache.g.split(":")[1];	
+						}	
+					}	
+
+					content = message;	
+
+					var htmlContent;	
+					var icon;	
+
+					var iconMaster;	
+					var updateClass;	
+					var updateCSS;	
+					var updateTextCSS;	
+					var scale = (map.getZoom() - 13) / 4;	
+					scale = scale > 0.5 ? scale < 1 ? scale : 1 : 0.5;	
+
+					if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){	
+						updateClass = 'img-border m-n4 rounded '+ pulseClass +'';	
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; '+ pulseStyle +';border:2px solid #3366AA !important';	
+						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';	
+
+						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/i/'+item.imagePath+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;	
+					}else{	
+						updateClass = 'img-border m-n4 '+ pulseClass +'';	
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; height:' + (item.iconSize * scale) + 'px; '+ pulseStyle +'';	
+						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';	
+
+						if(markerGroupType && markerGroupType === 'm'){	
+							iconMaster = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+						}	
+
+						if(item.type == 'police' || item.type == 'riotpolice' || (item.type == 'shape' && (item.icon == 'popo.png' || item.icon == 'riot.png'))){	
+							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+						}else{	
+							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+						}	
+
+
+
+					}	
+
+					var updateMessage = '';	
+
+					var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");	
+
+					if(map.getZoom() > 18){	
+						updateMessage =  '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) +  '</mark>' + upDownButton + copyButton;	
+					}else{	
+						if(new Number(item.markerIndex) < 5){	
+							var messageText = item.message.substr(0, messageCutOff);	
+
+							if(messageText.length > 25){	
+								messageText = messageText.substr(0,15) + '...' + messageText.substr(-10);	
+							}	
+
+							updateMessage = '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + messageText + '</mark><br/>';	
+						}else{	
+							updateMessage = '';	
+						}	
+					}	
+
+					htmlContent = icon + '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + updateMessage + '</div></div></div>';	
+
+					var htmlContentMaster = '';	
+
+					if(markerGroupType && markerGroupType === 'm' && item.type != 'image'){	
+
+						var messageCutOff = item.message.lastIndexOf("#") < 0 ? item.message.length : item.message.lastIndexOf("#");	
+
+						htmlContentMaster = '<div id="marker_message_' + item.markerId + '" style="' + updateTextCSS + '">' + '<mark class="rounded message" style="white-space: pre; background-color:' + colorMap[layerMap[item.layer.layerKey]] + '">' + item.message.substr(0, messageCutOff) + '</mark><br/>' + '</div></div></div>';	
+						item.htmlContent = htmlContentMaster;	
+						item.iconContent = iconMaster;	
+					}	
+
+					var popup = L.popup().setContent(content);	
+
+					divIcon = L.divIcon({	
+						className:'location-icon',	
+						html: htmlContent,	
+						popupAnchor:  [-3, -14],	
+						iconAnchor: [-5, 10], 	
+					});	
+
+					var imageContent;	
+
+					if(item.controllable){	
+						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " class="editableMessage" data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ (item.message ? item.message : '<span style="color:#CCCCCC">(Message)</span>') +'</span>'	
+					}else{	
+						imageContent = '<div style="overflow-y : scroll;height:200px"><img src="/images/i/'+item.imagePath+'" width="400px"/></div><span style="font-size:16px;width:100%;white-space: pre-wrap; " data-message="'+item.message+'" data-id="'+ item.markerId +'">'+ highlightSharp(item.message, item.keywordList) +'</span>'	
+					}	
+
+					var imagePopup = L.popup().setContent(imageContent);	
+
+					if(markerGroupType == 'r'){	
+						var itemMaster = $.grep(markerDataList, function(e){ return e.markerId == markerGroupValue; });	
+
+						if(itemMaster && itemMaster[0]){	
+							if(!itemMaster[0].groupList){	
+								itemMaster[0].groupList = [];	
+							}	
+
+							if(itemMaster[0].groupList && !itemMaster[0].groupList.includes(item.markerId)){	
+								itemMaster[0].groupList.push(item.markerId);	
+							}	
+						}	
+
+					}	
+
+					if(marker.length == 0){	
+
+						marker = L.marker([ item.lat, item.lng ], {	
+							draggable : !dragLock && item.controllable,	
+							icon : divIcon	
+						}).addTo(map)	
+
+						marker.setZIndexOffset(0);	
+
+						marker.setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));	
+
+						if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){	
+							marker.bindPopup(imagePopup, {	
+								autoPan: false,	
+								keepInView: false,	
+								autoClose: true,	
+								maxWidth: "auto"	
+							});	
+							marker.setPopupContent(imageContent);	
+							marker.popupContent = imageContent;	
+							marker.getPopup();	
+
+						}else{	
+							marker.bindPopup(popup, {	
+								autoPan: false,	
+								keepInView: false,	
+								autoClose: true,	
+								maxWidth: "auto"	
+							});	
+
+							marker.setPopupContent(content);	
+							marker.popupContent = content;	
+							marker.getPopup();	
+
+						}	
+
+						if(item.message){	
+					        marker.on('mouseover', function (e) {	
+					            this.openPopup();	
+					        });	
+						}	
+
+						if(item.type == 'shape'){	
+
+							var shape;	
+
+							if(item.shapeType =='polyline'){	
+								shape = L.polyline([],{color: item.color, weight: 4});	
+
+								item.shapeList.forEach(function(shapePoint) {	
+									shape.addLatLng(shapePoint);	
+								});	
+
+								var decorator = L.polylineDecorator(shape, {	
+								    patterns: [	
+								        {offset: '100%', repeat: 0, symbol: L.Symbol.arrowHead({pixelSize: 30, polygon: false, pathOptions: {weight:4, color : item.color, stroke: true}})}	
+								    ]	
+								}).addTo(map);	
+
+								shape.addTo(map);	
+
+								shape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+								decorator.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+
+								marker.relatedShape = [shape,decorator];	
+							} else if(item.shapeType =='polyline_group'){	
+
+								var relatedShapeList = [];	
+								var shapeMap = {};	
+
+								item.shapeList.forEach(function(shapePoint) {	
+									if(shapeMap[shapePoint.group] === undefined){	
+										shapeMap[shapePoint.group] = [];	
+									}	
+									shapeMap[shapePoint.group].push(shapePoint);		
+								});	
+
+								for(var mapKey in shapeMap){	
+									shapeList = shapeMap[mapKey];								
+									shape = L.polyline([],{color: item.color, weight: 5});	
+
+									shapeList.forEach(function(shapePoint){	
+										shape.addLatLng(shapePoint);	
+									});	
+
+									shape.addTo(map);	
+
+									shape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+									shape.group = mapKey;	
+
+									relatedShapeList.push(shape);	
+								};	
+
+								marker.relatedShape = relatedShapeList;	
+							} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){	
+								shape = L.polygon([],{color: item.color, weight: 3});	
+
+								item.shapeList.forEach(function(shapePoint) {	
+									shape.addLatLng(shapePoint);	
+								});	
+
+								shape.addTo(map);	
+
+								marker.relatedShape = shape;	
+							} else if(item.shapeType == 'heat'){	
+								shape = L.heatLayer([],{minOpacity:1,blur:0,max:1,radius:10,gradient:{1:item.color}});	
+
+								item.shapeList.forEach(function(shapePoint) {	
+									shape.addLatLng(shapePoint);	
+								});	
+
+								shape.addTo(map);	
+
+								shape.setOptions({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+
+								marker.relatedShape = shape;	
+							}	
+
+						}	
+
+						marker.on('click', function(e){	
+							marker.setZIndexOffset(maxZIndex++);			
+						});	
+
+					    marker.on('dragstart', function(e) {	
+					    	  pause = true;	
+					    });	
+
+						marker.on('dragend', function(e) {	
+							$.ajax({	
+								type : "POST",	
+								url : '/marker/move',	
+								data : {	
+									'lat' : e.target.getLatLng().lat,	
+									'lng' : e.target.getLatLng().lng,	
+									'markerId' : item.markerId	
+								},	
+								success : function(data) {	
+									pause = false;	
+								}	
+							});	
+
+							if(marker.relatedMarker){	
+								marker.relatedMarker.setLatLng(e.target.getLatLng());	
+							}	
+
+						})	
+
+						marker.on('dblclick', function(event){	
+							if(item.controllable){	
+								$.ajax({	
+									type : "POST",	
+									url : '/marker/pulse',	
+									data : {	
+										'markerId' : item.markerId	
+									},	
+									success : function(data) {	
+									}	
+								});	
+							}	
+
+						});	
+
+						marker.markerId = item.markerId;	
+
+						markerObjectList.push(marker);	
+
+						// do notification	
+						markerDate = Date.parse(item.createdate);	
+						currentDate = new Date();	
+
+						if(currentDate - markerDate < 12000){	
+							if(item.layer.layerKey != 'traffic'){	
+								new Noty({	
+									layout: 'topLeft',	
+								    timeout: '8000',	
+								    progressBar: true,	
+								    closeWith: ['click'],	
+								    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>'	
+								}).show();	
+							}	
+
+
+							$('.logMessage').on('click',function(event){	
+								event.preventDefault();	
+								var id = $(this).data('id');	
+
+								var marker = $.grep(markerObjectList, function(e){ return e.markerId == id });	
+
+								if(marker.length > 0){	
+									map.setView(marker[0].getLatLng(),17);	
+								}	
+							})	
+						}	
+					}else{	
+
+						marker[0].setOpacity(markerBaseOpacity + (item.opacity * (expirePercent * 3)));	
+
+						$('#marker_message_' + item.markerId).html(updateMessage);	
+						$('#marker_message_' + item.markerId).attr('style',updateTextCSS);	
+
+						$('#marker_icon_' + item.markerId).attr('class', updateClass);	
+						$('#marker_icon_' + item.markerId).attr('style', updateCSS);	
+
+						if(item.message){	
+							if(!marker[0]._events.mouseover){	
+						        marker[0].on('mouseover', function (e) {	
+						            this.openPopup();	
+						        });	
+							}	
+						}	
+
+						if(!dragLock && item.controllable){	
+							marker[0].dragging.enable();	
+						}else{	
+							marker[0].dragging.disable();	
+						}	
+
+						if(item.lat != marker.lat || item.lng != marker.lng){	
+							var newLatLng = new L.LatLng(item.lat, item.lng);	
+							marker[0].setLatLng(newLatLng); 	
+
+							if(marker[0].relatedMarker){	
+								marker[0].relatedMarker.setLatLng(newLatLng);	
+							}								
+
+							if(marker[0].relatedShape){	
+
+								if(item.shapeList){	
+									var shape;	
+
+									if(item.shapeType =='polyline'){	
+										shape = L.polyline([]);	
+
+										item.shapeList.forEach(function(shapePoint) {	
+											shape.addLatLng(shapePoint);	
+										});	
+
+									} else if(item.shapeType =='polyline_group'){	
+										var shapeMap = {};	
+
+										item.shapeList.forEach(function(shapePoint) {	
+											if(shapeMap[shapePoint.group] === undefined){	
+												shapeMap[shapePoint.group] = [];	
+											}	
+											shapeMap[shapePoint.group].push(shapePoint);		
+										});	
+
+										shape = {};	
+
+										for(var mapKey in shapeMap){	
+											shapeList = shapeMap[mapKey];								
+											var subShape = L.polyline([]);	
+
+											shapeList.forEach(function(shapePoint){	
+												subShape.addLatLng(shapePoint);	
+											});	
+
+											shape[mapKey] = subShape;	
+										};	
+									} else if(item.shapeType =='polygon' || item.shapeType =='rectangle'){	
+										shape = L.polygon([]);	
+
+										item.shapeList.forEach(function(shapePoint) {	
+											shape.addLatLng(shapePoint);	
+										});	
+									} else if(item.shapeType == 'heat'){	
+										shape = L.heatLayer([],{radius:25,gradient:{1: 'white', 1:item.color}});	
+
+										item.shapeList.forEach(function(shapePoint) {	
+											shape.addLatLng(shapePoint);	
+										});	
+
+									}	
+
+									if(Array.isArray(marker[0].relatedShape)){	
+										marker[0].relatedShape.forEach(function(relatedShapeItem){	
+											if(relatedShapeItem.group){	
+												if(typeof relatedShapeItem.setLatLngs == "function"){	
+													relatedShapeItem.setLatLngs(shape[relatedShapeItem.group].getLatLngs());	
+												}else if(typeof relatedShapeItem.setPaths == "function"){	
+													relatedShapeItem.setPaths(shape[relatedShapeItem.group].getLatLngs());	
+												}	
+												relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+											}else{	
+												if(typeof relatedShapeItem.setLatLngs == "function"){	
+													relatedShapeItem.setLatLngs(shape.getLatLngs());	
+												}else if(typeof relatedShapeItem.setPaths == "function"){	
+													relatedShapeItem.setPaths(shape.getLatLngs());	
+												}	
+
+												relatedShapeItem.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+											}	
+										});	
+									}else{	
+										marker[0].relatedShape.setLatLngs(shape.getLatLngs());	
+
+										if(marker[0].relatedShape.setStyle){	
+											marker[0].relatedShape.setStyle({opacity:markerBaseOpacity + (item.opacity * (expirePercent * 3))});	
+										}	
+									}	
+								}	
+							}	
+						}	
+					}	
+				});	
+
+				markerDataList.forEach(function(item) {	
+					var markerGroupType = undefined;	
+					var markerGroupValue = undefined;	
+
+					if(item.markerCache && item.markerCache.g){	
+						markerGroupType = item.markerCache.g.split(":")[0];	
+						markerGroupValue = item.markerCache.g.split(":")[1];	
+					}	
+
+					if(markerGroupType){	
+						var marker = $.grep(markerObjectList, function(e){ return e.markerId == item.markerId; });	
+
+						if(markerGroupType == 'm'){	
+							if(item.groupList){	
+								var popup = marker[0].popupContent;	
+
+								for(var index in item.groupList){	
+									var slave = $.grep(markerObjectList, function(e){ return e.markerId == item.groupList[index]; });	
+									if(slave[0] && slave[0].popupContent){	
+										popup = slave[0].popupContent + '\n<br/>' + popup;	
+									}	
+								}	
+
+								var htmlContentMaster = '';	
+								if(item.markerIndex < 10){	
+									htmlContentMaster = item.iconContent + item.htmlContent;	
+								}else{	
+									htmlContentMaster = item.iconContent;	
+								}	
+
+								if(item.type != 'image' && item.icon != 'image.png'){	
+									divIcon = L.divIcon({	
+										className:'location-icon',	
+										html: htmlContentMaster,	
+										popupAnchor:  [-3, -14],	
+										iconAnchor: [-5, 10], 	
+									});	
+
+									marker[0].setIcon(divIcon);	
+								}	
+
+								marker[0].setPopupContent(popup);	
+							}	
+						}else if(markerGroupType == 'r'){	
+							divIcon = L.divIcon({html:'',icon:'',className:''});	
+							marker[0].setIcon(divIcon);	
+							marker[0].unbindPopup()	
+						}	
+					}	
+				});	
+
+				$(".btnDelete").on("click", function(e) {	
+					var button = $(this);	
+					e.preventDefault();	
+					if(confirm("delete?")){	
+						$.ajax({	
+							type : "POST",	
+							url : '/marker/delete',	
+							data : {	
+								'markerId' : button.data("id")	
+							},	
+							success : function(data) {	
+								if(data.status == 'success'){	
+									updateMarkers(map.getCenter().lat, map.getCenter().lng);	
+								}else{	
+									var markers = $.grep(markerObjectList, function(e){ return e.markerId == button.data("id") });	
+
+									var alertPopup = L.popup();	
+
+									alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);	
+								}	
+							}	
+						});	
+					}	
+				});	
+
+				$(".btnCopy").on("click", function(e) {	
+					var button = $(this);	
+					e.preventDefault();	
+					if(confirm("Copy to " + button.data("layer") + "?")){	
+						$.ajax({	
+							type : "POST",	
+							url : '/marker/copy',	
+							data : {	
+								'layer' : button.data("layer"),	
+								'markerId' : button.data("id")	
+							},	
+							success : function(data) {	
+							    pause = false;	
+							}	
+						});	
+					}	
+				});	
+
+				$(".btnUp").on("click", function(e) {	
+					var button = $(this);	
+					e.preventDefault();	
+
+					$.ajax({	
+						type : "POST",	
+						url : '/marker/up',	
+						data : {	
+							'markerId' : button.data("id")	
+						},	
+						success : function(data) {	
+							if(data.status == 'success'){	
+							}else{	
+								var markers = $.grep(markerObjectList, function(e){ return e.markerId == button.data("id") });	
+
+								var alertPopup = L.popup();	
+
+								alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);	
+							}	
+						}	
+					});	
+				});	
+
+				$(".btnDown").on("click", function(e) {	
+					var button = $(this);	
+					e.preventDefault();	
+
+					$.ajax({	
+						type : "POST",	
+						url : '/marker/down',	
+						data : {	
+							'markerId' : button.data("id")	
+						},	
+						success : function(data) {	
+							if(data.status == 'success'){	
+							}else{	
+								var markers = $.grep(markerObjectList, function(e){ return e.markerId == button.data("id") });	
+
+								var alertPopup = L.popup();	
+
+								alertPopup.setLatLng(markers[0].getLatLng()).setContent(data.remarks).openOn(map);	
+							}	
+						}	
+					});	
+				});	
+
+				$(".editableMessage").on("dblclick",function(e){	
+					pause = true;	
+					$(this).replaceWith('<textarea class="messageEditor form-control" data-id="' + $(this).data("id") + '">' + $(this).data("message") + '</textarea>');	
+
+					$('.messageEditor').on('keypress blur',function(e){	
+					    if((e.which == 13 && !e.shiftKey) || e.type == 'blur') {	
+					    	if (!$(this).data('done')) {	
+					            $(this).data('done', true);	
+						    	e.preventDefault();	
+								$.ajax({	
+									type : "POST",	
+									url : '/marker/updateMessage',	
+									data : {	
+										'message' : $(this).val(),	
+										'markerId' : $(this).data("id")	
+									},	
+									success : function(data) {	
+									    pause = false;	
+									}	
+								});	
+					    	}	
+					    }	
+					});		
+
+				});	
+
+			}	
+
+			$('#btnImageMarker').on('click',function(){	
+				$('#imageUploadFile').trigger('click');	
+
+			});	
+
+			 $('#imageUploadFile').change(function (e) {	
+				var message = $('#markerMessage').val();	
+				var layer = $('#markerLayer').val();	
+
+				var file_data = $('#imageUploadFile').prop('files')[0];	
+				var form_data = new FormData();	
+				form_data.append('file', file_data);	
+
+				$.ajax({	
+					url: '/images/imageUpload?layer=' + layer, 	
+					dataType: 'text', 	
+					cache: false,	
+					contentType: false,	
+					processData: false,	
+					data: form_data,	
+					type: 'post',	
+					success: function (response) {	
+						res = JSON.parse(response);	
+
+						if(res.status == 'success'){	
+							if(layer){	
+								$.ajax({	
+									type : "POST",	
+									url : '/marker/add',	
+									data : {	
+										'lat' : menu.getLatLng().lat,	
+										'lng' : menu.getLatLng().lng,	
+										'type' : 'image',	
+										'layer' : layer,	
+										'message' : message,	
+										'imagePath': res.filePath	
+									},	
+									success : function(data) {	
+										if(data.status == 'success'){	
+											$('#markerMessage').val('');	
+											map.closePopup();	
+										}else{	
+											var alertPopup = L.popup();	
+											alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);	
+										}	
+									}	
+								});	
+							}else{	
+								var alertPopup = L.popup();	
+								alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);	
+							}	
+						}else{	
+							var alertPopup = L.popup();	
+							alertPopup.setLatLng(map.getCenter()).setContent(res.remarks).openOn(map);	
+						}	
+	               },	
+	               error: function (response) {	
+						var alertPopup = L.popup();	
+						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);	
+	               }	
+				});	
+			});	
+
+			$('#markerMessage').pastableTextarea();	
+
+			$('#markerMessage').on('pasteImage', function(ev, data){	
+				var file_data = data.blob;	
+				var form_data = new FormData();	
+				form_data.append('file', file_data);	
+
+				$.ajax({	
+					url: '/images/imageUpload', 	
+					dataType: 'text', 	
+					cache: false,	
+					contentType: false,	
+					processData: false,	
+					data: form_data,	
+					type: 'post',	
+					success: function (response) {	
+						res = JSON.parse(response);	
+
+						var message = $('#markerMessage').val();	
+						var layer = $('#markerLayer').val();	
+
+						if(layer){	
+							$.ajax({	
+								type : "POST",	
+								url : '/marker/add',	
+								data : {	
+									'lat' : menu.getLatLng().lat,	
+									'lng' : menu.getLatLng().lng,	
+									'type' : 'image',	
+									'layer' : layer,	
+									'message' : message,	
+									'imagePath': res.filePath	
+								},	
+								success : function(data) {	
+									if(data.status == 'success'){	
+										$('#markerMessage').val('');	
+										map.closePopup();	
+									}else{	
+										var alertPopup = L.popup();	
+										alertPopup.setLatLng(menuLatLng).setContent(data.remarks).openOn(map);	
+									}	
+								}	
+							});	
+						}else{	
+							var alertPopup = L.popup();	
+							alertPopup.setLatLng(map.getCenter()).setContent('layer not logged').openOn(map);	
+						}	
+					},	
+					error: function (response) {	
+						var alertPopup = L.popup();	
+						alertPopup.setLatLng(map.getCenter()).setContent(response).openOn(map);	
+					}	
+           		});	
+			}).on('pasteImageError', function(ev, data){	
+				alert('Oops: ' + data.message);	
+				if(data.url){	
+				  alert('But we got its url anyway:' + data.url)	
+				}	
+			}).on('pasteText', function(ev, data){	
+				$('#markerMessage').insertAfter(this);	
+			});	
+
+			updateWordCloud();	
+			setInterval(function(){updateWordCloud()}, 30000);	
+
+		    updateWordStat()	
+		    setInterval(function(){updateWordStat()}, 1000 * 60);	
+		});	
+
+		function toggleFullScreen() {	
+			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods	
+				if (document.documentElement.requestFullscreen) {	
+				  document.documentElement.requestFullscreen();	
+				} else if (document.documentElement.msRequestFullscreen) {	
+				  document.documentElement.msRequestFullscreen();	
+				} else if (document.documentElement.mozRequestFullScreen) {	
+				  document.documentElement.mozRequestFullScreen();	
+				} else if (document.documentElement.webkitRequestFullscreen) {	
+				  document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);	
+				}	
+			} else {	
+				if (document.exitFullscreen) {	
+				  document.exitFullscreen();	
+				} else if (document.msExitFullscreen) {	
+				  document.msExitFullscreen();	
+				} else if (document.mozCancelFullScreen) {	
+				  document.mozCancelFullScreen();	
+				} else if (document.webkitExitFullscreen) {	
+				  document.webkitExitFullscreen();	
+				}	
+			}	
+		}	
+
+	</script>	
+	<div id="coord" style="width: 250px; display: none">	
+		<button id="btnInfoMarker" class="btn btn-info mt-1">	
+			<img src="/icon/019-pin-4.png" style="width: 32px; height: 32px" />	
+			<div>資訊</div>	
+		</button>	
+		<button id="btnRedInfoMarker" class="btn btn-info mt-1">	
+			<img src="/icon/017-pin-6.png" style="width: 32px; height: 32px" />	
+			<div>資訊</div>	
+		</button>	
+		<button id="btnYellowInfoMarker" class="btn btn-info mt-1">	
+			<img src="/icon/018-pin-5.png" style="width: 32px; height: 32px" />	
+			<div>資訊</div>	
+		</button>	
+
+		<button id="btnMedicalMarker" class="btn btn-light mt-1">	
+			<img src="/icon/010-first-aid-kit.png" style="width: 32px; height: 32px" />	
+			<div>救護</div>	
+		</button>	
+		<button id="btnGroupMarker" class="btn btn-info mt-1">	
+			<img src="/icon/protection.png" style="width: 32px; height: 32px" />	
+			<div>安全</div>	
+		</button>	
+		<button id="btnSupplyMarker" class="btn btn-success mt-1">	
+			<img src="/icon/supply.png" style="width: 32px; height: 32px" />	
+			<div>補給</div>	
+		</button>	
+
+		<button id="btnFlagBlackMarker" class="btn btn-light mt-1">	
+			<img src="/icon/black.png" style="width: 32px; height: 32px" />	
+			<div>黑旗</div>	
+		</button>	
+		<button id="btnFlagBlueMarker" class="btn btn-info mt-1">	
+			<img src="/icon/blue.png" style="width: 32px; height: 32px" />	
+			<div>藍旗</div>	
+		</button>	
+		<button id="btnFlagOrangeMarker" class="btn btn-success mt-1">	
+			<img src="/icon/orange.png" style="width: 32px; height: 32px" />	
+			<div>橙旗</div>	
+		</button>	
+		<button id="btnFlagRedMarker" class="btn btn-success mt-1">	
+			<img src="/icon/red.png" style="width: 32px; height: 32px" />	
+			<div>紅旗</div>	
+		</button>	
+		<button id="btnFlagYellowMarker" class="btn btn-success mt-1">	
+			<img src="/icon/yellow.png" style="width: 32px; height: 32px" />	
+			<div>黃旗</div>	
+		</button>	
+
+		<button id="btnWarningMarker" class="btn btn-warning mt-1">	
+			<img src="/icon/warning.png" style="width: 32px; height: 32px" />	
+			<div>警示</div>	
+		</button>	
+		<button id="btnDangerMarker" class="btn btn-danger mt-1">	
+			<img src="/icon/danger.png" style="width: 32px; height: 32px" />	
+			<div>危險</div>	
+		</button>	
+
+		<button id="btnBlockadeMarker" class="btn btn-info mt-1">	
+			<img src="/icon/stop.png" style="width: 32px; height: 32px" />	
+			<div>封鎖</div>	
+		</button>	
+		<button id="btnPedestrianMarker" class="btn btn-success mt-1">	
+			<img src="/icon/crosswalk.png" style="width: 32px; height: 32px" />	
+			<div>行人</div>	
+		</button>					
+
+
+		<button id="btnPoliceMarker" class="btn btn-secondary mt-1">	
+			<img src="/icon/popo.png" style="width: 32px; height: 32px" />	
+			<div>警察</div>	
+		</button>	
+		<button id="btnRiotPoliceMarker" class="btn btn-warning mt-1">	
+			<img src="/icon/riot.png" style="width: 32px; height: 32px" />	
+			<div>防暴</div>	
+		</button>	
+		<button id="btnWaterTruckMarker" class="btn btn-warning mt-1">	
+			<img src="/icon/water-truck.png" style="width: 32px; height: 32px" />	
+			<div>水車</div>	
+		</button>	
+
+		<button id="btnTearGasMarker" class="btn btn-danger mt-1">	
+			<img src="/icon/teargas.png" style="width: 32px; height: 32px" />	
+			<div>催淚</div>	
+		</button>	
+
+		<button id="btnImageMarker" class="btn btn-secondary mt-1">	
+			<img src="/icon/image.png" style="width: 32px; height: 32px" />	
+			<div>Image</div>	
+		</button>	
+		<div style="display:none">	
+		<input type="file" id="imageUploadFile" name="file" accept="image/*" capture>	
+		<input type="hidden" name="imagePath" id="imagePath"/></div>	
+		<textarea id="markerMessage" class="form-control mt-1" rows="2" placeholder="(Message ...or paste the image)" style="width: 100%"></textarea>	
+	</div>	
+
+	<div id="registerFormDiv" class="card shadow-sm m-2 p-4 rounded border border-info" style="display: none">	
+		<form method="post" id="registerForm" class="container">	
+			<div class="row form-group">	
+				<div class="col-4 btn">Layer :</div>	
+				<div class="col-8">	
+					<input class="form-control" type="text" placeholder="(layer)" name="layerKey" id="registerLayerKey"/>	
+				</div>	
+			</div>	
+
+			<div class="row form-group">	
+				<div class="col-4 btn">Password * :</div>	
+				<div class="col-8">	
+					<input class="form-control" type="password" placeholder="(password)" name="password" />	
+				</div>	
+			</div>	
+
+			<div class="row form-group">	
+				<div class="col-4 btn">Expire Multiplier :</div>	
+				<div class="col-8">	
+					<input class="form-control" type="text" placeholder="(default 10)" name="expireMultiplier" value="10"  style="color:#ACACAC"/>	
+				</div>	
+			</div>	
+
+			<div class="row m-1">	
+				<button class="col-8 btn btn-primary" type="submit">Create</button>	
+				<button class="col-4 btn btn-light" type="button" onclick="$('#registerFormDiv').hide()">Cancel</button>	
+			</div>	
+
+		</form>	
+	</div>	
+</html>
