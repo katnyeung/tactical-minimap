@@ -398,12 +398,11 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 								if(wordCloudData.mapStat){	
 									$('.statRegion').each(function(){	
-											if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){	
-											    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
-											}else{	
-												$(this).html('');	
-											}	
-
+										if(wordCloudData.mapStat[$(this).data("region")].length > 0){	
+										    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
+										}else{	
+											$(this).html('');	
+										}	
 									});	
 								}	
 							}	
@@ -413,7 +412,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 
 				if(wordCloudData && wordCloudData.mapStat){	
 					$('.statRegion').each(function(){	
-						if(wordCloudData.mapStat[$(this).data("region")].length > 0 && (map.getZoom() > 13 || $(this).data("region") === "total")){	
+						if(wordCloudData.mapStat[$(this).data("region")].length > 0){	
 						    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
 						}else{	
 							$(this).html('');	
@@ -961,6 +960,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				history.replaceState(null, null, '/l/' + layerKeysString + '/' + map.getZoom() + "/" + map.getCenter().lat.toFixedDown(4) + "/" + map.getCenter().lng.toFixedDown(4));	
 
 				processMarker(markerDataList);	
+				
+				$('.statRegion').each(function(){	
+					if(map.getZoom() > 13 || $(this).data("region") === "total"){	
+					    $(this).show();
+					}else{	
+						$(this).hide();	
+					}	
+				});	
 			});	
 
 
