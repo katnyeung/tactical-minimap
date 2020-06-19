@@ -963,9 +963,9 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 				
 				$('.statRegion').each(function(){	
 					if(map.getZoom() > 13 || $(this).data("region") === "total"){	
-					    $(this).show();
+					    $(this).css("visibility", "visible");
 					}else{	
-						$(this).hide();	
+						$(this).css("visibility", "hidden");
 					}	
 				});	
 			});	
