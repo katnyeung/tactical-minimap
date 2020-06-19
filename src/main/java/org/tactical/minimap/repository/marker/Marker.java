@@ -203,6 +203,9 @@ public abstract class Marker extends Auditable<String> {
 	@Transient
 	List<String> keywordList;
 
+	@Transient
+	String region;
+	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "telegram_message_id", referencedColumnName = "telegramMessageId")
@@ -373,6 +376,14 @@ public abstract class Marker extends Auditable<String> {
 
 	public void setKeywordList(List<String> keywordList) {
 		this.keywordList = keywordList;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 }

@@ -135,8 +135,10 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 }
 .logMessage{
 	font-family: "Microsoft JhengHei";
-	font-size:14px;
+	padding:3px;
+	font-size:15px;
 	color: black !important;
+	display:block;
 }
 .logMessage > b > .highlight > b > .highlight{
 	color:#950800 !important;
@@ -154,10 +156,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 }
 
 .noty_bar{
-	background-color:white;
-	padding:2px;
 	margin:1px;
-	border-radius: 1px;
+	background-color:#EEEEEE;
 }
 
 .statRegion {
@@ -190,6 +190,30 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 		var socket = new SockJS('/ws');
 		var stompClient = Stomp.over(socket);
 		var isConnected = false;
+				
+		var logBackgroundColorMap = {
+			"屯門":"#ebccff",
+			"葵青":"#b3e6cc",
+			"油尖旺":"#ffe6e6",
+			"東區":"#d9e6f2",
+			"灣仔":"#d9e6f2",
+			"天水圍":"#ebccff",
+			"中西區":"#d9e6f2",
+			"將軍澳":"#d1d1e0",
+			"觀塘":"#d1d1e0",
+			"深水埗":"#ffe6e6",
+			"荃灣":"#b3e6cc",
+			"北區":"#b3e6ff",
+			"沙田":"#b3e6ff",
+			"黃埔":"#ffe6e6",
+			"黃大仙":"#d1d1e0",
+			"元朗":"#ebccff",
+			"馬鞍山":"#b3e6ff",
+			"離島":"#d9e6f2",
+			"九龍城":"#b3e6ff",
+			"大埔":"#b3e6ff",
+			"南區":"#d9e6f2"
+		};
 		
 		L.Marker.prototype.__setPos = L.Marker.prototype._setPos;
 		L.Marker.prototype._setPos = function ()
@@ -258,7 +282,6 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					layout: 'topLeft',	
 				    timeout: '8000',	
 				    progressBar: true,	
-				    closeWith: ['click'],	
 				    text: 'CONNECTED'	
 				}).show();	
 
@@ -1667,8 +1690,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 									layout: 'topLeft',	
 								    timeout: '8000',	
 								    progressBar: true,	
-								    closeWith: ['click'],	
-								    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a><br/>'	
+								    text: '<a href="#" data-id="'+marker.markerId+'" class="logMessage" style="background-color:' + logBackgroundColorMap[item.region] + '"><b>'+ toastrHighlightSharp(item.message.substr(0, messageCutOff), item.keywordList) +'</b></a>'	
 								}).show();	
 							}	
 

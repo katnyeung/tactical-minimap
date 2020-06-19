@@ -110,7 +110,11 @@ public class MarkerService {
 			// set keywords list to marker
 			List<String> keywordList = new ArrayList<String>();
 			TelegramMessage telegramMessage = marker.getTelegramMessage();
+			
 			if(telegramMessage != null && telegramMessage.getResult() != null) {
+
+				marker.setRegion(telegramMessage.getRegion());
+				
 				try {
 					TelegramResult tr = om.readValue(telegramMessage.getResult(), TelegramResult.class);
 					for (Entry<String, Integer> entry : tr.getData().entrySet()) {
@@ -120,7 +124,9 @@ public class MarkerService {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
 			}
+			
 			marker.setKeywordList(keywordList);
 			marker.getLayer().setCreatedate(null);
 			
