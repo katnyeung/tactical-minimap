@@ -416,6 +416,12 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						    $(this).jQCloud('update', wordCloudData.mapStat[$(this).data("region")]);	
 						}else{	
 							$(this).html('');	
+						}
+						
+						if(map.getZoom() > 13 || $(this).data("region") === "total"){	
+						    $(this).css("visibility", "visible");
+						}else{	
+							$(this).css("visibility", "hidden");
 						}	
 					});	
 				}	
