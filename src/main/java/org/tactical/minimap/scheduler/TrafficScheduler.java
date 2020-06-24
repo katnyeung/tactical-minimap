@@ -54,14 +54,14 @@ public class TrafficScheduler {
 	StreetDataService sdService;
 	
 	@Async
-	@Scheduled(fixedRate = 600000)
+	//@Scheduled(fixedRate = 600000)
 	public void addTrafficStatMarker() {
 		logger.info("adding traffic stat marker");
-		sdService.addTrafficStatMarker(10);
+		sdService.addTrafficStatMarker(5);
 	}
 
 	@Async
-	@Scheduled(fixedRate = 60000)
+	//@Scheduled(fixedRate = 60000)
 	public void dataParser() {
 
 		try {
@@ -94,7 +94,7 @@ public class TrafficScheduler {
 			tempMap.put("TR111F", "Tuen Mun");
 			
 			processImageToBackground("TC604F", 20, 90.0);
-			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 28, 4, 90.0);
+			calculateForegroundTraffic("TC604F", inMap, outMap, tempMap, 26, 4, 90.0);
 
 			processImageToBackground("K305F", 20, -60.0);
 			calculateForegroundTraffic("K305F", inMap, outMap, tempMap, 30, 8, -60.0);
