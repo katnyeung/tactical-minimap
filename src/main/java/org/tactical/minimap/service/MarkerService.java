@@ -84,7 +84,7 @@ public class MarkerService {
 
 		List<MarkerResult> mrList = new LinkedList<MarkerResult>();
 
-		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range, PageRequest.of(0, 80));
 		List<Long> processedList = new ArrayList<Long>();
 		
 		Set<Integer> streetGroupSet = new HashSet<Integer>();
@@ -225,7 +225,7 @@ public class MarkerService {
 	}
 
 	public List<Marker> findMultiLayerMarkers(List<String> layerKeys, Double lat, Double lng, Double range) {
-		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
+		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range, PageRequest.of(0, 80));
 		markerList = markerList.stream().limit(80).collect(Collectors.toList());
 
 		// for deactive marker

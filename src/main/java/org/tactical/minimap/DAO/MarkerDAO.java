@@ -14,7 +14,7 @@ import org.tactical.minimap.util.ConstantsUtil;
 public interface MarkerDAO<T extends Marker> extends JpaRepository<T, Long> {
 
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng AND UNIX_TIMESTAMP(now()) < (UNIX_TIMESTAMP(m.createdate) + m.expire) ORDER BY m.createdate DESC")
-	public List<T> findActiveMarkersByLatLng(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng);
+	public List<T> findActiveMarkersByLatLng(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng, Pageable pageable);
 	
 	@Query("SELECT m FROM Marker m INNER JOIN m.layer l WHERE l.layerKey IN :layerKeys AND m.status = '" + ConstantsUtil.MARKER_STATUS_ACTIVE + "' AND m.lat BETWEEN :fromLat AND :toLat AND m.lng BETWEEN :fromLng AND :toLng AND (UNIX_TIMESTAMP(m.createdate) * 1000) > :timestamp ORDER BY m.createdate ASC")
 	public List<T> findLatestActiveMarkersByLatLng(@Param("layerKeys") List<String> layerKeys, @Param("fromLat") Double fromLat, @Param("fromLng") Double fromLng, @Param("toLat") Double toLat, @Param("toLng") Double toLng , @Param("timestamp") Long timestamp);
