@@ -39,7 +39,10 @@ public class SupportTaskScheduler {
 	public void makerManager() {
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();
-
+		logger.info("SupportTaskScheduler - processing {} markers", markerIdList.size());
+		
+		int markerCount = markerIdList.size();
+		
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
 				// turn expire = 0 to D active
@@ -49,7 +52,8 @@ public class SupportTaskScheduler {
 				
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire(mc.getExpire() - 3);
+				mc.setExpire((long) (mc.getExpire() - (3 + (markerCount / 15.0))));
+				
 				if(mc.getPulse() > 0) {
 					mc.setPulse(mc.getPulse() - 1);
 				}
