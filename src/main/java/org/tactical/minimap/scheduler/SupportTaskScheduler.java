@@ -39,9 +39,9 @@ public class SupportTaskScheduler {
 	public void makerManager() {
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();
-		logger.info("SupportTaskScheduler - processing {} markers", markerIdList.size());
+		logger.info("SupportTaskScheduler - processing {} markers", markerCacheList.size());
 		
-		int markerCount = markerIdList.size();
+		int markerCount = markerCacheList.size();
 		
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
