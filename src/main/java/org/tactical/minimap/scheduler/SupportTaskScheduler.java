@@ -35,7 +35,7 @@ public class SupportTaskScheduler {
 	LayerService layerService;
 	
 	@Async
-	@Scheduled(fixedRate = 3000)
+	@Scheduled(fixedRate = 6000)
 	public void makerManager() {
 		List<MarkerCache> markerCacheList = redisService.findAllMarkerCache();
 		List<Long> markerIdList = new ArrayList<>();
@@ -52,10 +52,10 @@ public class SupportTaskScheduler {
 				
 			} else {
 				// count down the timer of those marker in redis
-				mc.setExpire((long) (mc.getExpire() - (3 + (markerCount / 15.0))));
+				mc.setExpire((long) (mc.getExpire() - (6 + (markerCount / 15.0))));
 				
 				if(mc.getPulse() > 0) {
-					mc.setPulse(mc.getPulse() - 1);
+					mc.setPulse(mc.getPulse() - 2);
 				}
 				
 				redisService.saveMarkerCache(mc);
