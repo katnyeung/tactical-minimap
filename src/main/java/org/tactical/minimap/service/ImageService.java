@@ -1,5 +1,6 @@
 package org.tactical.minimap.service;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -100,11 +101,12 @@ public class ImageService {
 		BufferedImage image = ImageIO.read(is);
 
 		Graphics g = image.getGraphics();
+		g.setColor(Color.white);
 		g.setFont(g.getFont().deriveFont(60f));
 		if(number < 10) {
-			g.drawString("" + number, 45, 83);
+			g.drawString("" + number, 46, 92);
 		}else {
-			g.drawString("" + number, 28, 83);
+			g.drawString("" + number, 28, 92);
 		}
 		g.dispose();
 

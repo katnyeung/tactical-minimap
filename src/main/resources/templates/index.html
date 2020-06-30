@@ -1438,6 +1438,8 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 					var updateCSS;	
 					var updateTextCSS;	
 					var scale = (map.getZoom() - 13) / 4;	
+					var groupScale = 2;
+					
 					scale = scale > 0.5 ? scale < 1 ? scale : 1 : 0.5;	
 
 					if(item.type == 'image' || (item.type == 'shape' && item.imagePath)){	
@@ -1448,16 +1450,20 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/i/'+item.imagePath+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>' ;	
 					}else{	
 						updateClass = 'img-border m-n4 '+ pulseClass +'';	
-						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; height:' + (item.iconSize * scale) + 'px; '+ pulseStyle +'';	
+						updateCSS = '--borderColor: ' + iconBorderColor + ';width:' + (item.iconSize * scale) + 'px; '+ pulseStyle +';';	
 						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';	
 
 						if(markerGroupType && markerGroupType === 'm'){	
-							iconMaster = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+							updateCSS += 'height:' + (item.iconSize * scale + (markerGroupValue * groupScale)) + 'px; ';
+							iconMaster = '<div style="margin-top:-' + (-9 + markerGroupValue * groupScale) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
 						}	
 
 						if(item.type == 'police' || item.type == 'riotpolice' || (item.type == 'shape' && (item.icon == 'popo.png' || item.icon == 'riot.png'))){	
-							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/images/ico/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+							
+							updateCSS += 'height:' + (item.iconSize * scale + (item.level * groupScale)) + 'px; ';
+							icon = '<div style="margin-top:-' + (-9 + item.level * groupScale) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
 						}else{	
+							updateCSS += 'height:' + (item.iconSize * scale) + 'px; ';
 							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
 						}	
 
