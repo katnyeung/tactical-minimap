@@ -1454,14 +1454,14 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						updateTextCSS = 'margin-left:-' + (17 - (scale * 15)) + 'px;';	
 
 						if(markerGroupType && markerGroupType === 'm'){	
-							updateCSS += 'height:' + (item.iconSize * scale + (markerGroupValue * groupScale * scale)) + 'px; ';
-							iconMaster = '<div style="margin-top:-' + (-9 + markerGroupValue * groupScale * scale) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+							updateCSS += 'height:' + (item.iconSize * scale + ((markerGroupValue * groupScale) * scale)) + 'px; ';
+							iconMaster = '<div style="margin-top:-' + (markerGroupValue * groupScale * scale / 2) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n=' + markerGroupValue + '" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
 						}	
 
 						if(item.type == 'police' || item.type == 'riotpolice' || (item.type == 'shape' && (item.icon == 'popo.png' || item.icon == 'riot.png'))){	
 							
 							updateCSS += 'height:' + (item.iconSize * scale + (item.level * groupScale * scale)) + 'px; ';
-							icon = '<div style="margin-top:-' + (-9 + item.level * groupScale * scale) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
+							icon = '<div style="margin-top:-' + (item.level * groupScale * scale / 2) + 'px"><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'?n='+ item.level +'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
 						}else{	
 							updateCSS += 'height:' + (item.iconSize * scale) + 'px; ';
 							icon = '<div><img id="marker_icon_'+item.markerId+'" src="/icon/'+item.icon+'" class="'+updateClass+'" style="'+updateCSS+'" /><div>';	
