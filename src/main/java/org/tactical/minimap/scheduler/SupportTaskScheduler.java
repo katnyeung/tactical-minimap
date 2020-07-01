@@ -92,6 +92,8 @@ public class SupportTaskScheduler {
 		List<MarkerLinkedList> imageMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> warningMasterList = new ArrayList<MarkerLinkedList>();
 		List<MarkerLinkedList> blueFlagMasterList = new ArrayList<MarkerLinkedList>();
+
+		List<MarkerLinkedList> waterTruckMasterList = new ArrayList<MarkerLinkedList>();
 		
 		for (MarkerCache mc : markerCacheList) {
 			if (mc.getExpire() <= 0) {
@@ -117,6 +119,8 @@ public class SupportTaskScheduler {
 					masterList = infoMasterList;
 				} else if (mc.getIcon().equals("blue.png")) {
 					masterList = blueFlagMasterList;
+				}else if (mc.getType().equals("watertruck")) {
+					masterList = waterTruckMasterList;
 				}
 
 				if (masterList != null) {
@@ -142,7 +146,7 @@ public class SupportTaskScheduler {
 		reverseFillMarkerCache(imageMasterList);
 		reverseFillMarkerCache(warningMasterList);
 		reverseFillMarkerCache(blueFlagMasterList);
-		
+		reverseFillMarkerCache(waterTruckMasterList);
 	}
 
 	private void reverseFillMarkerCache(List<MarkerLinkedList> mllList) {
