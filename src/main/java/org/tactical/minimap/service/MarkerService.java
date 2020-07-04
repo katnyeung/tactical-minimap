@@ -86,10 +86,12 @@ public class MarkerService {
 
 		List<Marker> markerList = markerDAO.findActiveMarkersByLatLng(layerKeys, lat - range, lng - range, lat + range, lng + range);
 		List<Long> processedList = new ArrayList<Long>();
-		
+
+		logger.info("Show Marker Response - after fetch from db {} , {}" , markerList.size() , (Calendar.getInstance().getTimeInMillis() - start));
 		Set<Integer> streetGroupSet = new HashSet<Integer>();
 
 		for (Marker marker : markerList) {
+			logger.info("Show Marker Response - start at marker {} , {}" , marker.getMarkerId() , (Calendar.getInstance().getTimeInMillis() - start));
 			boolean isControllable = false;
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
 				isControllable = true;
