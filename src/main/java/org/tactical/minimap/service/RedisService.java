@@ -3,6 +3,8 @@ package org.tactical.minimap.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
@@ -79,6 +82,35 @@ public class RedisService {
 			mc.setMarkerId(markerId);
 		}
 		return mc;
+	}
+	
+	public Map<Long, MarkerCache> getMultipleMarkerCacheByMarkerId(List<Marker> markerList) {
+		Map<Long, MarkerCache> markerCacheMap = new HashMap<Long, MarkerCache>();
+
+		List<Object> results = stringRedisTemplate.executePipelined(new RedisCallback<Object>() {
+			public Object doInRedis(RedisConnection connection) throws DataAccessException {
+
+				StringRedisConnection stringRedisConn = (StringRedisConnection) connection;
+				for (Marker marker : markerList) {
+					stringRedisConn.hGetAll(ConstantsUtil.REDIS_MARKER_PREFIX + ":" + marker.getMarkerId());
+				}
+
+				return null;
+			}
+		});
+
+		for (Object obj : results) {
+			if (obj.getClass().isAssignableFrom(LinkedHashMap.class)) {
+				LinkedHashMap<Object, Object> objMap = (LinkedHashMap<Object, Object>) obj;
+				MarkerCache mc = MarkerCache.fromHashMap(objMap);
+
+				if (mc != null) {
+					markerCacheMap.put(mc.getMarkerId(), mc);
+				}
+			}
+		}
+
+		return markerCacheMap;
 	}
 
 	public String addVoteLock(Long markerId, String uuid, int time) {

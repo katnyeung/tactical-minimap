@@ -90,6 +90,8 @@ public class MarkerService {
 		logger.info("Show Marker Response - after fetch from db {} , {}" , markerList.size() , (Calendar.getInstance().getTimeInMillis() - start));
 		Set<Integer> streetGroupSet = new HashSet<Integer>();
 
+		Map<Long, MarkerCache> markerCacheMap = redisService.getMultipleMarkerCacheByMarkerId(markerList);
+		
 		for (Marker marker : markerList) {
 			boolean isControllable = false;
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
@@ -97,8 +99,8 @@ public class MarkerService {
 			}
 
 			MarkerResult mr;
-
-			MarkerCache mc = redisService.getMarkerCacheByMarkerId(marker.getMarkerId());
+			
+			MarkerCache mc = markerCacheMap.get(marker.getMarkerId());
 
 			double opacity = getMarkerOpacity(marker);
 

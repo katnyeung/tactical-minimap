@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MarkerCache {
-	@JsonIgnore
 	Long markerId;
 
 	@JsonIgnore
@@ -169,6 +168,7 @@ public class MarkerCache {
 
 	public Map<String, String> toHashMap() {
 		HashMap<String, String> hashMap = new HashMap<>();
+		hashMap.put("markerId", "" + markerId);
 		hashMap.put("lat", "" + lat);
 		hashMap.put("lng", "" + lng);
 		hashMap.put("upVote", "" + upVote);
@@ -188,6 +188,7 @@ public class MarkerCache {
 	public static MarkerCache fromHashMap(Map<Object, Object> objMap) {
 		if (objMap != null && objMap.get("lat") != null && objMap.get("lng") != null) {
 			MarkerCache mc = new MarkerCache();
+			mc.setMarkerId(Long.parseLong((String) objMap.get("markerId")));
 			mc.setLat(Double.parseDouble((String) objMap.get("lat")));
 			mc.setLng(Double.parseDouble((String) objMap.get("lng")));
 			mc.setUpVote(Integer.parseInt((String) objMap.get("upVote")));
@@ -206,7 +207,7 @@ public class MarkerCache {
 			return null;
 		}
 	}
-
+	
 	private String emptyIfNull(String value) {
 		return value == null ? "" : value;
 	}
