@@ -91,7 +91,6 @@ public class MarkerService {
 		Set<Integer> streetGroupSet = new HashSet<Integer>();
 
 		for (Marker marker : markerList) {
-			logger.info("Show Marker Response - start at marker {} , {}" , marker.getMarkerId() , (Calendar.getInstance().getTimeInMillis() - start));
 			boolean isControllable = false;
 			if (loggedLayers.contains(marker.getLayer().getLayerKey())) {
 				isControllable = true;
