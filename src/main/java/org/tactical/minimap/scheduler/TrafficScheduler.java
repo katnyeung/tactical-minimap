@@ -203,7 +203,7 @@ public class TrafficScheduler {
 				if(productionMap != null) {
 					// get weather information
 					
-					JSONObject weatherObj = Unirest.get("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread")
+					JSONObject weatherObj = Unirest.get("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en")
 							.asJson()
 							.getBody()
 							.getObject();

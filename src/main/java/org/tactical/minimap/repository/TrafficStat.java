@@ -1,5 +1,6 @@
 package org.tactical.minimap.repository;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,10 +34,15 @@ public class TrafficStat extends Auditable<String> {
 	Long in;
 	Long out;
 
-	int temperature;
-	int humidity;
-	int weather;
+	@Column(nullable = true)
+	Integer temperature;
 	
+	@Column(nullable = true)
+	Integer humidity;
+	
+	@Column(nullable = true)
+	Integer weather;
+
 	public Long getTrafficStatId() {
 		return trafficStatId;
 	}
@@ -117,27 +123,27 @@ public class TrafficStat extends Auditable<String> {
 		this.out = out;
 	}
 
-	public int getTemperature() {
+	public Integer getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(int temperature) {
+	public void setTemperature(Integer temperature) {
 		this.temperature = temperature;
 	}
 
-	public int getHumidity() {
+	public Integer getHumidity() {
 		return humidity;
 	}
 
-	public void setHumidity(int humidity) {
+	public void setHumidity(Integer humidity) {
 		this.humidity = humidity;
 	}
 
-	public int getWeather() {
+	public Integer getWeather() {
 		return weather;
 	}
 
-	public void setWeather(int weather) {
+	public void setWeather(Integer weather) {
 		this.weather = weather;
 	}
 
