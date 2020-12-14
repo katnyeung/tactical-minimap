@@ -123,58 +123,64 @@ public class NewsScheduler {
 				int minute = 0;
 
 				Long id = Long.parseLong(element.get(1).asText());
+
+				List<TelegramMessage> tgList = telegramMessageService.findMessageByIdAndGroup(id, "881903");
 				
-				Document doc = Jsoup.connect("https://www.881903.com/news/traffic/" + id).get();
+				if (tgList.size() > 0) {
 
-				String docHtml = doc.html();
-				Matcher matcher = docPattern.matcher(docHtml);
-				
-				if (matcher.find()) {
-					String docJSON = matcher.group(1);
+				} else {
+					Document doc = Jsoup.connect("https://www.881903.com/news/traffic/" + id).get();
 
-					Expression<JsonNode> docExpression = jmespath.compile("article.[content,create_datetime]");
+					String docHtml = doc.html();
+					Matcher matcher = docPattern.matcher(docHtml);
 					
-					JsonNode docInput = om.readTree(docJSON);
-					
-					// Finally this is how you search a structure. There's really not much more to it.
-					JsonNode docResult = docExpression.search(docInput);
+					if (matcher.find()) {
+						String docJSON = matcher.group(1);
 
-					String content = docResult.get(0).asText();
-					String createDate = docResult.get(1).asText();
-					
-					content = content.replaceAll("<.*?>", "");
-					content = content.replaceAll("&nbsp;", "");
-					
-					Matcher timeMatcher = timePattern.matcher(createDate);
-					
-					if (timeMatcher.matches()) {
-						hour = Integer.parseInt(timeMatcher.group(1));
-						minute = Integer.parseInt(timeMatcher.group(2));
-					}
-					
-					TelegramMessage message = new TelegramMessage();
-					message.setGroupKey("881903");
-					message.setId(id);
-					
-					if (hour > 0 && minute > 0) {
+						Expression<JsonNode> docExpression = jmespath.compile("article.[content,create_datetime]");
 						
-						message.setMessage(lpad(hour) + "" + lpad(minute) + " " + content);
-					} else {
-						message.setMessage(curTime.get(Calendar.HOUR_OF_DAY) + "" + curTime.get(Calendar.MINUTE) + content);
-					}
-					message.setStatus("P");
-					message.setMessageType("S");
-					message.setMessagedate(curTime.getTime());
-					
-					logger.info("{}", message);
+						JsonNode docInput = om.readTree(docJSON);
+						
+						// Finally this is how you search a structure. There's really not much more to it.
+						JsonNode docResult = docExpression.search(docInput);
 
-					telegramMessageService.saveTelegramMessage(message);
-					
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						String content = docResult.get(0).asText();
+						String createDate = docResult.get(1).asText();
+						
+						content = content.replaceAll("<.*?>", "");
+						content = content.replaceAll("&nbsp;", "");
+						
+						Matcher timeMatcher = timePattern.matcher(createDate);
+						
+						if (timeMatcher.matches()) {
+							hour = Integer.parseInt(timeMatcher.group(1));
+							minute = Integer.parseInt(timeMatcher.group(2));
+						}
+						
+						TelegramMessage message = new TelegramMessage();
+						message.setGroupKey("881903");
+						message.setId(id);
+						
+						if (hour > 0 && minute > 0) {
+							
+							message.setMessage(lpad(hour) + "" + lpad(minute) + " " + content);
+						} else {
+							message.setMessage(curTime.get(Calendar.HOUR_OF_DAY) + "" + curTime.get(Calendar.MINUTE) + content);
+						}
+						message.setStatus("P");
+						message.setMessageType("S");
+						message.setMessagedate(curTime.getTime());
+						
+						logger.info("{}", message);
+
+						telegramMessageService.saveTelegramMessage(message);
+						
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
