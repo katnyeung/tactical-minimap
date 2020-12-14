@@ -142,6 +142,9 @@ public class NewsScheduler {
 					String content = docResult.get(0).asText();
 					String createDate = docResult.get(1).asText();
 					
+					content = content.replaceAll("<.*?>", "");
+					content = content.replaceAll("&nbsp;", "");
+					
 					Matcher timeMatcher = timePattern.matcher(createDate);
 					
 					if (timeMatcher.matches()) {
