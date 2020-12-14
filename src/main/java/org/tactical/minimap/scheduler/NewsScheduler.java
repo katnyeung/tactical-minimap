@@ -95,7 +95,7 @@ public class NewsScheduler {
 	}
 
 	@Async
-	//@Scheduled(fixedRate = 180000)
+	@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
 
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
