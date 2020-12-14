@@ -2,6 +2,7 @@ package org.tactical.minimap.scheduler;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -20,6 +21,13 @@ import org.springframework.stereotype.Component;
 import org.tactical.minimap.repository.TelegramMessage;
 import org.tactical.minimap.service.TelegramMessageService;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.burt.jmespath.Expression;
+import io.burt.jmespath.JmesPath;
+import io.burt.jmespath.jackson.JacksonRuntime;
+
 @Component
 public class NewsScheduler {
 
@@ -27,9 +35,9 @@ public class NewsScheduler {
 
 	@Autowired
 	TelegramMessageService telegramMessageService;
-
-	@Async
-	@Scheduled(fixedRate = 180000)
+//
+	//@Async
+	//@Scheduled(fixedRate = 180000)
 	public void rthkParser() throws IOException {
 
 		Pattern timePattern = Pattern.compile(".*([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) HKT ([0-9]{1,2}):([0-9]{1,2}).*");
@@ -87,64 +95,88 @@ public class NewsScheduler {
 	}
 
 	@Async
-	@Scheduled(fixedRate = 180000)
+	//@Scheduled(fixedRate = 180000)
 	public void newParser() throws IOException {
 
 		TimeZone tz1 = TimeZone.getTimeZone("GMT+08:00");
 		Calendar curTime = Calendar.getInstance(tz1);
-		Pattern linkPattern = Pattern.compile("newsdetail.aspx\\?ItemId=(\\d*)&csid=461_1600");
-		Pattern timePattern = Pattern.compile(".*\\(([0-9]{1,2}):([0-9]{1,2}).*\\)");
+		Pattern timePattern = Pattern.compile("\\d*-\\d*-\\d*\\s(\\d*):(\\d*):\\d*");
+		Pattern docPattern = Pattern.compile("VueApp\\.main\\((.*)\\)");
+		ObjectMapper om = new ObjectMapper();
+		String json = Jsoup.connect("https://www.881903.com/api/news/recent/traffic?limit=5").ignoreContentType(true).execute().body();
+		
+		if(json != null) {
+			logger.info("{}", json);
+			JmesPath<JsonNode> jmespath = new JacksonRuntime();
+			Expression<JsonNode> expression = jmespath.compile("response.content[*].[title,item_id]");
 
-		Document doc = Jsoup.connect("https://www.881903.com/Page/ZH-TW/News.aspx?csid=461_1600").get();
-		logger.info("{}", doc.title());
+			JsonNode input = om.readTree(json);
+			
+			// Finally this is how you search a structure. There's really not much more to it.
+			JsonNode result = expression.search(input);
+			Iterator<JsonNode> iterator = result.elements();
+			
+			while(iterator.hasNext()) {
+				JsonNode element = iterator.next();
 
-		Elements newsHeadlines = doc.select(".newsAboutArticleRow");
-		for (Element headline : newsHeadlines) {
-			Elements linkElements = headline.select("a");
-			for (Element link : linkElements) {
 				int hour = 0;
 				int minute = 0;
-				Matcher matcher = linkPattern.matcher(link.attr("href"));
-				Matcher timeMatcher = timePattern.matcher(link.text());
-				if (timeMatcher.matches()) {
-					hour = Integer.parseInt(timeMatcher.group(1));
-					minute = Integer.parseInt(timeMatcher.group(2));
-				}
-				if (matcher.matches()) {
-					long id = Long.parseLong(matcher.group(1));
-					// logger.info("id : {} ", id);
-					List<TelegramMessage> tgList = telegramMessageService.findMessageByIdAndGroup(id, "881903");
-					if (tgList.size() > 0) {
 
+				Long id = Long.parseLong(element.get(1).asText());
+				
+				Document doc = Jsoup.connect("https://www.881903.com/news/traffic/" + id).get();
+
+				String docHtml = doc.html();
+				Matcher matcher = docPattern.matcher(docHtml);
+				
+				if (matcher.find()) {
+					String docJSON = matcher.group(1);
+
+					Expression<JsonNode> docExpression = jmespath.compile("article.[content,create_datetime]");
+					
+					JsonNode docInput = om.readTree(docJSON);
+					
+					// Finally this is how you search a structure. There's really not much more to it.
+					JsonNode docResult = docExpression.search(docInput);
+
+					String content = docResult.get(0).asText();
+					String createDate = docResult.get(1).asText();
+					
+					Matcher timeMatcher = timePattern.matcher(createDate);
+					
+					if (timeMatcher.matches()) {
+						hour = Integer.parseInt(timeMatcher.group(1));
+						minute = Integer.parseInt(timeMatcher.group(2));
+					}
+					
+					TelegramMessage message = new TelegramMessage();
+					message.setGroupKey("881903");
+					message.setId(id);
+					
+					if (hour > 0 && minute > 0) {
+						
+						message.setMessage(lpad(hour) + "" + lpad(minute) + " " + content);
 					} else {
-						logger.info("{} , {} ", link.attr("href"), link.text());
-						Document detailDoc = Jsoup.connect("https://www.881903.com/Page/ZH-TW/" + link.attr("href")).get();
-						Elements newsDetail = detailDoc.select("#divnewsTextContent");
-						logger.info("detail : {} ", newsDetail.text());
-						TelegramMessage message = new TelegramMessage();
-						message.setGroupKey("881903");
-						message.setId(id);
-						if (hour > 0 && minute > 0) {
-							message.setMessage(lpad(hour) + "" + lpad(minute) + " " + newsDetail.text());
-						} else {
-							message.setMessage(curTime.get(Calendar.HOUR_OF_DAY) + "" + curTime.get(Calendar.MINUTE) + newsDetail.text());
-						}
-						message.setStatus("P");
-						message.setMessageType("S");
-						message.setMessagedate(curTime.getTime());
-						logger.info("{}", message);
+						message.setMessage(curTime.get(Calendar.HOUR_OF_DAY) + "" + curTime.get(Calendar.MINUTE) + content);
+					}
+					message.setStatus("P");
+					message.setMessageType("S");
+					message.setMessagedate(curTime.getTime());
+					
+					logger.info("{}", message);
 
-						telegramMessageService.saveTelegramMessage(message);
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+					telegramMessageService.saveTelegramMessage(message);
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
 		}
+
 	}
 
 	private String lpad(int value) {
