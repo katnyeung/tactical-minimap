@@ -1710,7 +1710,7 @@ filter: drop-shadow(3px 3px 0 var(--borderColor))
 						currentDate = new Date();	
 
 						if(currentDate - markerDate < 12000){	
-							if(item.layer.layerKey != 'traffic'){	
+							if(item.layer.layerKey != 'traffic' && item.layer.layerKey != 'bus'){	
 								new Noty({	
 									layout: 'topLeft',	
 								    timeout: '8000',	
