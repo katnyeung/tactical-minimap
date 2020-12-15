@@ -40,7 +40,7 @@ public class BusMarker extends Marker {
 
 	@Override
 	public long getMarkerExpire() {
-		return 40;
+		return 35;
 	}
 
 	@Override

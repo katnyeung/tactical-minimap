@@ -72,7 +72,7 @@ public class BusListener {
 						
 						BusMarker busMarker = new BusMarker();
 
-						Layer layer = layerService.getLayerByKey("traffic");
+						Layer layer = layerService.getLayerByKey("bus");
 
 						MarkerDTO markerDTO = new MarkerDTO();
 						markerDTO.setLat(busRoute.getLat());
