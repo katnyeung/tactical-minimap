@@ -78,7 +78,7 @@ public class BusListener {
 						markerDTO.setLat(busRoute.getLat());
 						markerDTO.setLng(busRoute.getLng());
 						markerDTO.setLayer(layer.getLayerKey());
-						markerDTO.setMessage(route + " " + minutes + remark);
+						markerDTO.setMessage(remark);
 						markerDTO.setUuid("BUS_ROUTE_" + route);
 
 
