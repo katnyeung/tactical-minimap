@@ -35,9 +35,9 @@ public class NewsScheduler {
 
 	@Autowired
 	TelegramMessageService telegramMessageService;
-//
-	//@Async
-	//@Scheduled(fixedRate = 180000)
+	
+	@Async
+	@Scheduled(fixedRate = 180000)
 	public void rthkParser() throws IOException {
 
 		Pattern timePattern = Pattern.compile(".*([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) HKT ([0-9]{1,2}):([0-9]{1,2}).*");
