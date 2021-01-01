@@ -106,8 +106,8 @@ public class TelegramParserScheduler {
 	Pattern warningPattern = Pattern.compile("(交通意外|意外|壞車)");
 	Pattern blockPattern = Pattern.compile("(關閉|落閘|全封|封站|封路|受阻|封閉|慢車)");
 
-	//@Async
-	//@Scheduled(fixedRate = 10000)
+	@Async
+	@Scheduled(fixedRate = 10000)
 	public void doParse() throws IOException, ParseException {
 		telegramMessageService.initialConfig();
 
