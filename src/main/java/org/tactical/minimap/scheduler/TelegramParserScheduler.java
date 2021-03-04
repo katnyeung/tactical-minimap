@@ -129,7 +129,7 @@ public class TelegramParserScheduler {
 		Date lastMessageDate = telegramMessageService.getLastestLastUpdateDate();
 
 		logger.info("last message date {}, current time {}", increaseMinute(lastMessageDate, 30).getTime(), Calendar.getInstance().getTimeInMillis());
-		if(increaseMinute(lastMessageDate, 30).getTime() > Calendar.getInstance().getTimeInMillis()) {
+		if(increaseMinute(lastMessageDate, 30).getTime() < Calendar.getInstance().getTimeInMillis()) {
 		    SimpleMailMessage message = new SimpleMailMessage();
 		    message.setFrom("no-reply@limap.co");
 		    message.setTo("katnyeung@gmail.com");
