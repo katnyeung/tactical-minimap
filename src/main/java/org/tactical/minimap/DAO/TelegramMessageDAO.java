@@ -1,5 +1,6 @@
 package org.tactical.minimap.DAO;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +25,7 @@ public interface TelegramMessageDAO extends JpaRepository<TelegramMessage, Long>
 
 	@Query("SELECT t FROM TelegramMessage t WHERE t.id = :id AND t.groupKey = :group ORDER BY messageDate ASC")
 	public List<TelegramMessage> findMessageByIdAndGroup(Long id, String group);
+	
+	@Query(value = "SELECT t.lastupdatedate FROM telegram_message t WHERE t.group_key NOT IN ('rthk','881903') ORDER BY t.lastupdatedate DESC LIMIT 1", nativeQuery = true)
+	public Date getLastestLastUpdateDate();
 }

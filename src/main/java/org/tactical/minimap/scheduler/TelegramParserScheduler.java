@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -88,6 +92,9 @@ public class TelegramParserScheduler {
 	@Autowired
 	StreetDataService streetDataService;
 
+	@Autowired
+	private JavaMailSender mailSender;
+
 	@Value("${API_KEY}")
 	String apiKey;
 
@@ -118,6 +125,19 @@ public class TelegramParserScheduler {
 		messageTypeList.add("S");
 		messageTypeList.add("C");
 
+		// send notification email if latest msg recieve time + 30 minutes > current time 
+		Date lastMessageDate = telegramMessageService.getLastestLastUpdateDate();
+		
+		if(increaseMinute(lastMessageDate, 30).getTime() > Calendar.getInstance().getTimeInMillis()) {
+		    SimpleMailMessage message = new SimpleMailMessage();
+		    message.setFrom("no-reply@limap.co");
+		    message.setTo("katnyeung@gmail.com");
+		    message.setSubject("telegram service down");
+		    message.setText("telegram service down");
+		    mailSender.send(message);	
+		}
+		
+		
 		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage(messageTypeList);
 		if (telegramMessageList.size() > 0)
 			logger.info("fetcing telegram Message List from DB [{}]", telegramMessageList.size());
@@ -678,4 +698,11 @@ public class TelegramParserScheduler {
 		return ruleMap;
 	}
 
+	public Date increaseMinute(Date inDate, int minute) {
+
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MINUTE, minute); 
+
+		return c.getTime();
+	}
 }

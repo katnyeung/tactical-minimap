@@ -718,4 +718,8 @@ public class TelegramMessageService {
 	private String lpad(int value) {
 		return String.format("%02d", value);
 	}
+
+	public Date getLastestLastUpdateDate() {
+		return telegramMessageDAO.getLastestLastUpdateDate();
+	}
 }
