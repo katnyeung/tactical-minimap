@@ -128,14 +128,14 @@ public class TelegramParserScheduler {
 		// send notification email if latest msg recieve time + 30 minutes > current time 
 		Date lastMessageDate = telegramMessageService.getLastestLastUpdateDate();
 		
-		if(increaseMinute(lastMessageDate, 30).getTime() > Calendar.getInstance().getTimeInMillis()) {
+		//if(increaseMinute(lastMessageDate, 30).getTime() > Calendar.getInstance().getTimeInMillis()) {
 		    SimpleMailMessage message = new SimpleMailMessage();
 		    message.setFrom("no-reply@limap.co");
 		    message.setTo("katnyeung@gmail.com");
 		    message.setSubject("telegram service down");
 		    message.setText("telegram service down");
 		    mailSender.send(message);	
-		}
+		//}
 		
 		
 		List<TelegramMessage> telegramMessageList = telegramMessageService.getPendingTelegramMessage(messageTypeList);
